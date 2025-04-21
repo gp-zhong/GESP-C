@@ -1,0 +1,421 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>C++ 分支流程控制</title>
+    <!-- TailwindCSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&family=Roboto+Mono&display=swap" rel="stylesheet">
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        primary: {
+                            light: '#a5f3fc',
+                            DEFAULT: '#06b6d4',
+                            dark: '#0891b2',
+                        },
+                        secondary: {
+                            light: '#c7d2fe',
+                            DEFAULT: '#818cf8',
+                            dark: '#6366f1',
+                        },
+                        codeBlock: '#1e293b',
+                    },
+                    fontFamily: {
+                        sans: ['Poppins', 'sans-serif'],
+                        mono: ['Roboto Mono', 'monospace'],
+                    },
+                }
+            }
+        }
+    </script>
+    <style>
+        .card-hover {
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+        }
+        .card-hover:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 25px -5px rgba(6, 182, 212, 0.1), 0 10px 10px -5px rgba(6, 182, 212, 0.04);
+        }
+        .code-block::-webkit-scrollbar {
+            height: 8px;
+        }
+        .code-block::-webkit-scrollbar-thumb {
+            background-color: #06b6d4;
+            border-radius: 4px;
+        }
+        .code-block::-webkit-scrollbar-track {
+            background-color: #e2e8f0;
+            border-radius: 4px;
+        }
+    </style>
+</head>
+<body class="bg-gray-50 font-sans">
+    <div class="min-h-screen max-w-6xl mx-auto px-8 py-10">
+        <!-- Header -->
+        <header class="mb-12 text-center">
+            <div class="inline-block px-3 py-1 bg-primary-light text-primary-dark rounded-full text-sm font-medium mb-4">
+                C++ 编程入门
+            </div>
+            <h1 class="text-4xl font-bold text-gray-800 mb-4">C++ 分支流程控制</h1>
+            <p class="text-lg text-gray-600 max-w-3xl mx-auto">掌握 C++ 中的条件语句，实现程序的逻辑控制和决策</p>
+        </header>
+
+        <!-- Main Content -->
+        <main>
+            <!-- if语句 Section -->
+            <section class="mb-12 bg-white rounded-2xl shadow-md p-8">
+                <div class="flex items-center mb-6">
+                    <i class="fas fa-code-branch text-primary text-xl mr-3"></i>
+                    <h2 class="text-2xl font-bold text-gray-800">if 语句</h2>
+                </div>
+                <div class="space-y-4 text-gray-700">
+                    <p>if 语句是最基本的分支结构，它根据条件表达式的值决定是否执行特定代码块。</p>
+                    
+                    <h3 class="text-xl font-semibold text-gray-800 mt-6 mb-3">简单的 if 语句</h3>
+                    
+                    <div class="overflow-x-auto bg-codeBlock rounded-lg p-4 mb-4">
+                        <pre class="text-gray-100 font-mono text-sm"><code>// 简单的if语句
+if (条件表达式) {
+    // 当条件为真时执行的代码
+}
+
+// 示例：检查数字是否为正数
+int number = 10;
+if (number > 0) {
+    cout << "这是一个正数" << endl;
+}</code></pre>
+                    </div>
+                    
+                    <h3 class="text-xl font-semibold text-gray-800 mt-6 mb-3">if-else 语句</h3>
+                    
+                    <div class="overflow-x-auto bg-codeBlock rounded-lg p-4 mb-4">
+                        <pre class="text-gray-100 font-mono text-sm"><code>// if-else语句
+if (条件表达式) {
+    // 当条件为真时执行的代码
+} else {
+    // 当条件为假时执行的代码
+}
+
+// 示例：判断奇偶数
+int num = 7;
+if (num % 2 == 0) {
+    cout << num << " 是偶数" << endl;
+} else {
+    cout << num << " 是奇数" << endl;
+}</code></pre>
+                    </div>
+                    
+                    <h3 class="text-xl font-semibold text-gray-800 mt-6 mb-3">if-else if-else 语句</h3>
+                    
+                    <div class="overflow-x-auto bg-codeBlock rounded-lg p-4 mb-4">
+                        <pre class="text-gray-100 font-mono text-sm"><code>// if-else if-else语句
+if (条件表达式1) {
+    // 当条件1为真时执行的代码
+} else if (条件表达式2) {
+    // 当条件1为假且条件2为真时执行的代码
+} else {
+    // 当所有条件都为假时执行的代码
+}
+
+// 示例：根据分数评级
+int score = 85;
+if (score >= 90) {
+    cout << "优秀" << endl;
+} else if (score >= 80) {
+    cout << "良好" << endl;
+} else if (score >= 60) {
+    cout << "及格" << endl;
+} else {
+    cout << "不及格" << endl;
+}</code></pre>
+                    </div>
+                    
+                    <div class="p-5 bg-primary-light bg-opacity-10 rounded-lg">
+                        <h3 class="text-lg font-semibold text-gray-800 mb-2">if 语句的嵌套</h3>
+                        <p>if 语句可以嵌套使用，即在一个 if 语句的代码块中包含另一个 if 语句。</p>
+                        <div class="overflow-x-auto bg-codeBlock rounded-lg p-3 mt-3">
+                            <pre class="text-gray-100 font-mono text-sm"><code>// 嵌套的if语句
+int age = 25;
+double income = 50000;
+
+if (age >= 18) {
+    cout << "您是成年人" << endl;
+    
+    if (income > 30000) {
+        cout << "您需要缴纳个人所得税" << endl;
+    } else {
+        cout << "您无需缴纳个人所得税" << endl;
+    }
+}</code></pre>
+                        </div>
+                    </div>
+                </div>
+            </section>
+            
+            <!-- switch语句 Section -->
+            <section class="mb-12 bg-white rounded-2xl shadow-md p-8">
+                <div class="flex items-center mb-6">
+                    <i class="fas fa-exchange-alt text-primary text-xl mr-3"></i>
+                    <h2 class="text-2xl font-bold text-gray-800">switch 语句</h2>
+                </div>
+                <div class="space-y-4 text-gray-700">
+                    <p>switch 语句用于根据一个整型表达式的值，从多个可能的代码分支中选择一个执行。它是多重 if-else 语句的另一种形式，在某些情况下代码更加清晰。</p>
+                    
+                    <div class="overflow-x-auto bg-codeBlock rounded-lg p-4 mb-4">
+                        <pre class="text-gray-100 font-mono text-sm"><code>// switch语句的基本语法
+switch (表达式) {
+    case 常量1:
+        // 代码块1
+        break;
+    case 常量2:
+        // 代码块2
+        break;
+    ...
+    default:
+        // 默认代码块
+        break;
+}
+
+// 示例：根据月份显示天数
+int month = 2;
+int year = 2024;
+int days;
+
+switch (month) {
+    case 1: case 3: case 5: case 7: case 8: case 10: case 12:
+        days = 31;
+        break;
+    case 4: case 6: case 9: case 11:
+        days = 30;
+        break;
+    case 2:
+        // 检查是否是闰年
+        if ((year % 4 == 0 && year % 100 != 0) || (year % 400 == 0))
+            days = 29;
+        else
+            days = 28;
+        break;
+    default:
+        cout << "无效的月份！" << endl;
+        days = 0;
+}
+
+if (days != 0) {
+    cout << year << "年" << month << "月有" << days << "天" << endl;
+}</code></pre>
+                    </div>
+                    
+                    <div class="p-5 bg-yellow-50 rounded-lg border-l-4 border-yellow-400 mt-4">
+                        <div class="flex items-start">
+                            <i class="fas fa-exclamation-triangle text-yellow-500 mt-1 mr-3"></i>
+                            <div>
+                                <h3 class="text-lg font-semibold text-gray-800 mb-2">注意事项</h3>
+                                <ul class="list-disc pl-5 space-y-1">
+                                    <li>switch 表达式必须是整型或枚举类型</li>
+                                    <li>case 标签必须是常量表达式</li>
+                                    <li>如果忘记在 case 语句末尾添加 break，会导致程序继续执行下一个 case 中的代码，这被称为"穿透"（fall through）</li>
+                                    <li>default 分支是可选的，但建议总是包含 default 分支以处理未预期的情况</li>
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <h3 class="text-xl font-semibold text-gray-800 mt-6 mb-3">故意不使用 break 的情况</h3>
+                    
+                    <div class="card-hover p-6 bg-gray-50 rounded-xl">
+                        <p class="mb-3">有时我们会故意不使用 break 来利用 switch 语句的"穿透"特性：</p>
+                        <div class="overflow-x-auto bg-codeBlock rounded-lg p-3">
+                            <pre class="text-gray-100 font-mono text-sm"><code>// 使用switch语句的穿透特性
+int day = 3; // 星期三
+switch (day) {
+    case 1: case 2: case 3: case 4: case 5:
+        cout << "工作日" << endl;
+        break;
+    case 6: case 7:
+        cout << "周末" << endl;
+        break;
+    default:
+        cout << "无效日期" << endl;
+}</code></pre>
+                        </div>
+                    </div>
+                </div>
+            </section>
+            
+            <!-- 条件运算符 Section -->
+            <section class="mb-12 bg-white rounded-2xl shadow-md p-8">
+                <div class="flex items-center mb-6">
+                    <i class="fas fa-question-circle text-primary text-xl mr-3"></i>
+                    <h2 class="text-2xl font-bold text-gray-800">条件运算符（三元运算符）</h2>
+                </div>
+                <div class="space-y-4 text-gray-700">
+                    <p>条件运算符（也称为三元运算符）提供了一种简洁的方式来表达条件判断和赋值，是 if-else 语句的简写形式。</p>
+                    
+                    <div class="overflow-x-auto bg-codeBlock rounded-lg p-4 mb-4">
+                        <pre class="text-gray-100 font-mono text-sm"><code>// 条件运算符的语法
+条件表达式 ? 表达式1 : 表达式2;
+
+// 等价的if-else语句
+if (条件表达式) {
+    表达式1;
+} else {
+    表达式2;
+}
+
+// 示例：找出两个数中的较大值
+int a = 5, b = 7;
+int max = (a > b) ? a : b;
+cout << "较大值是: " << max << endl;
+
+// 示例：判断考试是否通过
+int score = 75;
+string result = (score >= 60) ? "通过" : "不通过";
+cout << "考试结果: " << result << endl;</code></pre>
+                    </div>
+                    
+                    <div class="p-5 bg-blue-50 rounded-xl border-l-4 border-blue-400 mt-4">
+                        <div class="flex items-start">
+                            <i class="fas fa-info-circle text-blue-500 mt-1 mr-3"></i>
+                            <div>
+                                <h3 class="text-lg font-semibold text-gray-800 mb-2">使用指南</h3>
+                                <p class="text-gray-700">
+                                    条件运算符在简单条件判断和赋值时非常有用，使代码更加简洁。但对于复杂的条件逻辑，使用标准的 if-else 语句通常更易读。
+                                </p>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <h3 class="text-xl font-semibold text-gray-800 mt-6 mb-3">嵌套的条件运算符</h3>
+                    
+                    <div class="card-hover p-6 bg-gray-50 rounded-xl">
+                        <p class="mb-3">条件运算符可以嵌套使用，但可能会降低代码的可读性：</p>
+                        <div class="overflow-x-auto bg-codeBlock rounded-lg p-3">
+                            <pre class="text-gray-100 font-mono text-sm"><code>// 嵌套的条件运算符
+int a = 5, b = 7, c = 3;
+int max = (a > b) ? ((a > c) ? a : c) : ((b > c) ? b : c);
+cout << "三个数中的最大值: " << max << endl;
+
+// 等价的if-else语句，更易读
+int max;
+if (a > b) {
+    if (a > c) {
+        max = a;
+    } else {
+        max = c;
+    }
+} else {
+    if (b > c) {
+        max = b;
+    } else {
+        max = c;
+    }
+}</code></pre>
+                        </div>
+                    </div>
+                </div>
+            </section>
+            
+            <!-- 短路求值 Section -->
+            <section class="mb-12 bg-white rounded-2xl shadow-md p-8">
+                <div class="flex items-center mb-6">
+                    <i class="fas fa-bolt text-primary text-xl mr-3"></i>
+                    <h2 class="text-2xl font-bold text-gray-800">短路求值</h2>
+                </div>
+                <div class="space-y-4 text-gray-700">
+                    <p>C++ 中的逻辑运算符（&& 和 ||）使用短路求值，这是一种优化机制，它可以在某些情况下避免不必要的计算。</p>
+                    
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mt-6">
+                        <div class="card-hover p-6 bg-gray-50 rounded-xl">
+                            <h3 class="text-lg font-semibold text-gray-800 mb-3">
+                                <i class="fas fa-link text-primary-dark mr-2"></i>
+                                逻辑与 (&&)
+                            </h3>
+                            <p>在逻辑与运算中，如果第一个操作数为假，则不会计算第二个操作数，因为整个表达式肯定为假。</p>
+                            <div class="mt-3 overflow-x-auto bg-codeBlock rounded-lg p-3">
+                                <pre class="text-gray-100 font-mono text-sm"><code>// 短路求值与&&
+int x = 5;
+if (x > 10 && x++ > 0) {
+    // 这里不会执行
+}
+cout << "x = " << x << endl; // 输出 x = 5，因为 x++ 没有被执行</code></pre>
+                            </div>
+                        </div>
+                        
+                        <div class="card-hover p-6 bg-gray-50 rounded-xl">
+                            <h3 class="text-lg font-semibold text-gray-800 mb-3">
+                                <i class="fas fa-unlink text-primary-dark mr-2"></i>
+                                逻辑或 (||)
+                            </h3>
+                            <p>在逻辑或运算中，如果第一个操作数为真，则不会计算第二个操作数，因为整个表达式肯定为真。</p>
+                            <div class="mt-3 overflow-x-auto bg-codeBlock rounded-lg p-3">
+                                <pre class="text-gray-100 font-mono text-sm"><code>// 短路求值与||
+int y = 5;
+if (y > 0 || y++ > 10) {
+    // 这里会执行
+}
+cout << "y = " << y << endl; // 输出 y = 5，因为 y++ 没有被执行</code></pre>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="p-5 bg-green-50 rounded-xl border-l-4 border-green-400 mt-6">
+                        <div class="flex items-start">
+                            <i class="fas fa-check-circle text-green-500 mt-1 mr-3"></i>
+                            <div>
+                                <h3 class="text-lg font-semibold text-gray-800 mb-2">应用示例</h3>
+                                <p class="text-gray-700 mb-3">
+                                    短路求值在编程中非常有用，特别是在避免潜在错误的情况下：
+                                </p>
+                                <div class="overflow-x-auto bg-codeBlock rounded-lg p-3">
+                                    <pre class="text-gray-100 font-mono text-sm"><code>// 避免除以零错误
+int denominator = 0;
+if (denominator != 0 && (10 / denominator) > 5) {
+    // 安全的执行，不会发生除以零的错误
+}
+
+// 避免空指针访问
+int* ptr = nullptr;
+if (ptr != nullptr && *ptr > 10) {
+    // 安全的执行，不会发生空指针解引用的错误
+}</code></pre>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+        </main>
+
+        <!-- Footer -->
+        <footer class="mt-16 text-center text-gray-500 text-sm">            
+            <div class="flex justify-center mt-6 space-x-4">
+                <a href="变量.html" class="text-primary hover:text-primary-dark transition-colors duration-300">
+                    <i class="fas fa-arrow-left mr-1"></i>变量
+                </a>
+                <a href="循环流程控制.html" class="text-primary hover:text-primary-dark transition-colors duration-300">
+                    循环流程控制<i class="fas fa-arrow-right ml-1"></i>
+                </a>
+            </div>
+        </footer>
+    </div>
+
+    <!-- Simple ScrollReveal effect -->
+    <script src="https://unpkg.com/scrollreveal"></script>
+    <script>
+        ScrollReveal().reveal('section', { 
+            delay: 200,
+            distance: '20px',
+            origin: 'bottom',
+            duration: 800,
+            easing: 'ease-in-out'
+        });
+    </script>
+</body>
+</html> 

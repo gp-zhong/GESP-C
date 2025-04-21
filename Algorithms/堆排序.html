@@ -1,0 +1,1056 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>堆排序</title>
+    <!-- TailwindCSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&family=Roboto+Mono&display=swap" rel="stylesheet">
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        primary: {
+                            light: '#a5f3fc',
+                            DEFAULT: '#06b6d4',
+                            dark: '#0891b2',
+                        },
+                        secondary: {
+                            light: '#c7d2fe',
+                            DEFAULT: '#818cf8',
+                            dark: '#6366f1',
+                        },
+                        codeBlock: '#1e293b',
+                    },
+                    fontFamily: {
+                        sans: ['Poppins', 'sans-serif'],
+                        mono: ['Roboto Mono', 'monospace'],
+                    },
+                }
+            }
+        }
+    </script>
+    <style>
+        .card-hover {
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+        }
+        .card-hover:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 25px -5px rgba(6, 182, 212, 0.1), 0 10px 10px -5px rgba(6, 182, 212, 0.04);
+        }
+        .code-block::-webkit-scrollbar {
+            height: 8px;
+        }
+        .code-block::-webkit-scrollbar-thumb {
+            background-color: #06b6d4;
+            border-radius: 4px;
+        }
+        .code-block::-webkit-scrollbar-track {
+            background-color: #e2e8f0;
+            border-radius: 4px;
+        }
+    </style>
+</head>
+<body class="bg-gray-50 font-sans">
+    <div class="min-h-screen max-w-6xl mx-auto px-8 py-10">
+        <!-- Header -->
+        <header class="mb-12 text-center">
+            <div class="inline-block px-3 py-1 bg-primary-light text-primary-dark rounded-full text-sm font-medium mb-4">
+                算法基础
+            </div>
+            <h1 class="text-4xl font-bold text-gray-800 mb-4">堆排序</h1>
+            <p class="text-lg text-gray-600 max-w-3xl mx-auto">一种高效的基于完全二叉树数据结构的排序算法</p>
+        </header>
+
+        <!-- Main Content -->
+        <main class="space-y-12">
+            <!-- 算法简介 -->
+            <section id="intro">
+                <h2 class="text-2xl font-semibold text-gray-800 mb-4 flex items-center">
+                    <i class="fas fa-info-circle text-primary mr-3"></i>算法简介
+                </h2>
+                <div class="bg-white p-6 rounded-lg shadow-md">
+                    <p class="text-gray-700 mb-4">堆排序（Heap Sort）是一种利用堆这种数据结构所设计的排序算法，由美国计算机科学家 J.W.J. Williams 在1964年发明。其基本思想是：</p>
+                    <ul class="list-disc list-inside space-y-2 text-gray-700 mb-4 ml-4">
+                        <li>将待排序序列构建成一个大顶堆或小顶堆</li>
+                        <li>依次将堆顶元素与末尾元素交换，并调整剩余元素为新堆</li>
+                        <li>重复以上过程，直到整个序列有序</li>
+                    </ul>
+                    <p class="text-gray-700">堆排序是一种不稳定的排序算法，但它具有很好的时间复杂度 O(n log n)，且是原地排序算法，不需要额外的空间。</p>
+                </div>
+            </section>
+            
+            <!-- 算法特点 -->
+            <section id="characteristics">
+                <h2 class="text-2xl font-semibold text-gray-800 mb-4 flex items-center">
+                    <i class="fas fa-star text-primary mr-3"></i>算法特点
+                </h2>
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <div class="bg-white p-6 rounded-lg shadow-md card-hover">
+                        <h3 class="text-xl font-medium text-gray-800 mb-3 flex items-center">
+                            <i class="fas fa-check-circle text-green-500 mr-2"></i>优点
+                        </h3>
+                        <ul class="list-disc list-inside space-y-2 text-gray-700 ml-4">
+                            <li>时间复杂度稳定为 O(n log n)，不会像快速排序那样退化</li>
+                            <li>原地排序算法，不需要额外的存储空间</li>
+                            <li>可以解决 Top K 问题（求最大或最小的K个元素）</li>
+                            <li>适合处理大规模数据</li>
+                        </ul>
+                    </div>
+                    <div class="bg-white p-6 rounded-lg shadow-md card-hover">
+                        <h3 class="text-xl font-medium text-gray-800 mb-3 flex items-center">
+                            <i class="fas fa-exclamation-circle text-red-500 mr-2"></i>缺点
+                        </h3>
+                        <ul class="list-disc list-inside space-y-2 text-gray-700 ml-4">
+                            <li>不稳定排序，相同元素的相对位置可能改变</li>
+                            <li>在小数据量的情况下，常数项较大，不如插入排序等简单排序算法</li>
+                            <li>对于缓存不友好，因为它的访问模式不具有良好的局部性</li>
+                            <li>实现复杂度略高，需要维护堆的性质</li>
+                        </ul>
+                    </div>
+                </div>
+            </section>
+            
+            <!-- 堆的概念 -->
+            <section id="heap-concept">
+                <h2 class="text-2xl font-semibold text-gray-800 mb-4 flex items-center">
+                    <i class="fas fa-sitemap text-primary mr-3"></i>堆的概念
+                </h2>
+                <div class="bg-white p-6 rounded-lg shadow-md">
+                    <p class="text-gray-700 mb-4">堆（Heap）是一种特殊的完全二叉树结构：</p>
+                    
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-8 mb-6">
+                        <div class="border-l-4 border-primary-light pl-4">
+                            <h3 class="text-lg font-medium text-gray-800 mb-2">大顶堆（Max Heap）</h3>
+                            <p class="text-gray-700">每个节点的值都大于或等于其子节点的值，堆顶元素是最大值。</p>
+                            <div class="mt-3 flex justify-center">
+                                <svg width="200" height="150" viewBox="0 0 200 150">
+                                    <!-- 树的节点和连线 -->
+                                    <circle cx="100" cy="30" r="20" fill="#06b6d4" />
+                                    <text x="100" y="35" text-anchor="middle" fill="white" font-weight="bold">90</text>
+                                    
+                                    <line x1="100" y1="50" x2="50" y2="80" stroke="#888" stroke-width="2" />
+                                    <circle cx="50" cy="80" r="20" fill="#0891b2" />
+                                    <text x="50" y="85" text-anchor="middle" fill="white" font-weight="bold">80</text>
+                                    
+                                    <line x1="100" y1="50" x2="150" y2="80" stroke="#888" stroke-width="2" />
+                                    <circle cx="150" cy="80" r="20" fill="#0891b2" />
+                                    <text x="150" y="85" text-anchor="middle" fill="white" font-weight="bold">70</text>
+                                    
+                                    <line x1="50" y1="100" x2="25" y2="130" stroke="#888" stroke-width="2" />
+                                    <circle cx="25" cy="130" r="20" fill="#a5f3fc" />
+                                    <text x="25" y="135" text-anchor="middle" fill="#333" font-weight="bold">50</text>
+                                    
+                                    <line x1="50" y1="100" x2="75" y2="130" stroke="#888" stroke-width="2" />
+                                    <circle cx="75" cy="130" r="20" fill="#a5f3fc" />
+                                    <text x="75" y="135" text-anchor="middle" fill="#333" font-weight="bold">60</text>
+                                </svg>
+                            </div>
+                        </div>
+                        
+                        <div class="border-l-4 border-secondary-light pl-4">
+                            <h3 class="text-lg font-medium text-gray-800 mb-2">小顶堆（Min Heap）</h3>
+                            <p class="text-gray-700">每个节点的值都小于或等于其子节点的值，堆顶元素是最小值。</p>
+                            <div class="mt-3 flex justify-center">
+                                <svg width="200" height="150" viewBox="0 0 200 150">
+                                    <!-- 树的节点和连线 -->
+                                    <circle cx="100" cy="30" r="20" fill="#818cf8" />
+                                    <text x="100" y="35" text-anchor="middle" fill="white" font-weight="bold">10</text>
+                                    
+                                    <line x1="100" y1="50" x2="50" y2="80" stroke="#888" stroke-width="2" />
+                                    <circle cx="50" cy="80" r="20" fill="#6366f1" />
+                                    <text x="50" y="85" text-anchor="middle" fill="white" font-weight="bold">20</text>
+                                    
+                                    <line x1="100" y1="50" x2="150" y2="80" stroke="#888" stroke-width="2" />
+                                    <circle cx="150" cy="80" r="20" fill="#6366f1" />
+                                    <text x="150" y="85" text-anchor="middle" fill="white" font-weight="bold">30</text>
+                                    
+                                    <line x1="50" y1="100" x2="25" y2="130" stroke="#888" stroke-width="2" />
+                                    <circle cx="25" cy="130" r="20" fill="#c7d2fe" />
+                                    <text x="25" y="135" text-anchor="middle" fill="#333" font-weight="bold">50</text>
+                                    
+                                    <line x1="50" y1="100" x2="75" y2="130" stroke="#888" stroke-width="2" />
+                                    <circle cx="75" cy="130" r="20" fill="#c7d2fe" />
+                                    <text x="75" y="135" text-anchor="middle" fill="#333" font-weight="bold">40</text>
+                                </svg>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="bg-gray-100 p-5 rounded-lg">
+                        <h3 class="text-lg font-medium text-gray-800 mb-3">堆的特性</h3>
+                        <ul class="list-disc list-inside space-y-2 text-gray-700 ml-4">
+                            <li><span class="font-medium">结构性：</span>堆是一个完全二叉树，除了最底层外，其他层节点都是满的，最底层节点从左到右填充</li>
+                            <li><span class="font-medium">堆序性：</span>在大顶堆中，父节点大于等于子节点；在小顶堆中，父节点小于等于子节点</li>
+                            <li><span class="font-medium">数组表示：</span>堆通常用数组实现，对于索引为 i 的节点，其左子节点索引为 2i+1，右子节点索引为 2i+2，父节点索引为 ⌊(i-1)/2⌋</li>
+                        </ul>
+                    </div>
+                </div>
+            </section>
+            
+            <!-- 算法原理 -->
+            <section id="principle">
+                <h2 class="text-2xl font-semibold text-gray-800 mb-4 flex items-center">
+                    <i class="fas fa-lightbulb text-primary mr-3"></i>算法原理
+                </h2>
+                <div class="bg-white p-6 rounded-lg shadow-md">
+                    <p class="text-gray-700 mb-4">堆排序基于堆数据结构，主要包含两个关键操作：</p>
+                    <ol class="list-decimal list-inside space-y-3 text-gray-700 mb-6 ml-4">
+                        <li><span class="font-medium">构建堆（Heapify）：</span>将无序数组转换为堆结构</li>
+                        <li><span class="font-medium">排序：</span>通过交换堆顶元素与末尾元素并重新调整堆结构来获得有序序列</li>
+                    </ol>
+                    
+                    <div class="space-y-6">
+                        <div class="border-l-4 border-primary pl-4">
+                            <h3 class="text-lg font-medium text-gray-800 mb-3">堆的构建（Heapify）</h3>
+                            <p class="text-gray-700 mb-3">将无序数组转换为堆有两种方法：</p>
+                            <ul class="list-disc list-inside space-y-2 text-gray-700 ml-4 mb-3">
+                                <li><span class="font-medium">自底向上法：</span>从最后一个非叶子节点开始，依次向上调整每个子树成为堆，时间复杂度 O(n)</li>
+                                <li><span class="font-medium">自顶向下法：</span>逐个插入元素并上浮，时间复杂度 O(n log n)</li>
+                            </ul>
+                            <p class="text-gray-700">通常使用自底向上法，效率更高。</p>
+                        </div>
+                        
+                        <div class="border-l-4 border-primary pl-4">
+                            <h3 class="text-lg font-medium text-gray-800 mb-3">下沉操作（Sift Down）</h3>
+                            <p class="text-gray-700 mb-3">当一个节点的值小于其子节点时（在大顶堆中），需要将其下沉以维持堆的性质：</p>
+                            <ol class="list-decimal list-inside space-y-2 text-gray-700 ml-4">
+                                <li>比较节点与其两个子节点的值</li>
+                                <li>找出三者中的最大值</li>
+                                <li>如果最大值不是当前节点，则交换它们并继续下沉</li>
+                                <li>重复直到节点大于等于其子节点或达到叶子节点</li>
+                            </ol>
+                        </div>
+                        
+                        <div class="border-l-4 border-primary pl-4">
+                            <h3 class="text-lg font-medium text-gray-800 mb-3">堆排序过程</h3>
+                            <ol class="list-decimal list-inside space-y-2 text-gray-700 ml-4">
+                                <li>构建初始大顶堆（升序排列）或小顶堆（降序排列）</li>
+                                <li>将堆顶元素（最大值/最小值）与堆的最后一个元素交换</li>
+                                <li>将堆的大小减1，并对新的堆顶元素执行下沉操作，维持剩余元素的堆性质</li>
+                                <li>重复步骤2和3，直到堆的大小为1</li>
+                            </ol>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- 算法演示 -->
+            <section id="demo">
+                <h2 class="text-2xl font-semibold text-gray-800 mb-4 flex items-center">
+                    <i class="fas fa-play-circle text-primary mr-3"></i>算法演示
+                </h2>
+                <div class="bg-white p-6 rounded-lg shadow-md">
+                    <p class="text-gray-700 mb-4">以数组 [4, 10, 3, 5, 1, 2] 为例，展示堆排序的执行过程（升序排列，使用大顶堆）：</p>
+                    
+                    <div class="space-y-8 my-6">
+                        <!-- 步骤 1 -->
+                        <div>
+                            <h3 class="text-lg font-medium text-gray-800 mb-2">步骤 1：初始数组</h3>
+                            <p class="text-gray-700 mb-3">将数组视为一个完全二叉树</p>
+                            <div class="flex items-center justify-center space-x-2 my-4 flex-wrap">
+                                <div class="w-10 h-10 flex items-center justify-center bg-gray-200 text-gray-800 font-medium rounded">4</div>
+                                <div class="w-10 h-10 flex items-center justify-center bg-gray-200 text-gray-800 font-medium rounded">10</div>
+                                <div class="w-10 h-10 flex items-center justify-center bg-gray-200 text-gray-800 font-medium rounded">3</div>
+                                <div class="w-10 h-10 flex items-center justify-center bg-gray-200 text-gray-800 font-medium rounded">5</div>
+                                <div class="w-10 h-10 flex items-center justify-center bg-gray-200 text-gray-800 font-medium rounded">1</div>
+                                <div class="w-10 h-10 flex items-center justify-center bg-gray-200 text-gray-800 font-medium rounded">2</div>
+                            </div>
+                            <div class="mt-4 flex justify-center">
+                                <svg width="220" height="150" viewBox="0 0 220 150">
+                                    <!-- 树的节点和连线 -->
+                                    <circle cx="110" cy="30" r="20" fill="#93C5FD" />
+                                    <text x="110" y="35" text-anchor="middle" fill="#333" font-weight="bold">4</text>
+                                    
+                                    <line x1="110" y1="50" x2="60" y2="80" stroke="#888" stroke-width="2" />
+                                    <circle cx="60" cy="80" r="20" fill="#93C5FD" />
+                                    <text x="60" y="85" text-anchor="middle" fill="#333" font-weight="bold">10</text>
+                                    
+                                    <line x1="110" y1="50" x2="160" y2="80" stroke="#888" stroke-width="2" />
+                                    <circle cx="160" cy="80" r="20" fill="#93C5FD" />
+                                    <text x="160" y="85" text-anchor="middle" fill="#333" font-weight="bold">3</text>
+                                    
+                                    <line x1="60" y1="100" x2="30" y2="130" stroke="#888" stroke-width="2" />
+                                    <circle cx="30" cy="130" r="20" fill="#93C5FD" />
+                                    <text x="30" y="135" text-anchor="middle" fill="#333" font-weight="bold">5</text>
+                                    
+                                    <line x1="60" y1="100" x2="90" y2="130" stroke="#888" stroke-width="2" />
+                                    <circle cx="90" cy="130" r="20" fill="#93C5FD" />
+                                    <text x="90" y="135" text-anchor="middle" fill="#333" font-weight="bold">1</text>
+                                    
+                                    <line x1="160" y1="100" x2="130" y2="130" stroke="#888" stroke-width="2" />
+                                    <circle cx="130" cy="130" r="20" fill="#93C5FD" />
+                                    <text x="130" y="135" text-anchor="middle" fill="#333" font-weight="bold">2</text>
+                                </svg>
+                            </div>
+                        </div>
+                        
+                        <!-- 步骤 2 -->
+                        <div>
+                            <h3 class="text-lg font-medium text-gray-800 mb-2">步骤 2：构建大顶堆</h3>
+                            <p class="text-gray-700 mb-3">从最后一个非叶子节点开始，自底向上调整</p>
+                            <div class="flex items-center justify-center space-x-2 my-4 flex-wrap">
+                                <div class="w-10 h-10 flex items-center justify-center bg-primary text-white font-medium rounded">10</div>
+                                <div class="w-10 h-10 flex items-center justify-center bg-green-100 text-gray-800 font-medium rounded">5</div>
+                                <div class="w-10 h-10 flex items-center justify-center bg-green-100 text-gray-800 font-medium rounded">3</div>
+                                <div class="w-10 h-10 flex items-center justify-center bg-green-100 text-gray-800 font-medium rounded">4</div>
+                                <div class="w-10 h-10 flex items-center justify-center bg-green-100 text-gray-800 font-medium rounded">1</div>
+                                <div class="w-10 h-10 flex items-center justify-center bg-green-100 text-gray-800 font-medium rounded">2</div>
+                            </div>
+                            <div class="mt-4 flex justify-center">
+                                <svg width="220" height="150" viewBox="0 0 220 150">
+                                    <!-- 树的节点和连线 -->
+                                    <circle cx="110" cy="30" r="20" fill="#06b6d4" />
+                                    <text x="110" y="35" text-anchor="middle" fill="white" font-weight="bold">10</text>
+                                    
+                                    <line x1="110" y1="50" x2="60" y2="80" stroke="#888" stroke-width="2" />
+                                    <circle cx="60" cy="80" r="20" fill="#10B981" />
+                                    <text x="60" y="85" text-anchor="middle" fill="white" font-weight="bold">5</text>
+                                    
+                                    <line x1="110" y1="50" x2="160" y2="80" stroke="#888" stroke-width="2" />
+                                    <circle cx="160" cy="80" r="20" fill="#10B981" />
+                                    <text x="160" y="85" text-anchor="middle" fill="white" font-weight="bold">3</text>
+                                    
+                                    <line x1="60" y1="100" x2="30" y2="130" stroke="#888" stroke-width="2" />
+                                    <circle cx="30" cy="130" r="20" fill="#10B981" />
+                                    <text x="30" y="135" text-anchor="middle" fill="white" font-weight="bold">4</text>
+                                    
+                                    <line x1="60" y1="100" x2="90" y2="130" stroke="#888" stroke-width="2" />
+                                    <circle cx="90" cy="130" r="20" fill="#10B981" />
+                                    <text x="90" y="135" text-anchor="middle" fill="white" font-weight="bold">1</text>
+                                    
+                                    <line x1="160" y1="100" x2="130" y2="130" stroke="#888" stroke-width="2" />
+                                    <circle cx="130" cy="130" r="20" fill="#10B981" />
+                                    <text x="130" y="135" text-anchor="middle" fill="white" font-weight="bold">2</text>
+                                </svg>
+                            </div>
+                        </div>
+                        
+                        <!-- 步骤 3 -->
+                        <div>
+                            <h3 class="text-lg font-medium text-gray-800 mb-2">步骤 3：堆顶元素与末尾元素交换</h3>
+                            <p class="text-gray-700 mb-3">交换堆顶元素（最大值）与末尾元素，并将末尾元素排除在堆外</p>
+                            <div class="flex items-center justify-center space-x-2 my-4 flex-wrap">
+                                <div class="w-10 h-10 flex items-center justify-center bg-green-100 text-gray-800 font-medium rounded">2</div>
+                                <div class="w-10 h-10 flex items-center justify-center bg-green-100 text-gray-800 font-medium rounded">5</div>
+                                <div class="w-10 h-10 flex items-center justify-center bg-green-100 text-gray-800 font-medium rounded">3</div>
+                                <div class="w-10 h-10 flex items-center justify-center bg-green-100 text-gray-800 font-medium rounded">4</div>
+                                <div class="w-10 h-10 flex items-center justify-center bg-green-100 text-gray-800 font-medium rounded">1</div>
+                                <div class="w-10 h-10 flex items-center justify-center bg-primary text-white font-medium rounded">10</div>
+                            </div>
+                            <div class="mt-4 flex justify-center">
+                                <svg width="220" height="150" viewBox="0 0 220 150">
+                                    <!-- 树的节点和连线 -->
+                                    <circle cx="110" cy="30" r="20" fill="#10B981" />
+                                    <text x="110" y="35" text-anchor="middle" fill="white" font-weight="bold">2</text>
+                                    
+                                    <line x1="110" y1="50" x2="60" y2="80" stroke="#888" stroke-width="2" />
+                                    <circle cx="60" cy="80" r="20" fill="#10B981" />
+                                    <text x="60" y="85" text-anchor="middle" fill="white" font-weight="bold">5</text>
+                                    
+                                    <line x1="110" y1="50" x2="160" y2="80" stroke="#888" stroke-width="2" />
+                                    <circle cx="160" cy="80" r="20" fill="#10B981" />
+                                    <text x="160" y="85" text-anchor="middle" fill="white" font-weight="bold">3</text>
+                                    
+                                    <line x1="60" y1="100" x2="30" y2="130" stroke="#888" stroke-width="2" />
+                                    <circle cx="30" cy="130" r="20" fill="#10B981" />
+                                    <text x="30" y="135" text-anchor="middle" fill="white" font-weight="bold">4</text>
+                                    
+                                    <line x1="60" y1="100" x2="90" y2="130" stroke="#888" stroke-width="2" />
+                                    <circle cx="90" cy="130" r="20" fill="#10B981" />
+                                    <text x="90" y="135" text-anchor="middle" fill="white" font-weight="bold">1</text>
+                                    
+                                    <!-- 已排序的元素 -->
+                                    <circle cx="190" cy="130" r="20" fill="#06b6d4" />
+                                    <text x="190" y="135" text-anchor="middle" fill="white" font-weight="bold">10</text>
+                                </svg>
+                            </div>
+                        </div>
+                        
+                        <!-- 步骤 4 -->
+                        <div>
+                            <h3 class="text-lg font-medium text-gray-800 mb-2">步骤 4：重新调整堆</h3>
+                            <p class="text-gray-700 mb-3">对剩余元素重新进行堆调整，使其满足大顶堆性质</p>
+                            <div class="flex items-center justify-center space-x-2 my-4 flex-wrap">
+                                <div class="w-10 h-10 flex items-center justify-center bg-primary text-white font-medium rounded">5</div>
+                                <div class="w-10 h-10 flex items-center justify-center bg-green-100 text-gray-800 font-medium rounded">4</div>
+                                <div class="w-10 h-10 flex items-center justify-center bg-green-100 text-gray-800 font-medium rounded">3</div>
+                                <div class="w-10 h-10 flex items-center justify-center bg-green-100 text-gray-800 font-medium rounded">2</div>
+                                <div class="w-10 h-10 flex items-center justify-center bg-green-100 text-gray-800 font-medium rounded">1</div>
+                                <div class="w-10 h-10 flex items-center justify-center bg-green-500 text-white font-medium rounded">10</div>
+                            </div>
+                        </div>
+                        
+                        <!-- 步骤 5 -->
+                        <div>
+                            <h3 class="text-lg font-medium text-gray-800 mb-2">步骤 5：重复交换和调整</h3>
+                            <p class="text-gray-700 mb-3">重复步骤3和步骤4，直到所有元素排序完成</p>
+                            
+                            <div class="mt-6">
+                                <h4 class="font-medium text-gray-800 mb-2">完全排序后</h4>
+                                <div class="flex items-center justify-center space-x-2 my-3 flex-wrap">
+                                    <div class="w-10 h-10 flex items-center justify-center bg-green-500 text-white font-medium rounded">1</div>
+                                    <div class="w-10 h-10 flex items-center justify-center bg-green-500 text-white font-medium rounded">2</div>
+                                    <div class="w-10 h-10 flex items-center justify-center bg-green-500 text-white font-medium rounded">3</div>
+                                    <div class="w-10 h-10 flex items-center justify-center bg-green-500 text-white font-medium rounded">4</div>
+                                    <div class="w-10 h-10 flex items-center justify-center bg-green-500 text-white font-medium rounded">5</div>
+                                    <div class="w-10 h-10 flex items-center justify-center bg-green-500 text-white font-medium rounded">10</div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- 交互式可视化 -->
+            <section id="visualization">
+                <h2 class="text-2xl font-semibold text-gray-800 mb-4 flex items-center">
+                    <i class="fas fa-chart-bar text-primary mr-3"></i>交互式可视化
+                </h2>
+                <div class="bg-white p-6 rounded-lg shadow-md">
+                    <p class="text-gray-700 mb-4">以下是堆排序算法的交互式可视化演示，您可以生成新的随机数组并观察堆排序的执行过程。</p>
+                    
+                    <div class="flex flex-wrap gap-2 mb-4">
+                        <button id="newArray" class="px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600 transition">
+                            <i class="fas fa-random mr-2"></i>生成新数组
+                        </button>
+                        <button id="startSort" class="px-4 py-2 bg-green-500 text-white rounded hover:bg-green-600 transition">
+                            <i class="fas fa-play mr-2"></i>开始排序
+                        </button>
+                        <button id="pauseSort" class="px-4 py-2 bg-yellow-500 text-white rounded hover:bg-yellow-600 transition hidden">
+                            <i class="fas fa-pause mr-2"></i>暂停排序
+                        </button>
+                        <button id="resetSort" class="px-4 py-2 bg-red-500 text-white rounded hover:bg-red-600 transition">
+                            <i class="fas fa-redo mr-2"></i>重置排序
+                        </button>
+                    </div>
+                    
+                    <div class="mb-4">
+                        <label for="speed" class="block text-sm font-medium text-gray-700 mb-1">速度调节：</label>
+                        <input type="range" id="speed" min="1" max="10" value="5" class="w-full md:w-1/2">
+                    </div>
+                    
+                    <div class="flex flex-wrap items-center mb-4 text-sm">
+                        <div class="flex items-center mr-4 mb-2">
+                            <div class="w-4 h-4 bg-primary mr-1"></div>
+                            <span>当前处理节点</span>
+                        </div>
+                        <div class="flex items-center mr-4 mb-2">
+                            <div class="w-4 h-4 bg-yellow-200 mr-1"></div>
+                            <span>比较节点</span>
+                        </div>
+                        <div class="flex items-center mr-4 mb-2">
+                            <div class="w-4 h-4 bg-green-500 mr-1"></div>
+                            <span>已排序</span>
+                        </div>
+                        <div class="flex items-center mr-4 mb-2">
+                            <div class="w-4 h-4 bg-red-200 mr-1"></div>
+                            <span>交换元素</span>
+                        </div>
+                    </div>
+                    
+                    <div id="array-container" class="h-64 flex items-end justify-center border-b border-gray-300"></div>
+                    
+                    <div id="info-container" class="mt-4 text-gray-700">
+                        <p id="current-step">准备开始堆排序...</p>
+                    </div>
+                </div>
+            </section>
+            
+            <!-- 代码实现 -->
+            <section id="implementation">
+                <h2 class="text-2xl font-semibold text-gray-800 mb-4 flex items-center">
+                    <i class="fas fa-code text-primary mr-3"></i>代码实现
+                </h2>
+                <div class="bg-white p-6 rounded-lg shadow-md">
+                    <div class="mb-6">
+                        <h3 class="text-xl font-medium text-gray-800 mb-3">C++ 实现</h3>
+                        <pre class="bg-gray-800 text-white p-4 rounded-lg overflow-x-auto"><code class="language-cpp">// 堆排序 - C++ 实现
+#include &lt;iostream&gt;
+#include &lt;vector&gt;
+
+// 下沉调整函数，维护堆的性质
+void heapify(std::vector&lt;int&gt;& arr, int n, int i) {
+    // 初始化最大值为当前节点
+    int largest = i;
+    // 计算左右子节点的索引
+    int left = 2 * i + 1;
+    int right = 2 * i + 2;
+    
+    // 如果左子节点大于当前最大值，则更新最大值索引
+    if (left < n && arr[left] > arr[largest]) {
+        largest = left;
+    }
+    
+    // 如果右子节点大于当前最大值，则更新最大值索引
+    if (right < n && arr[right] > arr[largest]) {
+        largest = right;
+    }
+    
+    // 如果最大值不是当前节点，则交换并继续下沉调整
+    if (largest != i) {
+        std::swap(arr[i], arr[largest]);
+        // 递归调整被交换的子树
+        heapify(arr, n, largest);
+    }
+}
+
+// 堆排序函数
+void heapSort(std::vector&lt;int&gt;& arr) {
+    int n = arr.size();
+    
+    // 构建大顶堆（自底向上的方法）
+    for (int i = n / 2 - 1; i >= 0; i--) {
+        heapify(arr, n, i);
+    }
+    
+    // 一个个从堆顶取出元素
+    for (int i = n - 1; i > 0; i--) {
+        // 将堆顶元素（最大值）与末尾元素交换
+        std::swap(arr[0], arr[i]);
+        
+        // 对剩余的堆进行下沉调整
+        heapify(arr, i, 0);
+    }
+}
+
+// 示例使用
+int main() {
+    std::vector&lt;int&gt; arr = {4, 10, 3, 5, 1, 2};
+    
+    std::cout &lt;&lt; "排序前: ";
+    for (int num : arr) {
+        std::cout &lt;&lt; num &lt;&lt; " ";
+    }
+    std::cout &lt;&lt; std::endl;
+    
+    heapSort(arr);
+    
+    std::cout &lt;&lt; "排序后: ";
+    for (int num : arr) {
+        std::cout &lt;&lt; num &lt;&lt; " ";
+    }
+    std::cout &lt;&lt; std::endl;
+    
+    return 0;
+}</code></pre>
+                    </div>
+                    
+                    <div>
+                        <h3 class="text-xl font-medium text-gray-800 mb-3">优化技巧</h3>
+                        <ul class="list-disc list-inside space-y-2 text-gray-700 ml-4">
+                            <li><span class="font-medium">迭代实现：</span>将递归实现的 heapify 函数改为迭代实现，可以避免递归调用栈溢出的风险</li>
+                            <li><span class="font-medium">优化构建过程：</span>使用Floyd算法（自底向上）构建初始堆，时间复杂度可以降低到 O(n)</li>
+                            <li><span class="font-medium">多路堆：</span>使用d叉堆代替二叉堆，可以降低堆的高度，减少比较次数</li>
+                            <li><span class="font-medium">内存优化：</span>对于大数据集，可以考虑使用外部堆排序，减少内存使用</li>
+                        </ul>
+                    </div>
+                </div>
+            </section>
+            
+            <!-- 时间复杂度分析 -->
+            <section id="complexity">
+                <h2 class="text-2xl font-semibold text-gray-800 mb-4 flex items-center">
+                    <i class="fas fa-clock text-primary mr-3"></i>时间复杂度分析
+                </h2>
+                <div class="bg-white p-6 rounded-lg shadow-md">
+                    <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+                        <div class="p-4 border border-green-200 rounded-lg bg-green-50">
+                            <h3 class="text-lg font-medium text-gray-800 mb-2">最佳情况</h3>
+                            <p class="text-2xl font-bold text-green-600 mb-2">O(n log n)</p>
+                            <p class="text-gray-700 text-sm">堆排序的时间复杂度在各种情况下都一致</p>
+                        </div>
+                        <div class="p-4 border border-blue-200 rounded-lg bg-blue-50">
+                            <h3 class="text-lg font-medium text-gray-800 mb-2">平均情况</h3>
+                            <p class="text-2xl font-bold text-blue-600 mb-2">O(n log n)</p>
+                            <p class="text-gray-700 text-sm">n 个元素建堆时间 O(n)，n 次删除堆顶操作 O(n log n)</p>
+                        </div>
+                        <div class="p-4 border border-blue-200 rounded-lg bg-blue-50">
+                            <h3 class="text-lg font-medium text-gray-800 mb-2">最差情况</h3>
+                            <p class="text-2xl font-bold text-blue-600 mb-2">O(n log n)</p>
+                            <p class="text-gray-700 text-sm">堆排序的时间复杂度稳定，不会退化</p>
+                        </div>
+                    </div>
+                    
+                    <div class="mt-6">
+                        <h3 class="text-lg font-medium text-gray-800 mb-3">复杂度分析详解</h3>
+                        <div class="space-y-4 text-gray-700">
+                            <p>堆排序的时间复杂度分为两部分：</p>
+                            <ol class="list-decimal list-inside ml-4 space-y-2">
+                                <li><span class="font-medium">构建初始堆：</span>看似需要 O(n log n) 时间，但使用自底向上的构建方法，时间复杂度可以优化到 O(n)</li>
+                                <li><span class="font-medium">n-1 次堆调整：</span>每次调整的时间复杂度为 O(log n)，总共需要 O(n log n) 时间</li>
+                            </ol>
+                            <p>因此，堆排序的总时间复杂度为 O(n) + O(n log n) = O(n log n)。</p>
+                        </div>
+                    </div>
+                    
+                    <div class="mt-6">
+                        <h3 class="text-lg font-medium text-gray-800 mb-3">空间复杂度</h3>
+                        <p class="text-gray-700 mb-2">堆排序的空间复杂度为 O(1)，因为它是原地排序算法，不需要额外的存储空间。</p>
+                        <p class="text-gray-700">如果使用递归实现 heapify 函数，递归调用栈的最大深度为 O(log n)，此时空间复杂度为 O(log n)。但这可以通过迭代实现来避免。</p>
+                    </div>
+                </div>
+            </section>
+            
+            <!-- 应用场景 -->
+            <section id="applications">
+                <h2 class="text-2xl font-semibold text-gray-800 mb-4 flex items-center">
+                    <i class="fas fa-briefcase text-primary mr-3"></i>应用场景
+                </h2>
+                <div class="bg-white p-6 rounded-lg shadow-md">
+                    <p class="text-gray-700 mb-4">堆排序及其背后的堆数据结构在许多应用场景中非常有用：</p>
+                    
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                        <div class="border-l-4 border-primary pl-4">
+                            <h3 class="text-lg font-medium text-gray-800 mb-2">Top K 问题</h3>
+                            <p class="text-gray-700">使用小顶堆维护 K 个最大元素，或大顶堆维护 K 个最小元素，时间复杂度为 O(n log k)</p>
+                        </div>
+                        <div class="border-l-4 border-primary pl-4">
+                            <h3 class="text-lg font-medium text-gray-800 mb-2">优先队列</h3>
+                            <p class="text-gray-700">堆是实现优先队列的理想数据结构，广泛应用于操作系统的任务调度、网络路由等场景</p>
+                        </div>
+                        <div class="border-l-4 border-primary pl-4">
+                            <h3 class="text-lg font-medium text-gray-800 mb-2">图算法</h3>
+                            <p class="text-gray-700">Dijkstra、Prim 等图算法中使用堆来优化选择最小权重边或节点的过程</p>
+                        </div>
+                        <div class="border-l-4 border-primary pl-4">
+                            <h3 class="text-lg font-medium text-gray-800 mb-2">中位数维护</h3>
+                            <p class="text-gray-700">使用一个大顶堆和一个小顶堆可以在 O(log n) 时间内动态维护数据流的中位数</p>
+                        </div>
+                    </div>
+                    
+                    <div class="mt-6 p-4 bg-gray-100 rounded-lg">
+                        <h3 class="text-lg font-medium text-gray-800 mb-3">习题推荐</h3>
+                        <ul class="list-disc list-inside space-y-2 text-gray-700 ml-4">
+                            <li>数组中的第K个最大元素（LeetCode 215）</li>
+                            <li>前K个高频元素（LeetCode 347）</li>
+                            <li>数据流中的第K大元素（LeetCode 703）</li>
+                            <li>合并K个排序链表（LeetCode 23）</li>
+                            <li>丑数 II（LeetCode 264）</li>
+                        </ul>
+                    </div>
+                </div>
+            </section>
+            
+            <!-- 堆排序与其他排序算法比较 -->
+            <section id="comparison">
+                <h2 class="text-2xl font-semibold text-gray-800 mb-4 flex items-center">
+                    <i class="fas fa-balance-scale text-primary mr-3"></i>与其他排序算法比较
+                </h2>
+                <div class="bg-white p-6 rounded-lg shadow-md overflow-x-auto">
+                    <table class="min-w-full bg-white">
+                        <thead>
+                            <tr>
+                                <th class="py-3 px-4 border-b border-gray-200 bg-gray-50 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">算法</th>
+                                <th class="py-3 px-4 border-b border-gray-200 bg-gray-50 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">最佳时间</th>
+                                <th class="py-3 px-4 border-b border-gray-200 bg-gray-50 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">平均时间</th>
+                                <th class="py-3 px-4 border-b border-gray-200 bg-gray-50 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">最差时间</th>
+                                <th class="py-3 px-4 border-b border-gray-200 bg-gray-50 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">空间复杂度</th>
+                                <th class="py-3 px-4 border-b border-gray-200 bg-gray-50 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">稳定性</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr class="bg-gray-100">
+                                <td class="py-2 px-4 border-b border-gray-200 text-sm font-medium">堆排序</td>
+                                <td class="py-2 px-4 border-b border-gray-200 text-sm">O(n log n)</td>
+                                <td class="py-2 px-4 border-b border-gray-200 text-sm">O(n log n)</td>
+                                <td class="py-2 px-4 border-b border-gray-200 text-sm">O(n log n)</td>
+                                <td class="py-2 px-4 border-b border-gray-200 text-sm">O(1)</td>
+                                <td class="py-2 px-4 border-b border-gray-200 text-sm">不稳定</td>
+                            </tr>
+                            <tr>
+                                <td class="py-2 px-4 border-b border-gray-200 text-sm font-medium">快速排序</td>
+                                <td class="py-2 px-4 border-b border-gray-200 text-sm">O(n log n)</td>
+                                <td class="py-2 px-4 border-b border-gray-200 text-sm">O(n log n)</td>
+                                <td class="py-2 px-4 border-b border-gray-200 text-sm">O(n²)</td>
+                                <td class="py-2 px-4 border-b border-gray-200 text-sm">O(log n)</td>
+                                <td class="py-2 px-4 border-b border-gray-200 text-sm">不稳定</td>
+                            </tr>
+                            <tr class="bg-gray-100">
+                                <td class="py-2 px-4 border-b border-gray-200 text-sm font-medium">归并排序</td>
+                                <td class="py-2 px-4 border-b border-gray-200 text-sm">O(n log n)</td>
+                                <td class="py-2 px-4 border-b border-gray-200 text-sm">O(n log n)</td>
+                                <td class="py-2 px-4 border-b border-gray-200 text-sm">O(n log n)</td>
+                                <td class="py-2 px-4 border-b border-gray-200 text-sm">O(n)</td>
+                                <td class="py-2 px-4 border-b border-gray-200 text-sm">稳定</td>
+                            </tr>
+                            <tr>
+                                <td class="py-2 px-4 border-b border-gray-200 text-sm font-medium">冒泡排序</td>
+                                <td class="py-2 px-4 border-b border-gray-200 text-sm">O(n)</td>
+                                <td class="py-2 px-4 border-b border-gray-200 text-sm">O(n²)</td>
+                                <td class="py-2 px-4 border-b border-gray-200 text-sm">O(n²)</td>
+                                <td class="py-2 px-4 border-b border-gray-200 text-sm">O(1)</td>
+                                <td class="py-2 px-4 border-b border-gray-200 text-sm">稳定</td>
+                            </tr>
+                            <tr class="bg-gray-100">
+                                <td class="py-2 px-4 border-b border-gray-200 text-sm font-medium">选择排序</td>
+                                <td class="py-2 px-4 border-b border-gray-200 text-sm">O(n²)</td>
+                                <td class="py-2 px-4 border-b border-gray-200 text-sm">O(n²)</td>
+                                <td class="py-2 px-4 border-b border-gray-200 text-sm">O(n²)</td>
+                                <td class="py-2 px-4 border-b border-gray-200 text-sm">O(1)</td>
+                                <td class="py-2 px-4 border-b border-gray-200 text-sm">不稳定</td>
+                            </tr>
+                            <tr>
+                                <td class="py-2 px-4 border-b border-gray-200 text-sm font-medium">插入排序</td>
+                                <td class="py-2 px-4 border-b border-gray-200 text-sm">O(n)</td>
+                                <td class="py-2 px-4 border-b border-gray-200 text-sm">O(n²)</td>
+                                <td class="py-2 px-4 border-b border-gray-200 text-sm">O(n²)</td>
+                                <td class="py-2 px-4 border-b border-gray-200 text-sm">O(1)</td>
+                                <td class="py-2 px-4 border-b border-gray-200 text-sm">稳定</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                    
+                    <div class="mt-6">
+                        <h3 class="text-lg font-medium text-gray-800 mb-3">特点比较</h3>
+                        <ul class="list-disc list-inside space-y-2 text-gray-700 ml-4">
+                            <li><span class="font-medium">相比快速排序：</span>堆排序在最坏情况下也能保持 O(n log n) 的时间复杂度，但平均性能略逊于快速排序</li>
+                            <li><span class="font-medium">相比归并排序：</span>堆排序是原地排序，空间复杂度更低，但归并排序是稳定的</li>
+                            <li><span class="font-medium">相比选择排序：</span>堆排序可以看作是选择排序的优化版本，通过堆数据结构减少了比较次数</li>
+                        </ul>
+                    </div>
+                </div>
+            </section>
+        </main>
+        
+        <!-- 页脚 -->
+        <footer class="mt-10 p-6 bg-gray-800 text-white flex flex-col md:flex-row justify-between items-center">
+            <div class="mb-4 md:mb-0">
+                <p class="text-sm"> </p>
+            </div>
+            <div class="flex space-x-4">
+                <a href="index.html" class="text-gray-300 hover:text-white transition-colors">首页</a>
+                <a href="选择排序.html" class="text-gray-300 hover:text-white transition-colors">选择排序</a>
+                <a href="冒泡排序.html" class="text-gray-300 hover:text-white transition-colors">冒泡排序</a>
+                <a href="快速排序.html" class="text-gray-300 hover:text-white transition-colors">快速排序</a>
+            </div>
+            <button id="back-to-top" class="fixed right-6 bottom-6 p-3 bg-primary rounded-full shadow-lg text-white hidden">
+                <i class="fas fa-arrow-up"></i>
+            </button>
+        </footer>
+        
+        <!-- ScrollReveal -->
+        <script src="https://unpkg.com/scrollreveal"></script>
+        
+        <!-- Highlight.js -->
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.7.0/highlight.min.js"></script>
+        <script>hljs.highlightAll();</script>
+        
+        <script>
+            // ScrollReveal 初始化
+            ScrollReveal().reveal('.section, h2, .bg-white', {
+                distance: '50px',
+                duration: 1000,
+                delay: 200,
+                easing: 'cubic-bezier(0.5, 0, 0, 1)'
+            });
+            
+            // 回到顶部按钮
+            const backToTopButton = document.getElementById('back-to-top');
+            
+            window.addEventListener('scroll', () => {
+                if (window.pageYOffset > 300) {
+                    backToTopButton.classList.remove('hidden');
+                } else {
+                    backToTopButton.classList.add('hidden');
+                }
+            });
+            
+            backToTopButton.addEventListener('click', () => {
+                window.scrollTo({
+                    top: 0,
+                    behavior: 'smooth'
+                });
+            });
+            
+            // 堆排序交互式可视化
+            document.addEventListener('DOMContentLoaded', function() {
+                // 获取DOM元素
+                const arrayContainer = document.getElementById('array-container');
+                const infoContainer = document.getElementById('current-step');
+                const newArrayBtn = document.getElementById('newArray');
+                const startSortBtn = document.getElementById('startSort');
+                const pauseSortBtn = document.getElementById('pauseSort');
+                const resetSortBtn = document.getElementById('resetSort');
+                const speedSlider = document.getElementById('speed');
+                
+                // 初始化变量
+                let array = [];
+                const arraySize = 12; // 数组大小
+                const maxValue = 100; // 最大值
+                const minValue = 5;   // 最小值
+                let animationSpeed = 1000 / parseInt(speedSlider.value);
+                let animations = [];
+                let animationInterval;
+                let isPaused = false;
+                let currentAnimationStep = 0;
+                
+                // 创建新的随机数组
+                function generateRandomArray() {
+                    array = [];
+                    for (let i = 0; i < arraySize; i++) {
+                        array.push(Math.floor(Math.random() * (maxValue - minValue + 1)) + minValue);
+                    }
+                    renderArray(array);
+                    resetAnimationState();
+                    infoContainer.textContent = "准备开始堆排序...";
+                }
+                
+                // 渲染数组
+                function renderArray(arr, currentIndex = -1, compareIndices = [], swapIndices = [], sortedIndices = []) {
+                    arrayContainer.innerHTML = '';
+                    const maxArrVal = Math.max(...arr);
+                    
+                    arr.forEach((val, idx) => {
+                        const bar = document.createElement('div');
+                        const height = (val / maxArrVal) * 100;
+                        
+                        bar.style.height = `${height}%`;
+                        bar.style.width = `${80 / arraySize}%`;
+                        bar.style.margin = '0 0.2%';
+                        bar.style.position = 'relative';
+                        
+                        // 设置颜色
+                        if (idx === currentIndex) {
+                            bar.style.backgroundColor = 'var(--color-primary)'; // 当前处理节点
+                        } else if (swapIndices.includes(idx)) {
+                            bar.style.backgroundColor = '#FECACA'; // 交换元素
+                        } else if (compareIndices.includes(idx)) {
+                            bar.style.backgroundColor = '#FEF08A'; // 比较节点
+                        } else if (sortedIndices.includes(idx)) {
+                            bar.style.backgroundColor = '#10B981'; // 已排序
+                        } else {
+                            bar.style.backgroundColor = '#93C5FD'; // 默认
+                        }
+                        
+                        // 添加数值标签
+                        const label = document.createElement('div');
+                        label.textContent = val;
+                        label.style.position = 'absolute';
+                        label.style.bottom = '-25px';
+                        label.style.width = '100%';
+                        label.style.textAlign = 'center';
+                        label.style.fontSize = '12px';
+                        bar.appendChild(label);
+                        
+                        arrayContainer.appendChild(bar);
+                    });
+                }
+                
+                // 生成堆排序的动画步骤
+                function generateHeapSortAnimations(arr) {
+                    const arrCopy = [...arr];
+                    const n = arrCopy.length;
+                    const animations = [];
+                    const sortedIndices = [];
+                    
+                    // 第一步：构建大顶堆（自底向上）
+                    animations.push({
+                        array: [...arrCopy],
+                        message: "开始构建大顶堆（自底向上）"
+                    });
+                    
+                    // 从最后一个非叶子节点开始，自底向上进行堆化
+                    for (let i = Math.floor(n / 2) - 1; i >= 0; i--) {
+                        heapifyWithAnimation(arrCopy, n, i, animations, sortedIndices);
+                    }
+                    
+                    animations.push({
+                        array: [...arrCopy],
+                        message: "大顶堆构建完成，开始排序阶段"
+                    });
+                    
+                    // 第二步：一个个从堆顶取出元素
+                    for (let i = n - 1; i > 0; i--) {
+                        // 将堆顶元素与末尾元素交换
+                        animations.push({
+                            array: [...arrCopy],
+                            currentIndex: 0,
+                            swapIndices: [0, i],
+                            message: `将堆顶元素 ${arrCopy[0]} 与末尾元素 ${arrCopy[i]} 交换`
+                        });
+                        
+                        [arrCopy[0], arrCopy[i]] = [arrCopy[i], arrCopy[0]];
+                        
+                        // 将当前处理的末尾元素标记为已排序
+                        sortedIndices.push(i);
+                        
+                        animations.push({
+                            array: [...arrCopy],
+                            sortedIndices: [...sortedIndices],
+                            message: `元素 ${arrCopy[i]} 已排序，调整剩余堆`
+                        });
+                        
+                        // 对剩余的堆进行调整
+                        heapifyWithAnimation(arrCopy, i, 0, animations, sortedIndices);
+                    }
+                    
+                    // 所有元素都已排序
+                    sortedIndices.push(0);
+                    animations.push({
+                        array: [...arrCopy],
+                        sortedIndices: [...sortedIndices],
+                        message: "排序完成！"
+                    });
+                    
+                    return animations;
+                }
+                
+                // 堆化过程的动画生成
+                function heapifyWithAnimation(arr, heapSize, rootIndex, animations, sortedIndices) {
+                    let largest = rootIndex;
+                    const left = 2 * rootIndex + 1;
+                    const right = 2 * rootIndex + 2;
+                    
+                    // 比较根节点与左子节点
+                    if (left < heapSize) {
+                        animations.push({
+                            array: [...arr],
+                            currentIndex: rootIndex,
+                            compareIndices: [left],
+                            sortedIndices: [...sortedIndices],
+                            message: `比较节点 ${arr[rootIndex]} 与其左子节点 ${arr[left]}`
+                        });
+                        
+                        if (arr[left] > arr[largest]) {
+                            animations.push({
+                                array: [...arr],
+                                currentIndex: left,
+                                sortedIndices: [...sortedIndices],
+                                message: `左子节点 ${arr[left]} 大于当前最大值 ${arr[largest]}，更新最大值`
+                            });
+                            largest = left;
+                        }
+                    }
+                    
+                    // 比较当前最大值与右子节点
+                    if (right < heapSize) {
+                        animations.push({
+                            array: [...arr],
+                            currentIndex: largest,
+                            compareIndices: [right],
+                            sortedIndices: [...sortedIndices],
+                            message: `比较当前最大值 ${arr[largest]} 与右子节点 ${arr[right]}`
+                        });
+                        
+                        if (arr[right] > arr[largest]) {
+                            animations.push({
+                                array: [...arr],
+                                currentIndex: right,
+                                sortedIndices: [...sortedIndices],
+                                message: `右子节点 ${arr[right]} 大于当前最大值 ${arr[largest]}，更新最大值`
+                            });
+                            largest = right;
+                        }
+                    }
+                    
+                    // 如果最大值不是根节点，则交换并继续堆化
+                    if (largest !== rootIndex) {
+                        animations.push({
+                            array: [...arr],
+                            swapIndices: [rootIndex, largest],
+                            sortedIndices: [...sortedIndices],
+                            message: `交换节点 ${arr[rootIndex]} 和 ${arr[largest]}`
+                        });
+                        
+                        [arr[rootIndex], arr[largest]] = [arr[largest], arr[rootIndex]];
+                        
+                        animations.push({
+                            array: [...arr],
+                            currentIndex: largest,
+                            sortedIndices: [...sortedIndices],
+                            message: `继续调整子树`
+                        });
+                        
+                        // 递归调整被交换的子树
+                        heapifyWithAnimation(arr, heapSize, largest, animations, sortedIndices);
+                    }
+                }
+                
+                // 开始排序动画
+                function startSortAnimation() {
+                    if (animations.length === 0 || currentAnimationStep >= animations.length) {
+                        // 为当前数组生成动画
+                        animations = generateHeapSortAnimations([...array]);
+                        currentAnimationStep = 0;
+                    }
+                    
+                    startSortBtn.classList.add('hidden');
+                    pauseSortBtn.classList.remove('hidden');
+                    isPaused = false;
+                    
+                    animationInterval = setInterval(() => {
+                        if (currentAnimationStep < animations.length) {
+                            const step = animations[currentAnimationStep];
+                            renderArray(
+                                step.array,
+                                step.currentIndex || -1,
+                                step.compareIndices || [],
+                                step.swapIndices || [],
+                                step.sortedIndices || []
+                            );
+                            infoContainer.textContent = step.message;
+                            currentAnimationStep++;
+                        } else {
+                            clearInterval(animationInterval);
+                            infoContainer.textContent = "排序完成!";
+                            pauseSortBtn.classList.add('hidden');
+                            startSortBtn.classList.remove('hidden');
+                            
+                            // 显示全部排序完成
+                            if (animations.length > 0) {
+                                const lastStep = animations[animations.length - 1];
+                                renderArray(lastStep.array, -1, [], [], lastStep.sortedIndices);
+                            }
+                        }
+                    }, animationSpeed);
+                }
+                
+                // 暂停排序动画
+                function pauseSortAnimation() {
+                    clearInterval(animationInterval);
+                    isPaused = true;
+                    pauseSortBtn.classList.add('hidden');
+                    startSortBtn.classList.remove('hidden');
+                }
+                
+                // 重置动画状态
+                function resetAnimationState() {
+                    clearInterval(animationInterval);
+                    animations = [];
+                    currentAnimationStep = 0;
+                    isPaused = false;
+                    pauseSortBtn.classList.add('hidden');
+                    startSortBtn.classList.remove('hidden');
+                }
+                
+                // 事件监听器
+                newArrayBtn.addEventListener('click', generateRandomArray);
+                startSortBtn.addEventListener('click', startSortAnimation);
+                pauseSortBtn.addEventListener('click', pauseSortAnimation);
+                resetSortBtn.addEventListener('click', () => {
+                    resetAnimationState();
+                    renderArray(array);
+                    infoContainer.textContent = "排序已重置";
+                });
+                
+                speedSlider.addEventListener('input', function() {
+                    animationSpeed = 1000 / parseInt(this.value);
+                    if (!isPaused && animationInterval) {
+                        clearInterval(animationInterval);
+                        startSortAnimation();
+                    }
+                });
+                
+                // 初始化
+                generateRandomArray();
+            });
+        </script>
+    </div>
+</body>
+</html> 

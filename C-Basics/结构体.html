@@ -1,0 +1,484 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>C++ 结构体</title>
+    <!-- TailwindCSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&family=Roboto+Mono&display=swap" rel="stylesheet">
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        primary: {
+                            light: '#a5f3fc',
+                            DEFAULT: '#06b6d4',
+                            dark: '#0891b2',
+                        },
+                        secondary: {
+                            light: '#c7d2fe',
+                            DEFAULT: '#818cf8',
+                            dark: '#6366f1',
+                        },
+                        codeBlock: '#1e293b',
+                    },
+                    fontFamily: {
+                        sans: ['Poppins', 'sans-serif'],
+                        mono: ['Roboto Mono', 'monospace'],
+                    },
+                }
+            }
+        }
+    </script>
+    <style>
+        .card-hover {
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+        }
+        .card-hover:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 25px -5px rgba(6, 182, 212, 0.1), 0 10px 10px -5px rgba(6, 182, 212, 0.04);
+        }
+        .code-block::-webkit-scrollbar {
+            height: 8px;
+        }
+        .code-block::-webkit-scrollbar-thumb {
+            background-color: #06b6d4;
+            border-radius: 4px;
+        }
+        .code-block::-webkit-scrollbar-track {
+            background-color: #e2e8f0;
+            border-radius: 4px;
+        }
+    </style>
+</head>
+<body class="bg-gray-50 font-sans">
+    <div class="min-h-screen max-w-6xl mx-auto px-8 py-10">
+        <!-- Header -->
+        <header class="mb-12 text-center">
+            <div class="inline-block px-3 py-1 bg-primary-light text-primary-dark rounded-full text-sm font-medium mb-4">
+                C++ 编程入门
+            </div>
+            <h1 class="text-4xl font-bold text-gray-800 mb-4">C++ 结构体</h1>
+            <p class="text-lg text-gray-600 max-w-3xl mx-auto">理解 C++ 结构体的定义、使用及其在数据组织中的应用</p>
+        </header>
+
+        <!-- Main Content -->
+        <main>
+            <!-- 结构体基础 Section -->
+            <section class="mb-12 bg-white rounded-2xl shadow-md p-8">
+                <div class="flex items-center mb-6">
+                    <i class="fas fa-cube text-primary text-xl mr-3"></i>
+                    <h2 class="text-2xl font-bold text-gray-800">结构体基础</h2>
+                </div>
+                <div class="space-y-4 text-gray-700">
+                    <p>结构体是C++中一种用户自定义的数据类型，它允许我们将不同类型的数据项组合到一个单元中。</p>
+                    
+                    <div class="overflow-x-auto bg-codeBlock rounded-lg p-4 mb-4">
+                        <pre class="text-gray-100 font-mono text-sm"><code>// 结构体定义
+struct Student {
+    string name;    // 姓名
+    int id;         // 学号
+    int age;        // 年龄
+    float score;    // 分数
+};</code></pre>
+                    </div>
+                    
+                    <div class="p-5 bg-primary-light bg-opacity-10 rounded-lg">
+                        <h3 class="text-lg font-semibold text-gray-800 mb-2">结构体的特点：</h3>
+                        <ul class="list-disc pl-5 space-y-1">
+                            <li>结构体将多个不同类型的数据组合在一起</li>
+                            <li>每个数据成员可以是不同的数据类型</li>
+                            <li>结构体定义了一个新的数据类型</li>
+                            <li>结构体成员默认为 public（与类不同）</li>
+                        </ul>
+                    </div>
+                </div>
+            </section>
+            
+            <!-- 结构体的创建与初始化 Section -->
+            <section class="mb-12 bg-white rounded-2xl shadow-md p-8">
+                <div class="flex items-center mb-6">
+                    <i class="fas fa-tools text-primary text-xl mr-3"></i>
+                    <h2 class="text-2xl font-bold text-gray-800">结构体的创建与初始化</h2>
+                </div>
+                <div class="space-y-4 text-gray-700">
+                    <p>结构体定义了类型后，可以像基本数据类型一样创建变量并进行初始化。</p>
+                    
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
+                        <div class="card-hover p-6 bg-gray-50 rounded-xl">
+                            <h3 class="text-lg font-semibold text-gray-800 mb-4">
+                                <i class="fas fa-plus-circle text-primary-dark mr-2"></i>
+                                单独成员赋值
+                            </h3>
+                            <div class="overflow-x-auto bg-codeBlock rounded-lg p-3">
+                                <pre class="text-gray-100 font-mono text-sm"><code>// 创建结构体变量
+Student student1;
+
+// 为各个成员赋值
+student1.name = "张三";
+student1.id = 10001;
+student1.age = 20;
+student1.score = 92.5;</code></pre>
+                            </div>
+                        </div>
+                        
+                        <div class="card-hover p-6 bg-gray-50 rounded-xl">
+                            <h3 class="text-lg font-semibold text-gray-800 mb-4">
+                                <i class="fas fa-list text-primary-dark mr-2"></i>
+                                列表初始化
+                            </h3>
+                            <div class="overflow-x-auto bg-codeBlock rounded-lg p-3">
+                                <pre class="text-gray-100 font-mono text-sm"><code>// 创建并初始化结构体
+Student student2 = {"李四", 10002, 19, 88.0};
+
+// C++11 统一初始化语法
+Student student3{"王五", 10003, 21, 95.0};</code></pre>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="p-5 bg-blue-50 rounded-xl border-l-4 border-blue-400">
+                        <div class="flex items-start">
+                            <i class="fas fa-info-circle text-blue-500 mt-1 mr-3"></i>
+                            <div>
+                                <h3 class="text-lg font-semibold text-gray-800 mb-2">初始化注意事项</h3>
+                                <p class="text-gray-700">
+                                    使用列表初始化时，值的顺序必须与结构体成员的声明顺序相同。如果提供的值少于成员数量，剩余成员将被默认初始化。
+                                </p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+            
+            <!-- 结构体数组 Section -->
+            <section class="mb-12 bg-white rounded-2xl shadow-md p-8">
+                <div class="flex items-center mb-6">
+                    <i class="fas fa-table text-primary text-xl mr-3"></i>
+                    <h2 class="text-2xl font-bold text-gray-800">结构体数组</h2>
+                </div>
+                <div class="space-y-4 text-gray-700">
+                    <p>结构体数组是由多个相同类型的结构体变量组成的数组，可以用来存储同类数据的集合。</p>
+                    
+                    <div class="overflow-x-auto bg-codeBlock rounded-lg p-4 mb-4">
+                        <pre class="text-gray-100 font-mono text-sm"><code>// 结构体数组定义与初始化
+Student class1[3] = {
+    {"张三", 10001, 20, 92.5},
+    {"李四", 10002, 19, 88.0},
+    {"王五", 10003, 21, 95.0}
+};
+
+// 访问结构体数组元素
+cout << "第二个学生: " << class1[1].name << endl;
+cout << "他的成绩是: " << class1[1].score << endl;</code></pre>
+                    </div>
+                    
+                    <div class="card-hover p-6 bg-gray-50 rounded-xl">
+                        <h3 class="text-lg font-semibold text-gray-800 mb-3">结构体数组的遍历</h3>
+                        <div class="overflow-x-auto bg-codeBlock rounded-lg p-3">
+                            <pre class="text-gray-100 font-mono text-sm"><code>// 使用循环遍历结构体数组
+for (int i = 0; i < 3; i++) {
+    cout << "学生 " << i+1 << ": " 
+         << class1[i].name << ", 学号: " << class1[i].id 
+         << ", 分数: " << class1[i].score << endl;
+}
+
+// C++11 范围for循环
+for (const auto& student : class1) {
+    cout << student.name << ", 分数: " << student.score << endl;</code></pre>
+                        </div>
+                    </div>
+                </div>
+            </section>
+            
+            <!-- 结构体指针 Section -->
+            <section class="mb-12 bg-white rounded-2xl shadow-md p-8">
+                <div class="flex items-center mb-6">
+                    <i class="fas fa-arrow-right text-primary text-xl mr-3"></i>
+                    <h2 class="text-2xl font-bold text-gray-800">结构体指针</h2>
+                </div>
+                <div class="space-y-4 text-gray-700">
+                    <p>结构体指针是指向结构体变量的指针。通过结构体指针可以访问结构体成员，这在动态内存分配和数据传递中特别有用。</p>
+                    
+                    <div class="overflow-x-auto bg-codeBlock rounded-lg p-4 mb-4">
+                        <pre class="text-gray-100 font-mono text-sm"><code>// 创建结构体指针
+Student student;
+Student* pStudent = &student;
+
+// 使用结构体指针访问成员
+pStudent->name = "张三";  // 等价于 (*pStudent).name = "张三";
+pStudent->score = 92.5;
+
+// 动态分配结构体
+Student* newStudent = new Student;
+newStudent->name = "李四";
+newStudent->score = 88.0;
+
+// 使用完毕后释放内存
+delete newStudent;</code></pre>
+                    </div>
+                    
+                    <div class="p-5 bg-yellow-50 rounded-xl border-l-4 border-yellow-400">
+                        <div class="flex items-start">
+                            <i class="fas fa-exclamation-triangle text-yellow-500 mt-1 mr-3"></i>
+                            <div>
+                                <h3 class="text-lg font-semibold text-gray-800 mb-2">内存管理提示</h3>
+                                <p class="text-gray-700">
+                                    使用 <code>new</code> 分配的内存必须使用 <code>delete</code> 释放，否则会导致内存泄漏。对于结构体数组，使用 <code>delete[]</code> 释放数组内存。
+                                </p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+            
+            <!-- 嵌套结构体 Section -->
+            <section class="mb-12 bg-white rounded-2xl shadow-md p-8">
+                <div class="flex items-center mb-6">
+                    <i class="fas fa-layer-group text-primary text-xl mr-3"></i>
+                    <h2 class="text-2xl font-bold text-gray-800">嵌套结构体</h2>
+                </div>
+                <div class="space-y-4 text-gray-700">
+                    <p>结构体可以嵌套定义，即一个结构体中包含另一个结构体的成员，这有助于构建更复杂的数据结构。</p>
+                    
+                    <div class="overflow-x-auto bg-codeBlock rounded-lg p-4 mb-4">
+                        <pre class="text-gray-100 font-mono text-sm"><code>// 嵌套结构体定义
+struct Date {
+    int year;
+    int month;
+    int day;
+};
+
+struct Student {
+    string name;
+    int id;
+    Date birthday;  // 嵌套结构体
+};
+
+// 嵌套结构体的使用
+Student student;
+student.name = "张三";
+student.id = 10001;
+student.birthday.year = 2000;
+student.birthday.month = 5;
+student.birthday.day = 15;</code></pre>
+                    </div>
+                    
+                    <div class="card-hover p-6 bg-gray-50 rounded-xl">
+                        <h3 class="text-lg font-semibold text-gray-800 mb-3">嵌套结构体的初始化</h3>
+                        <div class="overflow-x-auto bg-codeBlock rounded-lg p-3">
+                            <pre class="text-gray-100 font-mono text-sm"><code>// 使用嵌套的初始化列表
+Student student2 = {
+    "李四", 
+    10002, 
+    {2001, 7, 22}  // 初始化嵌套的Date结构体
+};
+
+// 使用指针访问嵌套结构体
+Student* pStudent = &student2;
+cout << "生日: " 
+     << pStudent->birthday.year << "-"
+     << pStudent->birthday.month << "-"
+     << pStudent->birthday.day << endl;</code></pre>
+                        </div>
+                    </div>
+                </div>
+            </section>
+            
+            <!-- 函数与结构体 Section -->
+            <section class="mb-12 bg-white rounded-2xl shadow-md p-8">
+                <div class="flex items-center mb-6">
+                    <i class="fas fa-code text-primary text-xl mr-3"></i>
+                    <h2 class="text-2xl font-bold text-gray-800">函数与结构体</h2>
+                </div>
+                <div class="space-y-4 text-gray-700">
+                    <p>结构体可以作为函数参数和返回值，也可以在函数中创建结构体。根据需要，结构体可以按值传递，也可以按引用或指针传递。</p>
+                    
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
+                        <div class="card-hover p-6 bg-gray-50 rounded-xl">
+                            <h3 class="text-lg font-semibold text-gray-800 mb-4">
+                                <i class="fas fa-copy text-primary-dark mr-2"></i>
+                                作为函数参数
+                            </h3>
+                            <div class="overflow-x-auto bg-codeBlock rounded-lg p-3">
+                                <pre class="text-gray-100 font-mono text-sm"><code>// 结构体作为函数参数（传值）
+void displayStudent(Student s) {
+    cout << "姓名: " << s.name << ", 学号: " << s.id << endl;
+}
+
+// 结构体作为函数参数（传引用）- 更高效
+void updateScore(Student& s, float newScore) {
+    s.score = newScore;
+}
+
+// 结构体作为函数参数（传指针）
+void resetStudent(Student* s) {
+    s->name = "";
+    s->id = 0;
+    s->age = 0;
+    s->score = 0.0;
+}</code></pre>
+                            </div>
+                        </div>
+                        
+                        <div class="card-hover p-6 bg-gray-50 rounded-xl">
+                            <h3 class="text-lg font-semibold text-gray-800 mb-4">
+                                <i class="fas fa-share-square text-primary-dark mr-2"></i>
+                                作为函数返回值
+                            </h3>
+                            <div class="overflow-x-auto bg-codeBlock rounded-lg p-3">
+                                <pre class="text-gray-100 font-mono text-sm"><code>// 返回结构体的函数
+Student createStudent(string name, int id, int age, float score) {
+    Student s;
+    s.name = name;
+    s.id = id;
+    s.age = age;
+    s.score = score;
+    return s;
+}
+
+// 函数调用示例
+Student newStudent = createStudent("李四", 10002, 19, 88.0);
+displayStudent(newStudent);
+updateScore(newStudent, 92.0);
+cout << "新分数: " << newStudent.score << endl;</code></pre>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="p-5 bg-green-50 rounded-xl border-l-4 border-green-400">
+                        <div class="flex items-start">
+                            <i class="fas fa-lightbulb text-green-500 mt-1 mr-3"></i>
+                            <div>
+                                <h3 class="text-lg font-semibold text-gray-800 mb-2">性能考虑</h3>
+                                <p class="text-gray-700 mb-2">
+                                    对于大型结构体，按引用或指针传递比按值传递更高效，因为：
+                                </p>
+                                <ul class="list-disc pl-5 space-y-1">
+                                    <li>避免了结构体的完整复制</li>
+                                    <li>减少了内存使用和复制开销</li>
+                                    <li>对大型数据尤其重要</li>
+                                </ul>
+                                <p class="mt-2 text-gray-700">
+                                    如果不需要修改结构体，可以使用 <code>const</code> 引用：<code>void display(const Student& s)</code>
+                                </p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+            
+            <!-- 结构体与类 Section -->
+            <section class="mb-12 bg-white rounded-2xl shadow-md p-8">
+                <div class="flex items-center mb-6">
+                    <i class="fas fa-sitemap text-primary text-xl mr-3"></i>
+                    <h2 class="text-2xl font-bold text-gray-800">结构体与类的关系</h2>
+                </div>
+                <div class="space-y-4 text-gray-700">
+                    <p>在C++中，结构体与类非常相似，主要区别在于默认的访问权限不同。结构体也可以包含成员函数、构造函数和析构函数。</p>
+                    
+                    <div class="overflow-x-auto bg-codeBlock rounded-lg p-4 mb-4">
+                        <pre class="text-gray-100 font-mono text-sm"><code>// 结构体可以有成员函数
+struct Student {
+    string name;
+    float score;
+    
+    void display() {
+        cout << name << ": " << score << "分" << endl;
+    }
+    
+    // 可以添加构造函数
+    Student(string n, float s) : name(n), score(s) {}
+};</code></pre>
+                    </div>
+                    
+                    <div class="overflow-x-auto">
+                        <table class="min-w-full bg-white rounded-lg overflow-hidden">
+                            <thead class="bg-gray-100">
+                                <tr>
+                                    <th class="py-2 px-4 text-left">特性</th>
+                                    <th class="py-2 px-4 text-left">结构体 (struct)</th>
+                                    <th class="py-2 px-4 text-left">类 (class)</th>
+                                </tr>
+                            </thead>
+                            <tbody class="divide-y divide-gray-200">
+                                <tr>
+                                    <td class="py-2 px-4">默认访问权限</td>
+                                    <td class="py-2 px-4 font-semibold">public</td>
+                                    <td class="py-2 px-4 font-semibold">private</td>
+                                </tr>
+                                <tr>
+                                    <td class="py-2 px-4">成员函数</td>
+                                    <td class="py-2 px-4">可以有</td>
+                                    <td class="py-2 px-4">可以有</td>
+                                </tr>
+                                <tr>
+                                    <td class="py-2 px-4">构造函数</td>
+                                    <td class="py-2 px-4">可以有</td>
+                                    <td class="py-2 px-4">可以有</td>
+                                </tr>
+                                <tr>
+                                    <td class="py-2 px-4">继承</td>
+                                    <td class="py-2 px-4">支持</td>
+                                    <td class="py-2 px-4">支持</td>
+                                </tr>
+                                <tr>
+                                    <td class="py-2 px-4">适用场景</td>
+                                    <td class="py-2 px-4">简单的数据集合</td>
+                                    <td class="py-2 px-4">复杂的对象逻辑</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                    
+                    <div class="p-5 bg-blue-50 rounded-xl border-l-4 border-blue-400 mt-4">
+                        <div class="flex items-start">
+                            <i class="fas fa-info-circle text-blue-500 mt-1 mr-3"></i>
+                            <div>
+                                <h3 class="text-lg font-semibold text-gray-800 mb-2">使用建议</h3>
+                                <p class="text-gray-700">
+                                    在C++中，可以根据以下原则选择使用结构体或类：
+                                </p>
+                                <ul class="list-disc pl-5 mt-2">
+                                    <li>当主要目的是存储数据，且大多数成员应该是公开的，使用结构体</li>
+                                    <li>当需要封装数据、实现复杂行为，且大多数成员应该是私有的，使用类</li>
+                                    <li>记住这句话："结构体是公有成员的类，类是私有成员的结构体"</li>
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+        </main>
+
+        <!-- Footer -->
+        <footer class="mt-16 text-center text-gray-500 text-sm">            
+            <div class="flex justify-center mt-6 space-x-4">
+                <a href="语法基础.html" class="text-primary hover:text-primary-dark transition-colors duration-300">
+                    <i class="fas fa-arrow-left mr-1"></i>语法基础
+                </a>
+                <a href="函数.html" class="text-primary hover:text-primary-dark transition-colors duration-300">
+                    函数<i class="fas fa-arrow-right ml-1"></i>
+                </a>
+            </div>
+        </footer>
+    </div>
+
+    <!-- Simple ScrollReveal effect -->
+    <script src="https://unpkg.com/scrollreveal"></script>
+    <script>
+        ScrollReveal().reveal('section', { 
+            delay: 200,
+            distance: '20px',
+            origin: 'bottom',
+            duration: 800,
+            easing: 'ease-in-out'
+        });
+    </script>
+</body>
+</html> 

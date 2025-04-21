@@ -1,0 +1,472 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>C++ 类</title>
+    <!-- TailwindCSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&family=Roboto+Mono&display=swap" rel="stylesheet">
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        primary: {
+                            light: '#a5f3fc',
+                            DEFAULT: '#06b6d4',
+                            dark: '#0891b2',
+                        },
+                        secondary: {
+                            light: '#c7d2fe',
+                            DEFAULT: '#818cf8',
+                            dark: '#6366f1',
+                        },
+                        codeBlock: '#1e293b',
+                    },
+                    fontFamily: {
+                        sans: ['Poppins', 'sans-serif'],
+                        mono: ['Roboto Mono', 'monospace'],
+                    },
+                }
+            }
+        }
+    </script>
+    <style>
+        .card-hover {
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+        }
+        .card-hover:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 25px -5px rgba(6, 182, 212, 0.1), 0 10px 10px -5px rgba(6, 182, 212, 0.04);
+        }
+        .code-block::-webkit-scrollbar {
+            height: 8px;
+        }
+        .code-block::-webkit-scrollbar-thumb {
+            background-color: #06b6d4;
+            border-radius: 4px;
+        }
+        .code-block::-webkit-scrollbar-track {
+            background-color: #e2e8f0;
+            border-radius: 4px;
+        }
+    </style>
+</head>
+<body class="bg-gray-50 font-sans">
+    <div class="min-h-screen max-w-6xl mx-auto px-8 py-10">
+        <!-- Header -->
+        <header class="mb-12 text-center">
+            <div class="inline-block px-3 py-1 bg-primary-light text-primary-dark rounded-full text-sm font-medium mb-4">
+                C++ 编程入门
+            </div>
+            <h1 class="text-4xl font-bold text-gray-800 mb-4">C++ 类</h1>
+            <p class="text-lg text-gray-600 max-w-3xl mx-auto">掌握 C++ 面向对象编程的核心概念，理解类的定义与应用</p>
+        </header>
+
+        <!-- Main Content -->
+        <main>
+            <!-- 类的基础 Section -->
+            <section class="mb-12 bg-white rounded-2xl shadow-md p-8">
+                <div class="flex items-center mb-6">
+                    <i class="fas fa-cube text-primary text-xl mr-3"></i>
+                    <h2 class="text-2xl font-bold text-gray-800">类的基础</h2>
+                </div>
+                <div class="space-y-4 text-gray-700">
+                    <p>类是 C++ 面向对象编程的基础，它是用户自定义的数据类型，将数据和操作数据的函数封装在一起。</p>
+                    
+                    <div class="overflow-x-auto bg-codeBlock rounded-lg p-4 mb-4">
+                        <pre class="text-gray-100 font-mono text-sm"><code>// 类的基本语法
+class 类名 {
+    // 访问修饰符: private, protected, public
+private:
+    // 私有成员（默认）
+    
+protected:
+    // 受保护成员
+    
+public:
+    // 公有成员
+    
+    // 构造函数
+    类名(参数列表);
+    
+    // 析构函数
+    ~类名();
+    
+    // 成员函数
+    返回类型 函数名(参数列表);
+};
+
+// 示例：定义一个简单的类
+class Rectangle {
+private:
+    double length;
+    double width;
+    
+public:
+    // 构造函数
+    Rectangle(double l = 0, double w = 0) : length(l), width(w) {}
+    
+    // 成员函数
+    double getArea() {
+        return length * width;
+    }
+    
+    double getPerimeter() {
+        return 2 * (length + width);
+    }
+    
+    // 访问器和修改器
+    double getLength() { return length; }
+    void setLength(double l) { length = l; }
+    
+    double getWidth() { return width; }
+    void setWidth(double w) { width = w; }
+};</code></pre>
+                    </div>
+                    
+                    <div class="p-5 bg-primary-light bg-opacity-10 rounded-lg">
+                        <h3 class="text-lg font-semibold text-gray-800 mb-2">类的组成部分：</h3>
+                        <ul class="list-disc pl-5 space-y-1">
+                            <li><strong>数据成员</strong>：存储类的状态的变量</li>
+                            <li><strong>成员函数</strong>：操作类数据的函数</li>
+                            <li><strong>访问修饰符</strong>：控制对类成员的访问权限</li>
+                            <li><strong>构造函数</strong>：初始化类对象的特殊函数</li>
+                            <li><strong>析构函数</strong>：在对象被销毁时自动调用的函数</li>
+                        </ul>
+                    </div>
+                </div>
+            </section>
+            
+            <!-- 对象创建与使用 Section -->
+            <section class="mb-12 bg-white rounded-2xl shadow-md p-8">
+                <div class="flex items-center mb-6">
+                    <i class="fas fa-cogs text-primary text-xl mr-3"></i>
+                    <h2 class="text-2xl font-bold text-gray-800">对象创建与使用</h2>
+                </div>
+                <div class="space-y-4 text-gray-700">
+                    <p>类定义了对象的结构，一个类可以创建多个对象实例，每个实例有自己的数据成员。</p>
+                    
+                    <div class="overflow-x-auto bg-codeBlock rounded-lg p-4 mb-4">
+                        <pre class="text-gray-100 font-mono text-sm"><code>// 创建和使用对象
+int main() {
+    // 创建对象
+    Rectangle rect1(5.0, 3.0);
+    Rectangle rect2;  // 使用默认参数
+    
+    // 使用对象的成员函数
+    cout << "矩形1的面积: " << rect1.getArea() << endl;
+    cout << "矩形1的周长: " << rect1.getPerimeter() << endl;
+    
+    // 通过修改器设置数据
+    rect2.setLength(4.0);
+    rect2.setWidth(2.5);
+    cout << "矩形2的面积: " << rect2.getArea() << endl;
+    
+    // 动态创建对象（使用指针）
+    Rectangle* pRect = new Rectangle(6.0, 4.0);
+    cout << "矩形3的面积: " << pRect->getArea() << endl;
+    delete pRect;  // 释放内存
+    
+    return 0;
+}</code></pre>
+                    </div>
+                    
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
+                        <div class="card-hover p-6 bg-gray-50 rounded-xl">
+                            <h3 class="text-lg font-semibold text-gray-800 mb-4">
+                                <i class="fas fa-folder-plus text-primary-dark mr-2"></i>
+                                对象的创建方式
+                            </h3>
+                            <ul class="list-disc pl-5 space-y-1">
+                                <li><strong>栈上创建</strong>：<code>ClassName obj;</code></li>
+                                <li><strong>带参数创建</strong>：<code>ClassName obj(param1, param2);</code></li>
+                                <li><strong>列表初始化</strong>：<code>ClassName obj{param1, param2};</code> (C++11)</li>
+                                <li><strong>指针创建</strong>：<code>ClassName* ptr = new ClassName();</code></li>
+                                <li><strong>对象数组</strong>：<code>ClassName objArray[5];</code></li>
+                            </ul>
+                        </div>
+                        
+                        <div class="card-hover p-6 bg-gray-50 rounded-xl">
+                            <h3 class="text-lg font-semibold text-gray-800 mb-4">
+                                <i class="fas fa-arrow-right text-primary-dark mr-2"></i>
+                                成员访问
+                            </h3>
+                            <ul class="list-disc pl-5 space-y-1">
+                                <li><strong>对象访问</strong>：<code>obj.member</code></li>
+                                <li><strong>指针访问</strong>：<code>ptr->member</code> 或 <code>(*ptr).member</code></li>
+                                <li><strong>常对象</strong>：只能调用常量成员函数 <code>const ClassName obj;</code></li>
+                                <li><strong>静态成员</strong>：不需要对象，通过类名访问 <code>ClassName::staticMember</code></li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+            </section>
+            
+            <!-- 构造函数与析构函数 Section -->
+            <section class="mb-12 bg-white rounded-2xl shadow-md p-8">
+                <div class="flex items-center mb-6">
+                    <i class="fas fa-tools text-primary text-xl mr-3"></i>
+                    <h2 class="text-2xl font-bold text-gray-800">构造函数与析构函数</h2>
+                </div>
+                <div class="space-y-4 text-gray-700">
+                    <p>构造函数和析构函数是类的特殊成员函数，用于对象的初始化和清理。</p>
+                    
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
+                        <div class="card-hover p-6 bg-gray-50 rounded-xl">
+                            <h3 class="text-lg font-semibold text-gray-800 mb-4">
+                                <i class="fas fa-plus-circle text-primary-dark mr-2"></i>
+                                构造函数
+                            </h3>
+                            <p class="mb-3">构造函数在对象创建时自动调用，用于初始化对象的数据成员。</p>
+                            <div class="overflow-x-auto bg-codeBlock rounded-lg p-3">
+                                <pre class="text-gray-100 font-mono text-sm"><code>class Person {
+private:
+    string name;
+    int age;
+    
+public:
+    // 默认构造函数
+    Person() : name(""), age(0) {
+        cout << "默认构造函数被调用" << endl;
+    }
+    
+    // 带参数的构造函数
+    Person(string n, int a) : name(n), age(a) {
+        cout << "带参数构造函数被调用" << endl;
+    }
+    
+    // 拷贝构造函数
+    Person(const Person& other) : name(other.name), age(other.age) {
+        cout << "拷贝构造函数被调用" << endl;
+    }
+};</code></pre>
+                            </div>
+                        </div>
+                        
+                        <div class="card-hover p-6 bg-gray-50 rounded-xl">
+                            <h3 class="text-lg font-semibold text-gray-800 mb-4">
+                                <i class="fas fa-minus-circle text-primary-dark mr-2"></i>
+                                析构函数
+                            </h3>
+                            <p class="mb-3">析构函数在对象被销毁时自动调用，用于释放资源或执行清理操作。</p>
+                            <div class="overflow-x-auto bg-codeBlock rounded-lg p-3">
+                                <pre class="text-gray-100 font-mono text-sm"><code>class Resource {
+private:
+    int* data;
+    
+public:
+    // 构造函数
+    Resource(int size) {
+        data = new int[size];
+        cout << "资源已分配" << endl;
+    }
+    
+    // 析构函数
+    ~Resource() {
+        delete[] data;
+        cout << "资源已释放" << endl;
+    }
+};</code></pre>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="p-5 bg-yellow-50 rounded-xl border-l-4 border-yellow-400">
+                        <div class="flex items-start">
+                            <i class="fas fa-exclamation-triangle text-yellow-500 mt-1 mr-3"></i>
+                            <div>
+                                <h3 class="text-lg font-semibold text-gray-800 mb-2">构造函数注意事项</h3>
+                                <ul class="list-disc pl-5 space-y-1">
+                                    <li>构造函数名必须与类名相同</li>
+                                    <li>构造函数没有返回类型，甚至不是void</li>
+                                    <li>可以重载构造函数，提供不同的初始化方式</li>
+                                    <li>如果没有定义任何构造函数，编译器会提供默认构造函数</li>
+                                    <li>使用成员初始化列表通常比在函数体内赋值更高效</li>
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+            
+            <!-- 访问修饰符 Section -->
+            <section class="mb-12 bg-white rounded-2xl shadow-md p-8">
+                <div class="flex items-center mb-6">
+                    <i class="fas fa-lock text-primary text-xl mr-3"></i>
+                    <h2 class="text-2xl font-bold text-gray-800">访问修饰符</h2>
+                </div>
+                <div class="space-y-4 text-gray-700">
+                    <p>C++ 提供了三种访问修饰符，用于控制类成员的可见性和访问权限。</p>
+                    
+                    <div class="overflow-x-auto bg-codeBlock rounded-lg p-4 mb-4">
+                        <pre class="text-gray-100 font-mono text-sm"><code>class AccessExample {
+private:
+    int privateVar;   // 只能被类内部访问
+    
+protected:
+    int protectedVar; // 可被类内部和派生类访问
+    
+public:
+    int publicVar;    // 可被任何地方访问
+    
+    void setPrivateVar(int val) {
+        privateVar = val;  // 可以访问私有成员
+    }
+};</code></pre>
+                    </div>
+                    
+                    <div class="p-5 bg-blue-50 rounded-xl border-l-4 border-blue-400">
+                        <div class="flex items-start">
+                            <i class="fas fa-info-circle text-blue-500 mt-1 mr-3"></i>
+                            <div>
+                                <h3 class="text-lg font-semibold text-gray-800 mb-2">访问修饰符总结</h3>
+                                <table class="min-w-full bg-white">
+                                    <thead>
+                                        <tr>
+                                            <th class="py-2 px-4 border-b border-gray-200 bg-gray-100 text-left">修饰符</th>
+                                            <th class="py-2 px-4 border-b border-gray-200 bg-gray-100 text-left">类内部</th>
+                                            <th class="py-2 px-4 border-b border-gray-200 bg-gray-100 text-left">派生类</th>
+                                            <th class="py-2 px-4 border-b border-gray-200 bg-gray-100 text-left">外部</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <tr>
+                                            <td class="py-2 px-4 border-b border-gray-200">private</td>
+                                            <td class="py-2 px-4 border-b border-gray-200 text-green-600">✓</td>
+                                            <td class="py-2 px-4 border-b border-gray-200 text-red-600">✗</td>
+                                            <td class="py-2 px-4 border-b border-gray-200 text-red-600">✗</td>
+                                        </tr>
+                                        <tr>
+                                            <td class="py-2 px-4 border-b border-gray-200">protected</td>
+                                            <td class="py-2 px-4 border-b border-gray-200 text-green-600">✓</td>
+                                            <td class="py-2 px-4 border-b border-gray-200 text-green-600">✓</td>
+                                            <td class="py-2 px-4 border-b border-gray-200 text-red-600">✗</td>
+                                        </tr>
+                                        <tr>
+                                            <td class="py-2 px-4 border-b border-gray-200">public</td>
+                                            <td class="py-2 px-4 border-b border-gray-200 text-green-600">✓</td>
+                                            <td class="py-2 px-4 border-b border-gray-200 text-green-600">✓</td>
+                                            <td class="py-2 px-4 border-b border-gray-200 text-green-600">✓</td>
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+            
+            <!-- 继承 Section -->
+            <section class="mb-12 bg-white rounded-2xl shadow-md p-8">
+                <div class="flex items-center mb-6">
+                    <i class="fas fa-project-diagram text-primary text-xl mr-3"></i>
+                    <h2 class="text-2xl font-bold text-gray-800">继承</h2>
+                </div>
+                <div class="space-y-4 text-gray-700">
+                    <p>继承是面向对象编程的核心概念之一，它允许创建一个从已有类（基类）派生的新类（派生类），派生类继承基类的成员，并可以添加新的成员或修改继承的行为。</p>
+                    
+                    <div class="overflow-x-auto bg-codeBlock rounded-lg p-4 mb-4">
+                        <pre class="text-gray-100 font-mono text-sm"><code>// 基类
+class Shape {
+protected:
+    int x, y;  // 位置
+    
+public:
+    Shape(int x = 0, int y = 0) : x(x), y(y) {}
+    
+    void move(int newX, int newY) {
+        x = newX;
+        y = newY;
+    }
+    
+    virtual double area() const {
+        return 0.0;  // 基类的默认实现
+    }
+    
+    virtual void draw() const {
+        cout << "绘制形状" << endl;
+    }
+};
+
+// 派生类
+class Circle : public Shape {
+private:
+    double radius;
+    
+public:
+    Circle(int x, int y, double r) : Shape(x, y), radius(r) {}
+    
+    // 重写基类的函数
+    double area() const override {
+        return 3.14159 * radius * radius;
+    }
+    
+    void draw() const override {
+        cout << "绘制圆: 圆心(" << x << "," << y << "), 半径 " << radius << endl;
+    }
+};</code></pre>
+                    </div>
+                    
+                    <div class="card-hover p-6 bg-gray-50 rounded-xl mb-6">
+                        <h3 class="text-lg font-semibold text-gray-800 mb-4">继承的类型</h3>
+                        <ul class="list-disc pl-5 space-y-2">
+                            <li><strong>公有继承（public）</strong>：基类的公有成员在派生类中仍为公有，保护成员在派生类中仍为保护</li>
+                            <li><strong>保护继承（protected）</strong>：基类的公有和保护成员在派生类中均为保护成员</li>
+                            <li><strong>私有继承（private）</strong>：基类的公有和保护成员在派生类中均为私有成员</li>
+                        </ul>
+                    </div>
+                    
+                    <div class="p-5 bg-green-50 rounded-xl border-l-4 border-green-400">
+                        <div class="flex items-start">
+                            <i class="fas fa-lightbulb text-green-500 mt-1 mr-3"></i>
+                            <div>
+                                <h3 class="text-lg font-semibold text-gray-800 mb-2">继承的应用</h3>
+                                <p class="text-gray-700 mb-3">
+                                    继承可以用于创建类的层次结构，表示"是一个"的关系，例如：
+                                </p>
+                                <ul class="list-disc pl-5 space-y-1">
+                                    <li>动物 → 哺乳动物 → 犬科 → 狗</li>
+                                    <li>形状 → 二维形状 → 多边形 → 矩形 → 正方形</li>
+                                    <li>账户 → 银行账户 → 储蓄账户/支票账户</li>
+                                </ul>
+                                <p class="mt-2 text-gray-700">
+                                    通过继承可以实现代码重用、扩展现有类和多态性。
+                                </p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+        </main>
+
+        <!-- Footer -->
+        <footer class="mt-16 text-center text-gray-500 text-sm">            
+            <div class="flex justify-center mt-6 space-x-4">
+                <a href="函数.html" class="text-primary hover:text-primary-dark transition-colors duration-300">
+                    <i class="fas fa-arrow-left mr-1"></i>函数
+                </a>
+                <a href="联合体.html" class="text-primary hover:text-primary-dark transition-colors duration-300">
+                    联合体<i class="fas fa-arrow-right ml-1"></i>
+                </a>
+            </div>
+        </footer>
+    </div>
+
+    <!-- Simple ScrollReveal effect -->
+    <script src="https://unpkg.com/scrollreveal"></script>
+    <script>
+        ScrollReveal().reveal('section', { 
+            delay: 200,
+            distance: '20px',
+            origin: 'bottom',
+            duration: 800,
+            easing: 'ease-in-out'
+        });
+    </script>
+</body>
+</html> 

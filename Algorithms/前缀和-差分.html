@@ -1,0 +1,961 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>前缀和与差分</title>
+    <!-- TailwindCSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&family=Roboto+Mono&display=swap" rel="stylesheet">
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        primary: {
+                            light: '#a5f3fc',
+                            DEFAULT: '#06b6d4',
+                            dark: '#0891b2',
+                        },
+                        secondary: {
+                            light: '#c7d2fe',
+                            DEFAULT: '#818cf8',
+                            dark: '#6366f1',
+                        },
+                        codeBlock: '#1e293b',
+                    },
+                    fontFamily: {
+                        sans: ['Poppins', 'sans-serif'],
+                        mono: ['Roboto Mono', 'monospace'],
+                    },
+                }
+            }
+        }
+    </script>
+    <style>
+        .card-hover {
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+        }
+        .card-hover:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 25px -5px rgba(6, 182, 212, 0.1), 0 10px 10px -5px rgba(6, 182, 212, 0.04);
+        }
+        .code-block::-webkit-scrollbar {
+            height: 8px;
+        }
+        .code-block::-webkit-scrollbar-thumb {
+            background-color: #06b6d4;
+            border-radius: 4px;
+        }
+        .code-block::-webkit-scrollbar-track {
+            background-color: #e2e8f0;
+            border-radius: 4px;
+        }
+    </style>
+</head>
+<body class="bg-gray-50 font-sans">
+    <div class="min-h-screen max-w-6xl mx-auto px-8 py-10">
+        <!-- Header -->
+        <header class="mb-12 text-center">
+            <div class="inline-block px-3 py-1 bg-primary-light text-primary-dark rounded-full text-sm font-medium mb-4">
+                算法基础
+            </div>
+            <h1 class="text-4xl font-bold text-gray-800 mb-4">前缀和与差分</h1>
+            <p class="text-lg text-gray-600 max-w-3xl mx-auto">高效处理区间查询与修改的重要技巧</p>
+        </header>
+
+        <!-- Main Content -->
+        <main>
+            <!-- 前缀和概述 Section -->
+            <section class="mb-12 bg-white rounded-2xl shadow-md p-8">
+                <div class="flex items-center mb-6">
+                    <i class="fas fa-calculator text-primary text-xl mr-3"></i>
+                    <h2 class="text-2xl font-bold text-gray-800">前缀和概述</h2>
+                </div>
+                <div class="space-y-4 text-gray-700">
+                    <p>前缀和是一种重要的预处理技术，可以大幅降低查询的时间复杂度。其核心思想是对于数列 a，令 s[i] 表示 a[1] 到 a[i] 的和，即 s[i] = a[1] + a[2] + ... + a[i]。</p>
+                    
+                    <div class="p-5 bg-primary-light bg-opacity-10 rounded-lg">
+                        <p>通过预先计算前缀和数组，我们可以在 O(1) 的时间内得到任意区间 [l, r] 的和，计算公式为：a[l] + a[l+1] + ... + a[r] = s[r] - s[l-1]</p>
+                    </div>
+
+                    <h3 class="text-xl font-semibold text-gray-800 mt-6 mb-3">前缀和的基本定义</h3>
+                    <p>对于一个长度为 n 的数组 a，其前缀和数组 s 定义如下：</p>
+                    <div class="flex justify-center my-4">
+                        <div class="px-4 py-2 bg-gray-50 rounded-lg">
+                            <span class="font-mono">s[0] = 0；s[i] = s[i-1] + a[i]，其中 1 ≤ i ≤ n</span>
+                        </div>
+                    </div>
+                    <p>注意这里我们令 s[0] = 0，这样可以方便地计算 s[i] = s[i-1] + a[i]，也方便处理边界情况。</p>
+                    
+                    <h3 class="text-xl font-semibold text-gray-800 mt-6 mb-3">前缀和的时间复杂度</h3>
+                    <ul class="list-disc list-inside space-y-2 pl-4">
+                        <li>预处理：O(n) 时间内完成前缀和数组的计算</li>
+                        <li>区间查询：O(1) 时间内完成任意区间 [l, r] 的求和</li>
+                    </ul>
+                    
+                    <div class="mt-6">
+                        <h3 class="text-xl font-semibold text-gray-800 mb-3">前缀和的图示</h3>
+                        <div class="flex justify-center my-4">
+                            <svg width="600" height="180" xmlns="http://www.w3.org/2000/svg">
+                                <!-- 数组 a 的可视化 -->
+                                <g transform="translate(30, 30)">
+                                    <text x="-20" y="25" font-size="16" font-family="monospace">a:</text>
+                                    
+                                    <!-- a 数组元素 -->
+                                    <rect x="0" y="0" width="50" height="50" fill="#e2e8f0" stroke="#94a3b8" />
+                                    <text x="25" y="30" font-size="16" text-anchor="middle">3</text>
+                                    
+                                    <rect x="50" y="0" width="50" height="50" fill="#e2e8f0" stroke="#94a3b8" />
+                                    <text x="75" y="30" font-size="16" text-anchor="middle">5</text>
+                                    
+                                    <rect x="100" y="0" width="50" height="50" fill="#e2e8f0" stroke="#94a3b8" />
+                                    <text x="125" y="30" font-size="16" text-anchor="middle">2</text>
+                                    
+                                    <rect x="150" y="0" width="50" height="50" fill="#e2e8f0" stroke="#94a3b8" />
+                                    <text x="175" y="30" font-size="16" text-anchor="middle">4</text>
+                                    
+                                    <rect x="200" y="0" width="50" height="50" fill="#e2e8f0" stroke="#94a3b8" />
+                                    <text x="225" y="30" font-size="16" text-anchor="middle">1</text>
+                                    
+                                    <rect x="250" y="0" width="50" height="50" fill="#e2e8f0" stroke="#94a3b8" />
+                                    <text x="275" y="30" font-size="16" text-anchor="middle">7</text>
+                                    
+                                    <!-- a 数组索引 -->
+                                    <text x="25" y="70" font-size="14" text-anchor="middle">1</text>
+                                    <text x="75" y="70" font-size="14" text-anchor="middle">2</text>
+                                    <text x="125" y="70" font-size="14" text-anchor="middle">3</text>
+                                    <text x="175" y="70" font-size="14" text-anchor="middle">4</text>
+                                    <text x="225" y="70" font-size="14" text-anchor="middle">5</text>
+                                    <text x="275" y="70" font-size="14" text-anchor="middle">6</text>
+                                </g>
+                                
+                                <!-- 前缀和数组 s 的可视化 -->
+                                <g transform="translate(30, 110)">
+                                    <text x="-20" y="25" font-size="16" font-family="monospace">s:</text>
+                                    
+                                    <!-- s 数组元素 -->
+                                    <rect x="0" y="0" width="50" height="50" fill="#a5f3fc" stroke="#0891b2" />
+                                    <text x="25" y="30" font-size="16" text-anchor="middle">3</text>
+                                    
+                                    <rect x="50" y="0" width="50" height="50" fill="#a5f3fc" stroke="#0891b2" />
+                                    <text x="75" y="30" font-size="16" text-anchor="middle">8</text>
+                                    
+                                    <rect x="100" y="0" width="50" height="50" fill="#a5f3fc" stroke="#0891b2" />
+                                    <text x="125" y="30" font-size="16" text-anchor="middle">10</text>
+                                    
+                                    <rect x="150" y="0" width="50" height="50" fill="#a5f3fc" stroke="#0891b2" />
+                                    <text x="175" y="30" font-size="16" text-anchor="middle">14</text>
+                                    
+                                    <rect x="200" y="0" width="50" height="50" fill="#a5f3fc" stroke="#0891b2" />
+                                    <text x="225" y="30" font-size="16" text-anchor="middle">15</text>
+                                    
+                                    <rect x="250" y="0" width="50" height="50" fill="#a5f3fc" stroke="#0891b2" />
+                                    <text x="275" y="30" font-size="16" text-anchor="middle">22</text>
+                                    
+                                    <!-- s 数组索引 -->
+                                    <text x="25" y="70" font-size="14" text-anchor="middle">1</text>
+                                    <text x="75" y="70" font-size="14" text-anchor="middle">2</text>
+                                    <text x="125" y="70" font-size="14" text-anchor="middle">3</text>
+                                    <text x="175" y="70" font-size="14" text-anchor="middle">4</text>
+                                    <text x="225" y="70" font-size="14" text-anchor="middle">5</text>
+                                    <text x="275" y="70" font-size="14" text-anchor="middle">6</text>
+                                </g>
+                                
+                                <!-- 其他标注 -->
+                                <text x="340" y="130" font-size="14" font-family="monospace">区间 [2, 5] 的和 = s[5] - s[1] = 15 - 3 = 12</text>
+                                <path d="M 300 130 L 330 130" stroke="#0891b2" stroke-width="2" />
+                            </svg>
+                        </div>
+                    </div>
+                </div>
+            </section>
+            
+            <!-- 一维前缀和应用 Section -->
+            <section class="mb-12 bg-white rounded-2xl shadow-md p-8">
+                <div class="flex items-center mb-6">
+                    <i class="fas fa-code text-primary text-xl mr-3"></i>
+                    <h2 class="text-2xl font-bold text-gray-800">一维前缀和应用</h2>
+                </div>
+                <div class="space-y-4 text-gray-700">
+                    <h3 class="text-xl font-semibold text-gray-800 mb-3">前缀和的实现</h3>
+                    <p>下面是前缀和的基本实现代码：</p>
+                    
+                    <div class="overflow-x-auto bg-codeBlock rounded-lg p-4 mb-4">
+                        <pre class="text-gray-100 font-mono text-sm"><code>// C++ 实现
+#include &lt;iostream&gt;
+#include &lt;vector&gt;
+using namespace std;
+
+int main() {
+    int n;
+    cin >> n;
+    
+    vector&lt;int&gt; a(n + 1);  // 原数组，1-indexed
+    vector&lt;int&gt; s(n + 1, 0);  // 前缀和数组，初始化为0
+    
+    // 读入原数组
+    for (int i = 1; i <= n; i++) {
+        cin >> a[i];
+    }
+    
+    // 计算前缀和
+    for (int i = 1; i <= n; i++) {
+        s[i] = s[i-1] + a[i];
+    }
+    
+    // 区间查询示例：求区间 [l, r] 的和
+    int l, r;
+    cin >> l >> r;
+    cout << "区间 [" << l << "," << r << "] 的和为：" << s[r] - s[l-1] << endl;
+    
+    return 0;
+}</code></pre>
+                    </div>
+                    
+                    <h3 class="text-xl font-semibold text-gray-800 mt-6 mb-3">例题1：区间和查询</h3>
+                    <p>问题：给定一个长度为 n 的整数序列 a<sub>1</sub>, a<sub>2</sub>, ..., a<sub>n</sub>，再给定 m 个查询，每个查询包含两个整数 l 和 r，你需要回答序列中第 l 个数到第 r 个数的和。</p>
+                    
+                    <div class="p-6 bg-gray-50 rounded-xl">
+                        <h4 class="font-semibold mb-3 text-primary-dark">解题思路</h4>
+                        <ol class="list-decimal list-inside space-y-2 pl-4">
+                            <li>如果按照朴素算法，每次查询需要遍历区间 [l, r]，时间复杂度为 O(n)，对于 m 次查询，总时间复杂度为 O(mn)</li>
+                            <li>使用前缀和，预处理时间为 O(n)，每次查询时间为 O(1)，总时间复杂度优化为 O(n + m)</li>
+                            <li>计算前缀和数组 s 后，区间 [l, r] 的和为 s[r] - s[l-1]</li>
+                        </ol>
+                        
+                        <div class="overflow-x-auto bg-codeBlock rounded-lg p-4 mt-4">
+                            <pre class="text-gray-100 font-mono text-sm"><code>#include &lt;iostream&gt;
+#include &lt;vector&gt;
+using namespace std;
+
+int main() {
+    int n, m;
+    cin >> n >> m;
+    
+    vector&lt;int&gt; a(n + 1);
+    vector&lt;int&gt; s(n + 1, 0);
+    
+    // 读入原数组
+    for (int i = 1; i <= n; i++) {
+        cin >> a[i];
+        s[i] = s[i-1] + a[i];  // 同时计算前缀和
+    }
+    
+    // 处理m次查询
+    for (int i = 0; i < m; i++) {
+        int l, r;
+        cin >> l >> r;
+        cout << s[r] - s[l-1] << endl;
+    }
+    
+    return 0;
+}</code></pre>
+                        </div>
+                    </div>
+                    
+                    <h3 class="text-xl font-semibold text-gray-800 mt-6 mb-3">例题2：最大子段和</h3>
+                    <p>问题：给定一个长度为 n 的整数序列 a<sub>1</sub>, a<sub>2</sub>, ..., a<sub>n</sub>，求一个连续子序列，使得子序列中所有数的和最大。</p>
+                    
+                    <div class="p-6 bg-gray-50 rounded-xl">
+                        <h4 class="font-semibold mb-3 text-primary-dark">解题思路</h4>
+                        <ol class="list-decimal list-inside space-y-2 pl-4">
+                            <li>使用前缀和可以把这个问题转化为求 max(s[j] - s[i])，其中 j > i</li>
+                            <li>对于每个位置 j，我们希望找到 i < j 且 s[i] 最小的位置，这样可以使 s[j] - s[i] 最大</li>
+                            <li>使用一个变量记录遍历过程中的最小前缀和，同时更新全局的最大子段和</li>
+                        </ol>
+                        
+                        <div class="overflow-x-auto bg-codeBlock rounded-lg p-4 mt-4">
+                            <pre class="text-gray-100 font-mono text-sm"><code>#include &lt;iostream&gt;
+#include &lt;vector&gt;
+#include &lt;algorithm&gt;
+using namespace std;
+
+int main() {
+    int n;
+    cin >> n;
+    
+    vector&lt;int&gt; a(n + 1);
+    vector&lt;int&gt; s(n + 1, 0);
+    
+    // 读入原数组并计算前缀和
+    for (int i = 1; i <= n; i++) {
+        cin >> a[i];
+        s[i] = s[i-1] + a[i];
+    }
+    
+    int ans = a[1];  // 初始化为第一个元素
+    int min_prefix = s[0];  // 初始化为前缀和的最小值
+    
+    // 枚举右端点
+    for (int i = 1; i <= n; i++) {
+        // 更新答案
+        ans = max(ans, s[i] - min_prefix);
+        // 更新最小前缀和
+        min_prefix = min(min_prefix, s[i]);
+    }
+    
+    cout << "最大子段和为：" << ans << endl;
+    
+    return 0;
+}</code></pre>
+                        </div>
+                    </div>
+                    
+                    <h3 class="text-xl font-semibold text-gray-800 mt-6 mb-3">例题3：子段和能被k整除的段数</h3>
+                    <p>问题：给定一个长度为 n 的数组 a，求有多少个连续子数组的和能被整数 k 整除。</p>
+                    
+                    <div class="p-6 bg-gray-50 rounded-xl">
+                        <h4 class="font-semibold mb-3 text-primary-dark">解题思路</h4>
+                        <ol class="list-decimal list-inside space-y-2 pl-4">
+                            <li>利用前缀和思想，对于子数组 a[l...r]，其和为 s[r] - s[l-1]</li>
+                            <li>如果 (s[r] - s[l-1]) % k = 0，等价于 s[r] % k = s[l-1] % k</li>
+                            <li>我们可以统计每个前缀和对 k 取模后的值出现的次数，然后计算满足条件的子数组数量</li>
+                        </ol>
+                        
+                        <div class="overflow-x-auto bg-codeBlock rounded-lg p-4 mt-4">
+                            <pre class="text-gray-100 font-mono text-sm"><code>#include &lt;iostream&gt;
+#include &lt;vector&gt;
+#include &lt;unordered_map&gt;
+using namespace std;
+
+int main() {
+    int n, k;
+    cin >> n >> k;
+    
+    vector&lt;int&gt; a(n + 1);
+    vector&lt;int&gt; s(n + 1, 0);
+    
+    // 读入原数组并计算前缀和
+    for (int i = 1; i <= n; i++) {
+        cin >> a[i];
+        s[i] = s[i-1] + a[i];
+    }
+    
+    // 统计每个模值出现的次数
+    unordered_map&lt;int, int&gt; count;
+    count[0] = 1;  // 初始前缀和为0，模值为0
+    
+    long long ans = 0;
+    for (int i = 1; i <= n; i++) {
+        // 计算当前前缀和对k取模的结果
+        int mod = ((s[i] % k) + k) % k;  // 处理负数情况
+        
+        // 累加满足条件的子数组数量
+        ans += count[mod];
+        
+        // 更新模值出现次数
+        count[mod]++;
+    }
+    
+    cout << "满足条件的子数组数量为：" << ans << endl;
+    
+    return 0;
+}</code></pre>
+                        </div>
+                        
+                        <div class="p-4 bg-gray-100 rounded-lg mt-4">
+                            <h4 class="font-semibold mb-2 text-gray-800">时间复杂度分析</h4>
+                            <ul class="list-disc list-inside space-y-1 pl-4">
+                                <li>时间复杂度：O(n)，其中 n 是数组长度</li>
+                                <li>空间复杂度：O(min(n, k))，存储模 k 的所有可能余数的出现次数</li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+            </section>
+            
+            <!-- 二维前缀和 Section -->
+            <section class="mb-12 bg-white rounded-2xl shadow-md p-8">
+                <div class="flex items-center mb-6">
+                    <i class="fas fa-th text-primary text-xl mr-3"></i>
+                    <h2 class="text-2xl font-bold text-gray-800">二维前缀和</h2>
+                </div>
+                <div class="space-y-4 text-gray-700">
+                    <p>二维前缀和是前缀和在二维平面上的拓展，用于高效计算矩阵中任意子矩阵的元素和。</p>
+                    
+                    <h3 class="text-xl font-semibold text-gray-800 mb-3">定义与计算</h3>
+                    <p>对于一个 n×m 的矩阵 a，定义其二维前缀和 s[i][j] 表示左上角 (1,1) 到右下角 (i,j) 子矩阵内所有元素的和：</p>
+                    
+                    <div class="flex justify-center my-4">
+                        <div class="px-4 py-2 bg-gray-50 rounded-lg">
+                            <span class="font-mono">s[i][j] = a[1][1] + a[1][2] + ... + a[i][j]</span>
+                        </div>
+                    </div>
+                    
+                    <p>二维前缀和的递推公式：</p>
+                    <div class="flex justify-center my-4">
+                        <div class="px-4 py-2 bg-gray-50 rounded-lg">
+                            <span class="font-mono">s[i][j] = s[i-1][j] + s[i][j-1] - s[i-1][j-1] + a[i][j]</span>
+                        </div>
+                    </div>
+                    
+                    <div class="mt-4">
+                        <h3 class="text-xl font-semibold text-gray-800 mb-3">二维前缀和的图示</h3>
+                        <div class="flex justify-center my-4">
+                            <svg width="400" height="400" xmlns="http://www.w3.org/2000/svg">
+                                <!-- 网格背景 -->
+                                <g transform="translate(50, 50)">
+                                    <rect x="0" y="0" width="300" height="300" fill="none" stroke="#94a3b8" stroke-width="1" />
+                                    
+                                    <!-- 水平线 -->
+                                    <line x1="0" y1="50" x2="300" y2="50" stroke="#94a3b8" stroke-width="1" />
+                                    <line x1="0" y1="100" x2="300" y2="100" stroke="#94a3b8" stroke-width="1" />
+                                    <line x1="0" y1="150" x2="300" y2="150" stroke="#94a3b8" stroke-width="1" />
+                                    <line x1="0" y1="200" x2="300" y2="200" stroke="#94a3b8" stroke-width="1" />
+                                    <line x1="0" y1="250" x2="300" y2="250" stroke="#94a3b8" stroke-width="1" />
+                                    
+                                    <!-- 垂直线 -->
+                                    <line x1="50" y1="0" x2="50" y2="300" stroke="#94a3b8" stroke-width="1" />
+                                    <line x1="100" y1="0" x2="100" y2="300" stroke="#94a3b8" stroke-width="1" />
+                                    <line x1="150" y1="0" x2="150" y2="300" stroke="#94a3b8" stroke-width="1" />
+                                    <line x1="200" y1="0" x2="200" y2="300" stroke="#94a3b8" stroke-width="1" />
+                                    <line x1="250" y1="0" x2="250" y2="300" stroke="#94a3b8" stroke-width="1" />
+                                    
+                                    <!-- 坐标标注 -->
+                                    <text x="-10" y="-10" font-size="14" text-anchor="end">(0,0)</text>
+                                    <text x="300" y="-10" font-size="14" text-anchor="end">(0,m)</text>
+                                    <text x="-10" y="300" font-size="14" text-anchor="end">(n,0)</text>
+                                    <text x="300" y="300" font-size="14" text-anchor="end">(n,m)</text>
+                                    
+                                    <!-- 子矩阵区域 (2,2) 到 (4,5) -->
+                                    <rect x="100" y="100" width="150" height="100" fill="#a5f3fc" fill-opacity="0.5" stroke="#0891b2" stroke-width="2" />
+                                    
+                                    <!-- 子矩阵的标注 -->
+                                    <text x="175" y="150" font-size="16" text-anchor="middle" fill="#0891b2">子矩阵 (2,2) 到 (4,5)</text>
+                                    
+                                    <!-- 前缀和区域的说明 -->
+                                    <text x="150" y="50" font-size="14" text-anchor="middle" fill="#475569">s[4][5]</text>
+                                    <text x="50" y="150" font-size="14" text-anchor="middle" fill="#475569">s[4][1]</text>
+                                    <text x="150" y="250" font-size="14" text-anchor="middle" fill="#475569">s[1][5]</text>
+                                    <text x="50" y="250" font-size="14" text-anchor="middle" fill="#475569">s[1][1]</text>
+                                </g>
+                                
+                                <!-- 公式说明 -->
+                                <text x="200" y="380" font-size="14" text-anchor="middle">
+                                    子矩阵和 = s[4][5] - s[4][1] - s[1][5] + s[1][1]
+                                </text>
+                            </svg>
+                        </div>
+                    </div>
+                    
+                    <h3 class="text-xl font-semibold text-gray-800 mt-6 mb-3">二维前缀和的应用</h3>
+                    <p>对于任意的子矩阵，其左上角坐标为 (x1, y1)，右下角坐标为 (x2, y2)，该子矩阵的元素和可以通过以下公式计算：</p>
+                    
+                    <div class="flex justify-center my-4">
+                        <div class="px-4 py-2 bg-gray-50 rounded-lg">
+                            <span class="font-mono">子矩阵和 = s[x2][y2] - s[x2][y1-1] - s[x1-1][y2] + s[x1-1][y1-1]</span>
+                        </div>
+                    </div>
+                    
+                    <div class="card-hover p-6 bg-gray-50 rounded-xl mt-4">
+                        <h3 class="text-lg font-semibold text-gray-800 mb-3">二维前缀和的实现</h3>
+                        <div class="overflow-x-auto bg-codeBlock rounded-lg p-4">
+                            <pre class="text-gray-100 font-mono text-sm"><code>#include &lt;iostream&gt;
+#include &lt;vector&gt;
+using namespace std;
+
+int main() {
+    int n, m, q;
+    cin >> n >> m >> q;  // n行m列的矩阵，q个查询
+    
+    vector&lt;vector&lt;int&gt;&gt; a(n+1, vector&lt;int&gt;(m+1, 0));  // 原矩阵
+    vector&lt;vector&lt;int&gt;&gt; s(n+1, vector&lt;int&gt;(m+1, 0));  // 前缀和矩阵
+    
+    // 读入原矩阵
+    for (int i = 1; i <= n; i++) {
+        for (int j = 1; j <= m; j++) {
+            cin >> a[i][j];
+        }
+    }
+    
+    // 计算二维前缀和
+    for (int i = 1; i <= n; i++) {
+        for (int j = 1; j <= m; j++) {
+            s[i][j] = s[i-1][j] + s[i][j-1] - s[i-1][j-1] + a[i][j];
+        }
+    }
+    
+    // 处理查询
+    while (q--) {
+        int x1, y1, x2, y2;
+        cin >> x1 >> y1 >> x2 >> y2;
+        
+        // 计算子矩阵的和
+        int sum = s[x2][y2] - s[x2][y1-1] - s[x1-1][y2] + s[x1-1][y1-1];
+        cout << sum << endl;
+    }
+    
+    return 0;
+}</code></pre>
+                        </div>
+                    </div>
+                </div>
+            </section>
+            
+            <!-- 例题：二维前缀和应用 -->
+            <section class="mb-12 bg-white rounded-2xl shadow-md p-8">
+                <div class="flex items-center mb-6">
+                    <i class="fas fa-puzzle-piece text-primary text-xl mr-3"></i>
+                    <h2 class="text-2xl font-bold text-gray-800">例题：二维前缀和应用</h2>
+                </div>
+                <div class="space-y-4 text-gray-700">
+                    <h3 class="text-xl font-semibold text-gray-800 mb-3">例题1：最大子矩阵</h3>
+                    <p>问题：给定一个 n×m 的整数矩阵，找出和最大的子矩阵。</p>
+                    
+                    <div class="p-6 bg-gray-50 rounded-xl">
+                        <h4 class="font-semibold mb-3 text-primary-dark">解题思路</h4>
+                        <ol class="list-decimal list-inside space-y-2 pl-4">
+                            <li>枚举上下边界，将问题转化为一维最大子段和问题</li>
+                            <li>对于固定的上下边界 (r1, r2)，计算每一列在区间 [r1, r2] 的元素和</li>
+                            <li>使用一维最大子段和算法找出这些列和构成的序列的最大子段和</li>
+                            <li>维护全局最大值，即为最大子矩阵的和</li>
+                        </ol>
+                        
+                        <div class="overflow-x-auto bg-codeBlock rounded-lg p-4 mt-4">
+                            <pre class="text-gray-100 font-mono text-sm"><code>#include &lt;iostream&gt;
+#include &lt;vector&gt;
+#include &lt;algorithm&gt;
+using namespace std;
+
+int main() {
+    int n, m;
+    cin >> n >> m;
+    
+    vector&lt;vector&lt;int&gt;&gt; a(n+1, vector&lt;int&gt;(m+1, 0));
+    
+    // 读入矩阵
+    for (int i = 1; i <= n; i++) {
+        for (int j = 1; j <= m; j++) {
+            cin >> a[i][j];
+        }
+    }
+    
+    int max_sum = a[1][1];  // 初始化为矩阵中第一个元素
+    
+    // 枚举上下边界
+    for (int r1 = 1; r1 <= n; r1++) {
+        vector&lt;int&gt; col_sum(m+1, 0);  // 保存每列的元素和
+        
+        for (int r2 = r1; r2 <= n; r2++) {
+            // 计算每列在区间 [r1, r2] 的元素和
+            for (int j = 1; j <= m; j++) {
+                col_sum[j] += a[r2][j];
+            }
+            
+            // 对列和序列应用一维最大子段和算法
+            int current_sum = 0;
+            int max_subarray = col_sum[1];
+            
+            for (int j = 1; j <= m; j++) {
+                current_sum = max(col_sum[j], current_sum + col_sum[j]);
+                max_subarray = max(max_subarray, current_sum);
+            }
+            
+            // 更新全局最大值
+            max_sum = max(max_sum, max_subarray);
+        }
+    }
+    
+    cout << "最大子矩阵和为：" << max_sum << endl;
+    
+    return 0;
+}</code></pre>
+                        </div>
+                        
+                        <div class="p-4 bg-gray-100 rounded-lg mt-4">
+                            <h4 class="font-semibold mb-2 text-gray-800">复杂度分析</h4>
+                            <ul class="list-disc list-inside space-y-1 pl-4">
+                                <li>时间复杂度：O(n²m)，其中 n 是矩阵的行数，m 是矩阵的列数</li>
+                                <li>空间复杂度：O(m)</li>
+                            </ul>
+                        </div>
+                    </div>
+                    
+                    <h3 class="text-xl font-semibold text-gray-800 mt-6 mb-3">例题2：矩阵中的最大正方形</h3>
+                    <p>问题：给定一个由 0 和 1 组成的矩阵，找出只包含 1 的最大正方形面积。</p>
+                    
+                    <div class="p-6 bg-gray-50 rounded-xl">
+                        <h4 class="font-semibold mb-3 text-primary-dark">解题思路</h4>
+                        <ol class="list-decimal list-inside space-y-2 pl-4">
+                            <li>使用二维前缀和计算任意子矩阵中 1 的个数</li>
+                            <li>二分查找正方形的边长</li>
+                            <li>对于每个可能的边长 k，检查是否存在一个 k×k 的子矩阵全部由 1 组成</li>
+                            <li>如果该子矩阵中 1 的个数等于 k²，则说明该子矩阵全部由 1 组成</li>
+                        </ol>
+                        
+                        <div class="overflow-x-auto bg-codeBlock rounded-lg p-4 mt-4">
+                            <pre class="text-gray-100 font-mono text-sm"><code>#include &lt;iostream&gt;
+#include &lt;vector&gt;
+#include &lt;algorithm&gt;
+using namespace std;
+
+int main() {
+    int n, m;
+    cin >> n >> m;
+    
+    vector&lt;vector&lt;int&gt;&gt; a(n+1, vector&lt;int&gt;(m+1, 0));
+    vector&lt;vector&lt;int&gt;&gt; s(n+1, vector&lt;int&gt;(m+1, 0));
+    
+    // 读入矩阵
+    for (int i = 1; i <= n; i++) {
+        for (int j = 1; j <= m; j++) {
+            cin >> a[i][j];
+        }
+    }
+    
+    // 计算二维前缀和
+    for (int i = 1; i <= n; i++) {
+        for (int j = 1; j <= m; j++) {
+            s[i][j] = s[i-1][j] + s[i][j-1] - s[i-1][j-1] + a[i][j];
+        }
+    }
+    
+    int max_side = 0;
+    
+    // 枚举所有可能的正方形边长
+    for (int k = 1; k <= min(n, m); k++) {
+        // 枚举正方形左上角坐标
+        for (int i = 1; i + k - 1 <= n; i++) {
+            for (int j = 1; j + k - 1 <= m; j++) {
+                int x1 = i, y1 = j;
+                int x2 = i + k - 1, y2 = j + k - 1;
+                
+                // 计算子矩阵中的1的个数
+                int count = s[x2][y2] - s[x2][y1-1] - s[x1-1][y2] + s[x1-1][y1-1];
+                
+                // 如果全部为1，更新最大边长
+                if (count == k * k) {
+                    max_side = max(max_side, k);
+                }
+            }
+        }
+    }
+    
+    cout << "最大全1正方形的面积为：" << max_side * max_side << endl;
+    
+    return 0;
+}</code></pre>
+                        </div>
+                    </div>
+                </div>
+            </section>
+            
+            <!-- 差分 Section -->
+            <section class="mb-12 bg-white rounded-2xl shadow-md p-8">
+                <div class="flex items-center mb-6">
+                    <i class="fas fa-minus text-primary text-xl mr-3"></i>
+                    <h2 class="text-2xl font-bold text-gray-800">差分</h2>
+                </div>
+                <div class="space-y-4 text-gray-700">
+                    <p>差分是一种重要的预处理技术，可以大幅降低区间修改的时间复杂度。其核心思想是对于数列 a，令 d[i] 表示 a[i] 与 a[i-1] 的差值，即 d[i] = a[i] - a[i-1]。</p>
+                    
+                    <div class="p-5 bg-primary-light bg-opacity-10 rounded-lg">
+                        <p>通过预先计算差分数组，我们可以在 O(1) 的时间内完成任意区间 [l, r] 的修改，计算公式为：a[l] + d[l+1] + d[l+2] + ... + d[r] = a[r] - a[l-1]</p>
+                    </div>
+
+                    <h3 class="text-xl font-semibold text-gray-800 mt-6 mb-3">差分的基本定义</h3>
+                    <p>对于一个长度为 n 的数组 a，其差分数组 d 定义如下：</p>
+                    <div class="flex justify-center my-4">
+                        <div class="px-4 py-2 bg-gray-50 rounded-lg">
+                            <span class="font-mono">d[i] = a[i] - a[i-1]，其中 1 ≤ i ≤ n</span>
+                        </div>
+                    </div>
+                    <p>注意这里我们令 d[0] = 0，这样可以方便地计算 d[i] = a[i] - a[i-1]，也方便处理边界情况。</p>
+                    
+                    <h3 class="text-xl font-semibold text-gray-800 mt-6 mb-3">差分的时间复杂度</h3>
+                    <ul class="list-disc list-inside space-y-2 pl-4">
+                        <li>预处理：O(n) 时间内完成差分数组的计算</li>
+                        <li>区间修改：O(1) 时间内完成任意区间 [l, r] 的修改</li>
+                    </ul>
+                    
+                    <div class="mt-6">
+                        <h3 class="text-xl font-semibold text-gray-800 mb-3">差分的图示</h3>
+                        <div class="flex justify-center my-4">
+                            <svg width="600" height="180" xmlns="http://www.w3.org/2000/svg">
+                                <!-- 数组 a 的可视化 -->
+                                <g transform="translate(30, 30)">
+                                    <text x="-20" y="25" font-size="16" font-family="monospace">a:</text>
+                                    
+                                    <!-- a 数组元素 -->
+                                    <rect x="0" y="0" width="50" height="50" fill="#e2e8f0" stroke="#94a3b8" />
+                                    <text x="25" y="30" font-size="16" text-anchor="middle">3</text>
+                                    
+                                    <rect x="50" y="0" width="50" height="50" fill="#e2e8f0" stroke="#94a3b8" />
+                                    <text x="75" y="30" font-size="16" text-anchor="middle">5</text>
+                                    
+                                    <rect x="100" y="0" width="50" height="50" fill="#e2e8f0" stroke="#94a3b8" />
+                                    <text x="125" y="30" font-size="16" text-anchor="middle">2</text>
+                                    
+                                    <rect x="150" y="0" width="50" height="50" fill="#e2e8f0" stroke="#94a3b8" />
+                                    <text x="175" y="30" font-size="16" text-anchor="middle">4</text>
+                                    
+                                    <rect x="200" y="0" width="50" height="50" fill="#e2e8f0" stroke="#94a3b8" />
+                                    <text x="225" y="30" font-size="16" text-anchor="middle">1</text>
+                                    
+                                    <rect x="250" y="0" width="50" height="50" fill="#e2e8f0" stroke="#94a3b8" />
+                                    <text x="275" y="30" font-size="16" text-anchor="middle">7</text>
+                                    
+                                    <!-- a 数组索引 -->
+                                    <text x="25" y="70" font-size="14" text-anchor="middle">1</text>
+                                    <text x="75" y="70" font-size="14" text-anchor="middle">2</text>
+                                    <text x="125" y="70" font-size="14" text-anchor="middle">3</text>
+                                    <text x="175" y="70" font-size="14" text-anchor="middle">4</text>
+                                    <text x="225" y="70" font-size="14" text-anchor="middle">5</text>
+                                    <text x="275" y="70" font-size="14" text-anchor="middle">6</text>
+                                </g>
+                                
+                                <!-- 差分数组 d 的可视化 -->
+                                <g transform="translate(30, 110)">
+                                    <text x="-20" y="25" font-size="16" font-family="monospace">d:</text>
+                                    
+                                    <!-- d 数组元素 -->
+                                    <rect x="0" y="0" width="50" height="50" fill="#a5f3fc" stroke="#0891b2" />
+                                    <text x="25" y="30" font-size="16" text-anchor="middle">3</text>
+                                    
+                                    <rect x="50" y="0" width="50" height="50" fill="#a5f3fc" stroke="#0891b2" />
+                                    <text x="75" y="30" font-size="16" text-anchor="middle">-2</text>
+                                    
+                                    <rect x="100" y="0" width="50" height="50" fill="#a5f3fc" stroke="#0891b2" />
+                                    <text x="125" y="30" font-size="16" text-anchor="middle">2</text>
+                                    
+                                    <rect x="150" y="0" width="50" height="50" fill="#a5f3fc" stroke="#0891b2" />
+                                    <text x="175" y="30" font-size="16" text-anchor="middle">2</text>
+                                    
+                                    <rect x="200" y="0" width="50" height="50" fill="#a5f3fc" stroke="#0891b2" />
+                                    <text x="225" y="30" font-size="16" text-anchor="middle">-3</text>
+                                    
+                                    <rect x="250" y="0" width="50" height="50" fill="#a5f3fc" stroke="#0891b2" />
+                                    <text x="275" y="30" font-size="16" text-anchor="middle">6</text>
+                                    
+                                    <!-- d 数组索引 -->
+                                    <text x="25" y="70" font-size="14" text-anchor="middle">1</text>
+                                    <text x="75" y="70" font-size="14" text-anchor="middle">2</text>
+                                    <text x="125" y="70" font-size="14" text-anchor="middle">3</text>
+                                    <text x="175" y="70" font-size="14" text-anchor="middle">4</text>
+                                    <text x="225" y="70" font-size="14" text-anchor="middle">5</text>
+                                    <text x="275" y="70" font-size="14" text-anchor="middle">6</text>
+                                </g>
+                                
+                                <!-- 其他标注 -->
+                                <text x="340" y="130" font-size="14" font-family="monospace">区间 [2, 5] 的和 = a[5] - a[1] = 7 - 3 = 4</text>
+                                <path d="M 300 130 L 330 130" stroke="#0891b2" stroke-width="2" />
+                            </svg>
+                        </div>
+                    </div>
+                </div>
+            </section>
+            
+            <!-- 差分应用 Section -->
+            <section class="mb-12 bg-white rounded-2xl shadow-md p-8">
+                <div class="flex items-center mb-6">
+                    <i class="fas fa-code text-primary text-xl mr-3"></i>
+                    <h2 class="text-2xl font-bold text-gray-800">差分应用</h2>
+                </div>
+                <div class="space-y-4 text-gray-700">
+                    <h3 class="text-xl font-semibold text-gray-800 mb-3">差分的实现</h3>
+                    <p>下面是差分的基本实现代码：</p>
+                    
+                    <div class="overflow-x-auto bg-codeBlock rounded-lg p-4 mb-4">
+                        <pre class="text-gray-100 font-mono text-sm"><code>// C++ 实现
+#include &lt;iostream&gt;
+#include &lt;vector&gt;
+using namespace std;
+
+int main() {
+    int n;
+    cin >> n;
+    
+    vector&lt;int&gt; a(n + 1);  // 原数组，1-indexed
+    vector&lt;int&gt; d(n + 1, 0);  // 差分数组，初始化为0
+    
+    // 读入原数组
+    for (int i = 1; i <= n; i++) {
+        cin >> a[i];
+    }
+    
+    // 计算差分数组
+    for (int i = 1; i <= n; i++) {
+        d[i] = a[i] - a[i-1];
+    }
+    
+    // 区间修改示例：将区间 [l, r] 的每个元素加上 x
+    int l, r, x;
+    cin >> l >> r >> x;
+    d[l] += x;
+    d[r+1] -= x;
+    
+    // 恢复原数组
+    for (int i = 1; i <= n; i++) {
+        a[i] = a[i-1] + d[i];
+    }
+    
+    // 输出恢复后的数组
+    for (int i = 1; i <= n; i++) {
+        cout << a[i] << " ";
+    }
+    
+    return 0;
+}</code></pre>
+                    </div>
+                    
+                    <h3 class="text-xl font-semibold text-gray-800 mt-6 mb-3">例题1：区间修改</h3>
+                    <p>问题：给定一个长度为 n 的整数序列 a<sub>1</sub>, a<sub>2</sub>, ..., a<sub>n</sub>，再给定 m 个修改，每个修改包含三个整数 l, r 和 x，你需要将序列中第 l 个数到第 r 个数都加上 x。</p>
+                    
+                    <div class="p-6 bg-gray-50 rounded-xl">
+                        <h4 class="font-semibold mb-3 text-primary-dark">解题思路</h4>
+                        <ol class="list-decimal list-inside space-y-2 pl-4">
+                            <li>使用差分，预处理时间为 O(n)，每次修改时间为 O(1)，总时间复杂度优化为 O(n + m)</li>
+                            <li>计算差分数组 d 后，区间 [l, r] 的修改为 d[l] += x 和 d[r+1] -= x</li>
+                        </ol>
+                        
+                        <div class="overflow-x-auto bg-codeBlock rounded-lg p-4 mt-4">
+                            <pre class="text-gray-100 font-mono text-sm"><code>#include &lt;iostream&gt;
+#include &lt;vector&gt;
+using namespace std;
+
+int main() {
+    int n, m;
+    cin >> n >> m;
+    
+    vector&lt;int&gt; a(n + 1);
+    vector&lt;int&gt; d(n + 1, 0);
+    
+    // 读入原数组
+    for (int i = 1; i <= n; i++) {
+        cin >> a[i];
+    }
+    
+    // 计算差分数组
+    for (int i = 1; i <= n; i++) {
+        d[i] = a[i] - a[i-1];
+    }
+    
+    // 处理m次修改
+    for (int i = 0; i < m; i++) {
+        int l, r, x;
+        cin >> l >> r >> x;
+        d[l] += x;
+        d[r+1] -= x;
+    }
+    
+    // 恢复原数组
+    for (int i = 1; i <= n; i++) {
+        a[i] = a[i-1] + d[i];
+    }
+    
+    // 输出恢复后的数组
+    for (int i = 1; i <= n; i++) {
+        cout << a[i] << " ";
+    }
+    
+    return 0;
+}</code></pre>
+                        </div>
+                    </div>
+                    
+                    <h3 class="text-xl font-semibold text-gray-800 mt-6 mb-3">例题2：差分与前缀和的结合应用</h3>
+                    <p>问题：给定一个长度为 n 的整数序列 a<sub>1</sub>, a<sub>2</sub>, ..., a<sub>n</sub>，再给定 m 个查询，每个查询包含两个整数 l 和 r，你需要回答序列中第 l 个数到第 r 个数的和。</p>
+                    
+                    <div class="p-6 bg-gray-50 rounded-xl">
+                        <h4 class="font-semibold mb-3 text-primary-dark">解题思路</h4>
+                        <ol class="list-decimal list-inside space-y-2 pl-4">
+                            <li>使用差分，预处理时间为 O(n)，每次查询时间为 O(1)，总时间复杂度优化为 O(n + m)</li>
+                            <li>计算差分数组 d 后，区间 [l, r] 的和为 a[r] - a[l-1]</li>
+                        </ol>
+                        
+                        <div class="overflow-x-auto bg-codeBlock rounded-lg p-4 mt-4">
+                            <pre class="text-gray-100 font-mono text-sm"><code>#include &lt;iostream&gt;
+#include &lt;vector&gt;
+using namespace std;
+
+int main() {
+    int n, m;
+    cin >> n >> m;
+    
+    vector&lt;int&gt; a(n + 1);
+    vector&lt;int&gt; d(n + 1, 0);
+    
+    // 读入原数组
+    for (int i = 1; i <= n; i++) {
+        cin >> a[i];
+    }
+    
+    // 计算差分数组
+    for (int i = 1; i <= n; i++) {
+        d[i] = a[i] - a[i-1];
+    }
+    
+    // 处理m次查询
+    for (int i = 0; i < m; i++) {
+        int l, r;
+        cin >> l >> r;
+        cout << a[r] - a[l-1] << endl;
+    }
+    
+    return 0;
+}</code></pre>
+                        </div>
+                    </div>
+                </div>
+            </section>
+        </main>
+
+        <!-- Footer -->
+        <footer class="mt-16 text-center text-gray-500 text-sm">
+            <div class="flex justify-center mt-6 space-x-4">
+                <a href="简介.html" class="text-primary hover:text-primary-dark transition-colors duration-300">
+                    <i class="fas fa-home mr-1"></i>首页
+                </a>
+                <a href="构造题.html" class="text-primary hover:text-primary-dark transition-colors duration-300">
+                    <i class="fas fa-arrow-left ml-1"></i>构造题
+                </a>
+                <a href="二分查找.html" class="text-primary hover:text-primary-dark transition-colors duration-300">
+                    <i class="fas fa-arrow-right ml-1"></i>二分查找
+                </a>
+            </div>
+        </footer>
+    </div>
+
+    <!-- Back to top button -->
+    <button id="backToTop" class="fixed bottom-6 right-6 bg-primary hover:bg-primary-dark text-white rounded-full p-3 shadow-lg transition-all duration-300 opacity-0 invisible">
+        <i class="fas fa-arrow-up"></i>
+    </button>
+
+    <!-- JavaScript for Back to top button -->
+    <script>
+        const backToTop = document.getElementById('backToTop');
+        
+        window.addEventListener('scroll', () => {
+            if (window.scrollY > 300) {
+                backToTop.classList.remove('opacity-0', 'invisible');
+                backToTop.classList.add('opacity-100', 'visible');
+            } else {
+                backToTop.classList.remove('opacity-100', 'visible');
+                backToTop.classList.add('opacity-0', 'invisible');
+            }
+        });
+        
+        backToTop.addEventListener('click', () => {
+            window.scrollTo({
+                top: 0,
+                behavior: 'smooth'
+            });
+        });
+    </script>
+    <!-- Simple ScrollReveal effect -->
+    <script src="https://unpkg.com/scrollreveal"></script>
+    <script>
+        ScrollReveal().reveal('section', { 
+            delay: 200,
+            distance: '20px',
+            origin: 'bottom',
+            duration: 800,
+            easing: 'ease-in-out'
+        });
+    </script>
+</body>
+</html> 

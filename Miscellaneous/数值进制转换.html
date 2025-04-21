@@ -1,0 +1,800 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>数值进制转换</title>
+    <style>
+        :root {
+            --primary-color: #e7b788;
+            --secondary-color: #d88c51;
+            --background-color: #fff9f2;
+            --text-color: #5d4037;
+            --border-color: #d7ccc8;
+            --accent-color: #ff8a65;
+            --shadow-color: rgba(185, 143, 112, 0.2);
+        }
+        
+        body {
+            font-family: 'PingFang SC', 'Microsoft YaHei', sans-serif;
+            margin: 0;
+            padding: 20px;
+            background-color: #f9f4ee;
+            color: var(--text-color);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+        }
+        
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+        }
+        
+        .card-svg-container {
+            width: 100%;
+            margin-top: 30px;
+            overflow: hidden;
+        }
+        
+        #base-converter-card {
+            width: 100%;
+            height: auto;
+            box-shadow: 0 8px 24px var(--shadow-color);
+            border-radius: 12px;
+        }
+        
+        .converter-container {
+            background-color: var(--background-color);
+            border-radius: 12px;
+            padding: 24px;
+            box-shadow: 0 8px 24px var(--shadow-color);
+        }
+        
+        .converter-title {
+            font-size: 28px;
+            font-weight: 600;
+            margin-bottom: 24px;
+            color: var(--secondary-color);
+            text-align: center;
+        }
+        
+        .input-group {
+            margin-bottom: 16px;
+        }
+        
+        .radio-group {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+            margin-bottom: 16px;
+        }
+        
+        .radio-option {
+            display: flex;
+            align-items: center;
+            background-color: white;
+            padding: 8px 16px;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px var(--shadow-color);
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+        
+        .radio-option:hover {
+            background-color: #fef8f0;
+        }
+        
+        .radio-option input {
+            margin-right: 8px;
+        }
+        
+        label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 500;
+        }
+        
+        input[type="text"] {
+            width: 100%;
+            padding: 12px;
+            border: 2px solid var(--border-color);
+            border-radius: 8px;
+            background-color: #fffdf9;
+            color: var(--text-color);
+            font-size: 16px;
+            transition: all 0.3s ease;
+            box-sizing: border-box;
+        }
+        
+        input:focus {
+            outline: none;
+            border-color: var(--secondary-color);
+            box-shadow: 0 0 0 3px rgba(216, 140, 81, 0.2);
+        }
+        
+        .result-container {
+            margin-top: 24px;
+            border-top: 2px dashed var(--border-color);
+            padding-top: 20px;
+        }
+        
+        .result-item {
+            margin-bottom: 16px;
+            padding: 12px;
+            background-color: white;
+            border-radius: 8px;
+            border-left: 4px solid var(--accent-color);
+            position: relative;
+        }
+        
+        .copy-btn {
+            position: absolute;
+            right: 12px;
+            top: 10px;
+            background-color: var(--primary-color);
+            color: white;
+            border: none;
+            border-radius: 4px;
+            padding: 4px 8px;
+            font-size: 12px;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+        
+        .copy-btn:hover {
+            background-color: var(--secondary-color);
+        }
+        
+        .result-label {
+            display: block;
+            font-weight: 600;
+            margin-bottom: 4px;
+            color: var(--secondary-color);
+        }
+        
+        .result-value {
+            font-family: monospace;
+            font-size: 18px;
+            word-break: break-all;
+            margin-right: 60px;
+        }
+        
+        .card-title {
+            font-size: 20px;
+            font-weight: 600;
+            margin: 20px 0;
+            color: var(--secondary-color);
+            text-align: center;
+        }
+        
+        @media (max-width: 600px) {
+            .radio-group {
+                flex-direction: column;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="converter-container">
+            <div class="converter-title">数值进制转换器</div>
+            
+            <div class="input-group">
+                <label for="input-value">输入数值:</label>
+                <input type="text" id="input-value" value="173" placeholder="请输入数值">
+            </div>
+            
+            <div class="radio-group">
+                <label style="width: 100%">输入进制:</label>
+                <label class="radio-option">
+                    <input type="radio" name="input-base" value="2">
+                    二进制 (2)
+                </label>
+                <label class="radio-option">
+                    <input type="radio" name="input-base" value="8">
+                    八进制 (8)
+                </label>
+                <label class="radio-option">
+                    <input type="radio" name="input-base" value="10" checked>
+                    十进制 (10)
+                </label>
+                <label class="radio-option">
+                    <input type="radio" name="input-base" value="16">
+                    十六进制 (16)
+                </label>
+            </div>
+            
+            <div class="radio-group">
+                <label style="width: 100%">转换为:</label>
+                <label class="radio-option">
+                    <input type="radio" name="output-base" value="2" checked>
+                    二进制 (2)
+                </label>
+                <label class="radio-option">
+                    <input type="radio" name="output-base" value="8">
+                    八进制 (8)
+                </label>
+                <label class="radio-option">
+                    <input type="radio" name="output-base" value="10">
+                    十进制 (10)
+                </label>
+                <label class="radio-option">
+                    <input type="radio" name="output-base" value="16">
+                    十六进制 (16)
+                </label>
+            </div>
+            
+            <div class="result-container">
+                <div class="result-item">
+                    <span class="result-label">转换结果:</span>
+                    <span id="result-value" class="result-value">10101101</span>
+                    <button class="copy-btn" data-result="value">复制</button>
+                </div>
+            </div>
+        </div>
+                
+        <div class="card-svg-container">
+            <svg id="base-converter-card" viewBox="0 0 800 500" xmlns="http://www.w3.org/2000/svg">
+                <!-- Background -->
+                <rect width="800" height="500" fill="#fff9f2" rx="20" ry="20" />
+                
+                <!-- Grid Lines -->
+                <g stroke="#e7cdb7" stroke-width="1" opacity="0.2">
+                    <line x1="40" y1="0" x2="40" y2="500" />
+                    <line x1="120" y1="0" x2="120" y2="500" />
+                    <line x1="200" y1="0" x2="200" y2="500" />
+                    <line x1="280" y1="0" x2="280" y2="500" />
+                    <line x1="360" y1="0" x2="360" y2="500" />
+                    <line x1="440" y1="0" x2="440" y2="500" />
+                    <line x1="520" y1="0" x2="520" y2="500" />
+                    <line x1="600" y1="0" x2="600" y2="500" />
+                    <line x1="680" y1="0" x2="680" y2="500" />
+                    <line x1="760" y1="0" x2="760" y2="500" />
+                    
+                    <line x1="0" y1="40" x2="800" y2="40" />
+                    <line x1="0" y1="80" x2="800" y2="80" />
+                    <line x1="0" y1="120" x2="800" y2="120" />
+                    <line x1="0" y1="160" x2="800" y2="160" />
+                    <line x1="0" y1="200" x2="800" y2="200" />
+                    <line x1="0" y1="240" x2="800" y2="240" />
+                    <line x1="0" y1="280" x2="800" y2="280" />
+                    <line x1="0" y1="320" x2="800" y2="320" />
+                    <line x1="0" y1="360" x2="800" y2="360" />
+                    <line x1="0" y1="400" x2="800" y2="400" />
+                    <line x1="0" y1="440" x2="800" y2="440" />
+                    <line x1="0" y1="480" x2="800" y2="480" />
+                </g>
+                
+                <!-- Title -->
+                <text x="400" y="60" font-family="'PingFang SC', 'Microsoft YaHei', sans-serif" font-size="32" font-weight="bold" text-anchor="middle" fill="#d88c51">进制转换过程</text>
+                
+                <!-- Division Process - Left Part -->
+                <g id="division-process" transform="translate(120, 120)">
+                    <!-- This is the placeholder for conversion process -->
+                </g>
+                
+                <!-- Right side description -->
+                <g transform="translate(500, 120)">
+                    <text x="0" y="0" font-family="'PingFang SC', 'Microsoft YaHei', sans-serif" font-size="16" font-weight="bold" fill="#5d4037" id="process-title">除2取余法</text>
+                    <text x="0" y="30" font-family="'PingFang SC', 'Microsoft YaHei', sans-serif" font-size="14" fill="#5d4037">1. 将十进制数除以2</text>
+                    <text x="0" y="55" font-family="'PingFang SC', 'Microsoft YaHei', sans-serif" font-size="14" fill="#5d4037">2. 记录余数</text>
+                    <text x="0" y="80" font-family="'PingFang SC', 'Microsoft YaHei', sans-serif" font-size="14" fill="#5d4037">3. 对商继续除以2</text>
+                    <text x="0" y="105" font-family="'PingFang SC', 'Microsoft YaHei', sans-serif" font-size="14" fill="#5d4037">4. 直到商为0</text>
+                    <text x="0" y="130" font-family="'PingFang SC', 'Microsoft YaHei', sans-serif" font-size="14" fill="#5d4037">5. 自下而上读取余数</text>
+                </g>
+                
+                <!-- Bottom result -->
+                <g id="conversion-result-container" transform="translate(400, 430)">
+                    <rect x="-200" y="-20" width="400" height="50" rx="10" ry="10" fill="#d7ccc8" opacity="0.3" />
+                    <text x="0" y="15" font-family="'PingFang SC', 'Microsoft YaHei', sans-serif" font-size="20" font-weight="bold" text-anchor="middle" fill="#5d4037" id="conversion-note"></text>
+                </g>
+            </svg>
+        </div>
+    </div>
+
+    <script>
+        // Function to convert a number between different bases
+        function convertBase(value, fromBase, toBase) {
+            // Check if value contains a decimal point
+            if (value.toString().includes('.')) {
+                return convertWithDecimal(value, fromBase, toBase);
+            }
+            
+            // For integers, use the original method
+            const decimalValue = parseInt(String(value), parseInt(fromBase));
+            
+            // Check if the result is valid
+            if (isNaN(decimalValue)) {
+                return '无效输入';
+            }
+            
+            // Then convert from decimal to target base
+            return decimalValue.toString(parseInt(toBase)).toUpperCase();
+        }
+        
+        // Function to convert numbers with decimal points
+        function convertWithDecimal(value, fromBase, toBase) {
+            // Split into integer and fraction parts
+            const parts = value.toString().split('.');
+            const integerPart = parts[0];
+            const fractionPart = parts.length > 1 ? parts[1] : '';
+            
+            // Convert the integer part
+            const convertedIntegerPart = convertBase(integerPart, fromBase, toBase);
+            
+            // If there's no fraction part, just return the integer part
+            if (!fractionPart || fractionPart === '') {
+                return convertedIntegerPart;
+            }
+            
+            // Convert the fraction part to decimal
+            let decimalFraction = 0;
+            const fromBaseNum = parseInt(fromBase);
+            
+            for (let i = 0; i < fractionPart.length; i++) {
+                // Convert the digit to its decimal value
+                let digitValue;
+                const digit = fractionPart[i].toUpperCase();
+                
+                if (digit >= '0' && digit <= '9') {
+                    digitValue = parseInt(digit);
+                } else {
+                    digitValue = digit.charCodeAt(0) - 'A'.charCodeAt(0) + 10;
+                }
+                
+                if (digitValue >= fromBaseNum) {
+                    return '无效输入';
+                }
+                
+                // Add to the decimal fraction
+                decimalFraction += digitValue / Math.pow(fromBaseNum, i + 1);
+            }
+            
+            // Convert the decimal fraction to the target base
+            const toBaseNum = parseInt(toBase);
+            let fractionResult = '.';
+            const maxPrecision = 10; // Limit to 10 decimal places for display
+            
+            for (let i = 0; i < maxPrecision && decimalFraction > 0; i++) {
+                decimalFraction *= toBaseNum;
+                const digit = Math.floor(decimalFraction);
+                
+                // Convert digit to the appropriate character
+                fractionResult += digit < 10 ? digit.toString() : 
+                    String.fromCharCode('A'.charCodeAt(0) + digit - 10);
+                
+                decimalFraction -= digit;
+            }
+            
+            return convertedIntegerPart + fractionResult;
+        }
+        
+        // Function to generate the division steps for conversion (integer part)
+        function generateDivisionSteps(decimalValue, targetBase) {
+            let steps = [];
+            let value = parseInt(decimalValue);
+            let originalValue = value;
+            
+            if (isNaN(value)) return { steps: [], originalValue: 0, result: '' };
+            
+            while (value > 0) {
+                const remainder = value % targetBase;
+                steps.push({
+                    value: value,
+                    divisor: targetBase,
+                    remainder: remainder
+                });
+                value = Math.floor(value / targetBase);
+            }
+            
+            return {
+                steps: steps,  // Keep the original order for display
+                originalValue: originalValue,
+                result: steps.map(step => step.remainder).reverse().join('')
+            };
+        }
+        
+        // Function to generate multiplication steps for fractional part conversion
+        function generateMultiplicationSteps(fractionalPart, targetBase) {
+            let steps = [];
+            let value = parseFloat("0." + fractionalPart);
+            let originalValue = value;
+            
+            if (isNaN(value)) return { steps: [], originalValue: 0, result: '' };
+            
+            // Limit to 8 steps for display
+            for (let i = 0; i < 8 && value > 0; i++) {
+                value *= targetBase;
+                const integerPart = Math.floor(value);
+                
+                steps.push({
+                    value: value.toFixed(6),
+                    multiplier: targetBase,
+                    integerPart: integerPart
+                });
+                
+                value -= integerPart;
+            }
+            
+            return {
+                steps: steps,
+                originalValue: originalValue,
+                result: steps.map(step => {
+                    const digit = step.integerPart;
+                    return digit < 10 ? digit.toString() : 
+                           String.fromCharCode('A'.charCodeAt(0) + digit - 10);
+                }).join('')
+            };
+        }
+        
+        // Function to update the SVG card with division steps
+        function updateSvgCard(value, fromBase, toBase) {
+            // Convert to decimal representation first if not already
+            // Handle decimal points in the input
+            const parts = value.toString().split('.');
+            const integerPart = parts[0];
+            const fractionalPart = parts.length > 1 ? parts[1] : '';
+            
+            // Convert integer part to decimal
+            const decimalIntegerValue = fromBase !== '10' ? 
+                parseInt(integerPart, parseInt(fromBase)) : integerPart;
+            
+            // Get full conversion result
+            const conversionResult = convertBase(value, fromBase, toBase);
+            
+            // Clear previous content
+            const divisionGroup = document.getElementById('division-process');
+            divisionGroup.innerHTML = '';
+            
+            // Set process title based on conversion type
+            const processTitle = document.getElementById('process-title');
+            if (fromBase === '10' && toBase === '2') {
+                processTitle.textContent = "除2取余法 (整数部分) / 乘2取整法 (小数部分)";
+            } else {
+                processTitle.textContent = `从${getBaseName(fromBase)}转换为${getBaseName(toBase)}`;
+            }
+            
+            // Get base symbols
+            let baseSymbol = getBaseSymbol(toBase);
+            let fromBaseSymbol = getBaseSymbol(fromBase);
+            
+            // Create division steps - optimized staggered display
+            if (fromBase === '10' && (toBase === '2' || toBase === '8' || toBase === '16')) {
+                // Generate staggered division process for integer part
+                const process = generateDivisionSteps(decimalIntegerValue, parseInt(toBase));
+                const steps = process.steps;
+                
+                // Title for integer part conversion
+                const integerTitle = document.createElementNS("http://www.w3.org/2000/svg", "text");
+                integerTitle.setAttribute("x", "0");
+                integerTitle.setAttribute("y", "0");
+                integerTitle.setAttribute("font-family", "'PingFang SC', 'Microsoft YaHei', sans-serif");
+                integerTitle.setAttribute("font-size", "16");
+                integerTitle.setAttribute("font-weight", "bold");
+                integerTitle.textContent = "整数部分转换:";
+                divisionGroup.appendChild(integerTitle);
+                
+                // Calculate the step spacing dynamically based on number length
+                // More steps or larger numbers need more space
+                let stepXSpacing = 30; // Basic spacing
+                let stepYSpacing = 40; // Basic spacing
+                
+                // Adjust spacing if there are many steps or large numbers
+                if (steps.length > 5) {
+                    stepXSpacing = 35; // More horizontal space
+                    stepYSpacing = 45; // More vertical space
+                }
+                
+                // Check if any step value is a large number and adjust spacing
+                for (const step of steps) {
+                    const valueLength = String(step.value).length;
+                    if (valueLength > 3) {
+                        stepXSpacing = Math.max(stepXSpacing, 30 + (valueLength - 3) * 5);
+                        stepYSpacing = Math.max(stepYSpacing, 40 + (valueLength - 3) * 2);
+                    }
+                }
+                
+                // Create staggered layout for integer part
+                for (let i = 0; i < steps.length; i++) {
+                    const step = steps[i];
+                    const xOffset = stepXSpacing * i; // Stagger each step to the right
+                    const yOffset = stepYSpacing * i + 30; // And down, starting below the title
+                    
+                    // Create a group for this step
+                    const stepGroup = document.createElementNS("http://www.w3.org/2000/svg", "g");
+                    stepGroup.setAttribute("transform", `translate(${xOffset}, ${yOffset})`);
+                    
+                    // Create the division box
+                    const divBox = document.createElementNS("http://www.w3.org/2000/svg", "rect");
+                    divBox.setAttribute("x", "0");
+                    divBox.setAttribute("y", "0");
+                    
+                    // Adjust box width based on content
+                    const valueLength = String(step.value).length;
+                    const boxWidth = Math.max(60, valueLength * 12); // 12px per digit
+                    
+                    divBox.setAttribute("width", boxWidth);
+                    divBox.setAttribute("height", "30");
+                    divBox.setAttribute("fill", "none");
+                    divBox.setAttribute("stroke", "#5d4037");
+                    divBox.setAttribute("stroke-width", "1");
+                    stepGroup.appendChild(divBox);
+                    
+                    // Divisor (on the left side)
+                    const divisorText = document.createElementNS("http://www.w3.org/2000/svg", "text");
+                    divisorText.setAttribute("x", "-10");
+                    divisorText.setAttribute("y", "20");
+                    divisorText.setAttribute("font-family", "monospace");
+                    divisorText.setAttribute("font-size", "18");
+                    divisorText.setAttribute("text-anchor", "end");
+                    divisorText.textContent = step.divisor;
+                    stepGroup.appendChild(divisorText);
+                    
+                    // Value being divided
+                    const valueText = document.createElementNS("http://www.w3.org/2000/svg", "text");
+                    valueText.setAttribute("x", boxWidth / 2);
+                    valueText.setAttribute("y", "20");
+                    valueText.setAttribute("font-family", "monospace");
+                    valueText.setAttribute("font-size", "18");
+                    valueText.setAttribute("text-anchor", "middle");
+                    valueText.textContent = step.value;
+                    stepGroup.appendChild(valueText);
+                    
+                    // Remainder (on the right side)
+                    const remainderText = document.createElementNS("http://www.w3.org/2000/svg", "text");
+                    remainderText.setAttribute("x", boxWidth + 20);
+                    remainderText.setAttribute("y", "20");
+                    remainderText.setAttribute("font-family", "monospace");
+                    remainderText.setAttribute("font-size", "18");
+                    remainderText.textContent = "余" + step.remainder;
+                    stepGroup.appendChild(remainderText);
+                    
+                    divisionGroup.appendChild(stepGroup);
+                }
+                
+                // Calculate the last position for integer part based on dynamic spacing
+                const lastXInteger = steps.length > 0 ? stepXSpacing * (steps.length - 1) + 100 : 80;
+                const lastYInteger = steps.length > 0 ? stepYSpacing * (steps.length - 1) + 30 + 20 : 50;
+                
+                // Add vertical line connecting remainders for integer part
+                if (steps.length > 0) {
+                    const verticalLine = document.createElementNS("http://www.w3.org/2000/svg", "line");
+                    verticalLine.setAttribute("x1", lastXInteger);
+                    verticalLine.setAttribute("y1", "50");
+                    verticalLine.setAttribute("x2", lastXInteger);
+                    verticalLine.setAttribute("y2", lastYInteger);
+                    verticalLine.setAttribute("stroke", "#d88c51");
+                    verticalLine.setAttribute("stroke-width", "1.5");
+                    verticalLine.setAttribute("stroke-dasharray", "4,2");
+                    divisionGroup.appendChild(verticalLine);
+                    
+                    // Add arrow at the top of the vertical line (reversed direction)
+                    const arrow = document.createElementNS("http://www.w3.org/2000/svg", "polygon");
+                    arrow.setAttribute("points", `${lastXInteger-5},${55} ${lastXInteger},${45} ${lastXInteger+5},${55}`);
+                    arrow.setAttribute("fill", "#d88c51");
+                    divisionGroup.appendChild(arrow);
+                    
+                    // Add "读数方向" text (reversed direction)
+                    const readDirectionText = document.createElementNS("http://www.w3.org/2000/svg", "text");
+                    readDirectionText.setAttribute("x", lastXInteger + 20);
+                    readDirectionText.setAttribute("y", (lastYInteger + 50) / 2);
+                    readDirectionText.setAttribute("font-family", "'PingFang SC', 'Microsoft YaHei', sans-serif");
+                    readDirectionText.setAttribute("font-size", "14");
+                    readDirectionText.setAttribute("fill", "#5d4037");
+                    readDirectionText.setAttribute("transform", `rotate(90, ${lastXInteger + 20}, ${(lastYInteger + 50) / 2})`);
+                    readDirectionText.textContent = "读数方向↑";
+                    divisionGroup.appendChild(readDirectionText);
+                }
+                
+                // Process the fractional part if it exists
+                let lastYFractional = lastYInteger + 70; // Start below the integer part with more space
+                
+                if (fractionalPart) {
+                    // Title for fractional part conversion
+                    const fractionalTitle = document.createElementNS("http://www.w3.org/2000/svg", "text");
+                    fractionalTitle.setAttribute("x", "0");
+                    fractionalTitle.setAttribute("y", lastYFractional);
+                    fractionalTitle.setAttribute("font-family", "'PingFang SC', 'Microsoft YaHei', sans-serif");
+                    fractionalTitle.setAttribute("font-size", "16");
+                    fractionalTitle.setAttribute("font-weight", "bold");
+                    fractionalTitle.textContent = "小数部分转换 (乘以进制基数法):";
+                    divisionGroup.appendChild(fractionalTitle);
+                    
+                    lastYFractional += 30; // Move down for the fractional steps
+                    
+                    // Generate multiplication steps for fractional part
+                    const fractionalSteps = generateMultiplicationSteps(
+                        fractionalPart, parseInt(toBase));
+                    
+                    // Display multiplication steps
+                    for (let i = 0; i < fractionalSteps.steps.length; i++) {
+                        const step = fractionalSteps.steps[i];
+                        const yPos = lastYFractional + i * 35;
+                        
+                        // Create multiplication step
+                        const stepText = document.createElementNS("http://www.w3.org/2000/svg", "text");
+                        stepText.setAttribute("x", "0");
+                        stepText.setAttribute("y", yPos);
+                        stepText.setAttribute("font-family", "monospace");
+                        stepText.setAttribute("font-size", "16");
+                        stepText.textContent = `0.${i > 0 ? '...' : fractionalPart} × ${step.multiplier} = ${step.value} → 取整: ${step.integerPart}`;
+                        divisionGroup.appendChild(stepText);
+                        
+                        // Show the digit for this step
+                        const digitText = document.createElementNS("http://www.w3.org/2000/svg", "text");
+                        digitText.setAttribute("x", "350");
+                        digitText.setAttribute("y", yPos);
+                        digitText.setAttribute("font-family", "monospace");
+                        digitText.setAttribute("font-size", "16");
+                        digitText.setAttribute("font-weight", "bold");
+                        digitText.setAttribute("fill", "#d88c51");
+                        
+                        const digit = step.integerPart;
+                        digitText.textContent = digit < 10 ? digit.toString() : 
+                            String.fromCharCode('A'.charCodeAt(0) + digit - 10);
+                        
+                        divisionGroup.appendChild(digitText);
+                    }
+                    
+                    // Update lastYFractional to account for all fractional steps
+                    lastYFractional += fractionalSteps.steps.length * 35 + 20;
+                }
+                
+                // Add final result text
+                const resultTextY = fractionalPart ? lastYFractional : lastYInteger + 60;
+                
+                const resultTitle = document.createElementNS("http://www.w3.org/2000/svg", "text");
+                resultTitle.setAttribute("x", "0");
+                resultTitle.setAttribute("y", resultTextY);
+                resultTitle.setAttribute("font-family", "'PingFang SC', 'Microsoft YaHei', sans-serif");
+                resultTitle.setAttribute("font-size", "18");
+                resultTitle.textContent = "最终结果:";
+                divisionGroup.appendChild(resultTitle);
+                
+                const resultText = document.createElementNS("http://www.w3.org/2000/svg", "text");
+                resultText.setAttribute("x", "100");
+                resultText.setAttribute("y", resultTextY);
+                resultText.setAttribute("font-family", "monospace");
+                resultText.setAttribute("font-size", "20");
+                resultText.setAttribute("font-weight", "bold");
+                resultText.setAttribute("fill", "#d88c51");
+                resultText.textContent = conversionResult;
+                divisionGroup.appendChild(resultText);
+                
+                // Calculate total height needed
+                const totalHeight = resultTextY + 60;
+                
+                // Adjust SVG height based on all content
+                adjustSvgHeight(totalHeight);
+                
+            } else {
+                // For other conversions, show a simple explanation
+                const explanationText = document.createElementNS("http://www.w3.org/2000/svg", "text");
+                explanationText.setAttribute("x", "200");
+                explanationText.setAttribute("y", "100");
+                explanationText.setAttribute("font-family", "'PingFang SC', 'Microsoft YaHei', sans-serif");
+                explanationText.setAttribute("font-size", "20");
+                explanationText.setAttribute("text-anchor", "middle");
+                explanationText.textContent = `从${getBaseName(fromBase)}(${fromBase})转换为${getBaseName(toBase)}(${toBase})`;
+                divisionGroup.appendChild(explanationText);
+                
+                const resultText = document.createElementNS("http://www.w3.org/2000/svg", "text");
+                resultText.setAttribute("x", "200");
+                resultText.setAttribute("y", "150");
+                resultText.setAttribute("font-family", "monospace");
+                resultText.setAttribute("font-size", "24");
+                resultText.setAttribute("font-weight", "bold");
+                resultText.setAttribute("text-anchor", "middle");
+                resultText.textContent = `${value}${fromBaseSymbol} = ${conversionResult}${baseSymbol}`;
+                divisionGroup.appendChild(resultText);
+                
+                // Set default height for simple conversions
+                adjustSvgHeight(0);
+            }
+            
+            // Update the final conversion note at the bottom
+            document.getElementById('conversion-note').textContent = 
+                `转换结果: ${value}${fromBaseSymbol} = ${conversionResult}${baseSymbol}`;
+        }
+        
+        // Function to adjust SVG height based on content height
+        function adjustSvgHeight(contentHeight) {
+            const svgElement = document.getElementById('base-converter-card');
+            const minHeight = 500; // Default minimum height
+            
+            if (contentHeight > 0) {
+                // Use content height or minimum height, whichever is larger
+                // Add extra padding for safety to avoid overlapping elements
+                const calculatedHeight = Math.max(minHeight, contentHeight + 100);
+                
+                // Update viewBox
+                svgElement.setAttribute('viewBox', `0 0 800 ${calculatedHeight}`);
+                
+                // Move result container to bottom
+                const resultContainer = document.getElementById('conversion-result-container');
+                resultContainer.setAttribute('transform', `translate(400, ${calculatedHeight - 70})`);
+            } else {
+                // Reset to default for simple conversions
+                svgElement.setAttribute('viewBox', '0 0 800 500');
+                document.getElementById('conversion-result-container').setAttribute('transform', 'translate(400, 430)');
+            }
+        }
+        
+        // Helper function to get base name
+        function getBaseName(base) {
+            switch(base) {
+                case '2': return '二进制';
+                case '8': return '八进制';
+                case '10': return '十进制';
+                case '16': return '十六进制';
+                default: return `${base}进制`;
+            }
+        }
+        
+        // Helper function to get base symbol
+        function getBaseSymbol(base) {
+            switch(base) {
+                case '2': return '₂';
+                case '8': return '₈';
+                case '10': return '₁₀';
+                case '16': return '₁₆';
+                default: return '';
+            }
+        }
+        
+        // Function to update results
+        function updateResults() {
+            const inputValue = document.getElementById('input-value').value;
+            const inputBase = document.querySelector('input[name="input-base"]:checked').value;
+            const outputBase = document.querySelector('input[name="output-base"]:checked').value;
+            
+            try {
+                // Update result value
+                const result = convertBase(inputValue, inputBase, outputBase);
+                document.getElementById('result-value').textContent = result;
+                
+                // Update SVG card
+                updateSvgCard(inputValue, inputBase, outputBase);
+            } catch (e) {
+                console.error('Conversion error:', e);
+            }
+        }
+        
+        // Add event listeners
+        document.getElementById('input-value').addEventListener('input', updateResults);
+        document.querySelectorAll('input[name="input-base"]').forEach(radio => {
+            radio.addEventListener('change', updateResults);
+        });
+        document.querySelectorAll('input[name="output-base"]').forEach(radio => {
+            radio.addEventListener('change', updateResults);
+        });
+        
+        // Setup copy button
+        document.querySelector('.copy-btn').addEventListener('click', function() {
+            const textToCopy = document.getElementById('result-value').textContent;
+            
+            navigator.clipboard.writeText(textToCopy)
+                .then(() => {
+                    // Visual feedback
+                    const originalText = this.textContent;
+                    this.textContent = '已复制!';
+                    this.style.backgroundColor = '#4caf50';
+                    
+                    setTimeout(() => {
+                        this.textContent = originalText;
+                        this.style.backgroundColor = '';
+                    }, 1500);
+                })
+                .catch(err => {
+                    console.error('复制失败:', err);
+                    alert('复制失败，请手动复制');
+                });
+        });
+        
+        // Initialize
+        updateResults();
+    </script>
+</body>
+</html> 

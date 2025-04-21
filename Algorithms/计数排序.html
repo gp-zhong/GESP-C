@@ -1,0 +1,976 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>计数排序</title>
+    <!-- TailwindCSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&family=Roboto+Mono&display=swap" rel="stylesheet">
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        primary: {
+                            light: '#a5f3fc',
+                            DEFAULT: '#06b6d4',
+                            dark: '#0891b2',
+                        },
+                        secondary: {
+                            light: '#c7d2fe',
+                            DEFAULT: '#818cf8',
+                            dark: '#6366f1',
+                        },
+                        codeBlock: '#1e293b',
+                    },
+                    fontFamily: {
+                        sans: ['Poppins', 'sans-serif'],
+                        mono: ['Roboto Mono', 'monospace'],
+                    },
+                }
+            }
+        }
+    </script>
+    <style>
+        .card-hover {
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+        }
+        .card-hover:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 25px -5px rgba(6, 182, 212, 0.1), 0 10px 10px -5px rgba(6, 182, 212, 0.04);
+        }
+        .code-block::-webkit-scrollbar {
+            height: 8px;
+        }
+        .code-block::-webkit-scrollbar-thumb {
+            background-color: #06b6d4;
+            border-radius: 4px;
+        }
+        .code-block::-webkit-scrollbar-track {
+            background-color: #e2e8f0;
+            border-radius: 4px;
+        }
+    </style>
+</head>
+<body class="bg-gray-50 font-sans">
+    <div class="min-h-screen max-w-6xl mx-auto px-8 py-10">
+        <!-- Header -->
+        <header class="mb-12 text-center">
+            <div class="inline-block px-3 py-1 bg-primary-light text-primary-dark rounded-full text-sm font-medium mb-4">
+                算法基础
+            </div>
+            <h1 class="text-4xl font-bold text-gray-800 mb-4">计数排序</h1>
+            <p class="text-lg text-gray-600 max-w-3xl mx-auto">一种稳定且高效的非比较排序算法，通过统计元素出现次数实现线性时间排序</p>
+        </header>
+
+        <!-- Main Content -->
+        <main class="space-y-12">
+            <!-- 算法简介 -->
+            <section id="intro">
+                <h2 class="text-2xl font-semibold text-gray-800 mb-4 flex items-center">
+                    <i class="fas fa-info-circle text-primary mr-3"></i>算法简介
+                </h2>
+                <div class="bg-white p-6 rounded-lg shadow-md">
+                    <p class="text-gray-700 mb-4">计数排序（Counting Sort）是一种非比较排序算法，它的基本思想是：</p>
+                    <ul class="list-disc list-inside space-y-2 text-gray-700 mb-4 ml-4">
+                        <li>统计数组中每个值出现的次数</li>
+                        <li>根据统计结果，将元素按顺序放回到数组中</li>
+                        <li>适用于已知范围的整数排序</li>
+                    </ul>
+                    <p class="text-gray-700">计数排序是一种稳定的排序算法，不基于元素比较，时间复杂度为 O(n+k)，其中 k 是元素的范围，空间复杂度为 O(k)。</p>
+                </div>
+            </section>
+            
+            <!-- 算法特点 -->
+            <section id="characteristics">
+                <h2 class="text-2xl font-semibold text-gray-800 mb-4 flex items-center">
+                    <i class="fas fa-star text-primary mr-3"></i>算法特点
+                </h2>
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <div class="bg-white p-6 rounded-lg shadow-md card-hover">
+                        <h3 class="text-xl font-medium text-gray-800 mb-3 flex items-center">
+                            <i class="fas fa-check-circle text-green-500 mr-2"></i>优点
+                        </h3>
+                        <ul class="list-disc list-inside space-y-2 text-gray-700 ml-4">
+                            <li>时间复杂度为 O(n+k)，在特定场景下性能优异</li>
+                            <li>是一种稳定的排序算法，相同元素的相对顺序不变</li>
+                            <li>对于重复元素多的数据集效率高</li>
+                            <li>当范围 k 不大时，可以实现线性时间排序</li>
+                        </ul>
+                    </div>
+                    <div class="bg-white p-6 rounded-lg shadow-md card-hover">
+                        <h3 class="text-xl font-medium text-gray-800 mb-3 flex items-center">
+                            <i class="fas fa-exclamation-circle text-red-500 mr-2"></i>缺点
+                        </h3>
+                        <ul class="list-disc list-inside space-y-2 text-gray-700 ml-4">
+                            <li>需要知道数据范围，不适用于未知范围的数据</li>
+                            <li>当元素范围 k 很大时，空间开销大</li>
+                            <li>不适合对浮点数或字符串等非整数类型排序</li>
+                            <li>在元素范围远大于元素个数时效率低下</li>
+                        </ul>
+                    </div>
+                </div>
+            </section>
+            
+            <!-- 算法原理 -->
+            <section id="principle">
+                <h2 class="text-2xl font-semibold text-gray-800 mb-4 flex items-center">
+                    <i class="fas fa-lightbulb text-primary mr-3"></i>算法原理
+                </h2>
+                <div class="bg-white p-6 rounded-lg shadow-md">
+                    <p class="text-gray-700 mb-4">计数排序的基本原理如下：</p>
+                    <ol class="list-decimal list-inside space-y-3 text-gray-700 mb-6 ml-4">
+                        <li><span class="font-medium">找出范围：</span>确定输入数组中的最大值和最小值</li>
+                        <li><span class="font-medium">计数统计：</span>统计数组中每个值出现的次数，存储在计数数组中</li>
+                        <li><span class="font-medium">累加计数：</span>计算计数数组的前缀和，用于确定每个元素在输出数组中的位置</li>
+                        <li><span class="font-medium">逆序填充：</span>从后向前遍历原数组，根据计数数组确定每个元素在输出数组中的位置，并减少相应计数</li>
+                        <li><span class="font-medium">结果复制：</span>将临时输出数组复制回原数组（如需要）</li>
+                    </ol>
+                    
+                    <div class="bg-gray-100 p-5 rounded-lg">
+                        <h3 class="text-lg font-medium text-gray-800 mb-3">稳定性保证</h3>
+                        <p class="text-gray-700 mb-3">计数排序的稳定性来源于排序过程：</p>
+                        <ul class="list-disc list-inside space-y-2 text-gray-700 ml-4">
+                            <li><span class="font-medium">逆序遍历：</span>从后向前遍历原数组，保证相同元素在输出中的相对顺序不变</li>
+                            <li><span class="font-medium">前缀和使用：</span>前缀和保证了每个元素被放置到正确的位置，并且当有多个相同元素时，后出现的元素被放置在后面</li>
+                            <li><span class="font-medium">减少计数：</span>每放置一个元素后，减少对应计数，以便下一个相同元素放置在前一个相同元素的前面</li>
+                        </ul>
+                    </div>
+                </div>
+            </section>
+
+            <!-- 算法演示 -->
+            <section id="demo">
+                <h2 class="text-2xl font-semibold text-gray-800 mb-4 flex items-center">
+                    <i class="fas fa-play-circle text-primary mr-3"></i>算法演示
+                </h2>
+                <div class="bg-white p-6 rounded-lg shadow-md">
+                    <p class="text-gray-700 mb-4">以数组 [4, 2, 2, 8, 3, 3, 1] 为例，展示计数排序的执行过程：</p>
+                    
+                    <div class="space-y-8 my-6">
+                        <!-- 步骤 1 -->
+                        <div>
+                            <h3 class="text-lg font-medium text-gray-800 mb-2">步骤 1：找出范围</h3>
+                            <p class="text-gray-700 mb-3">最小值是 1，最大值是 8，所以我们需要一个大小为 (8-1+1) = 8 的计数数组，索引从 0 到 7，分别对应原数组中的 1 到 8</p>
+                            <div class="flex items-center justify-center space-x-2 my-4 flex-wrap">
+                                <div class="w-10 h-10 flex items-center justify-center bg-primary-light text-gray-800 font-medium rounded">4</div>
+                                <div class="w-10 h-10 flex items-center justify-center bg-primary-light text-gray-800 font-medium rounded">2</div>
+                                <div class="w-10 h-10 flex items-center justify-center bg-primary-light text-gray-800 font-medium rounded">2</div>
+                                <div class="w-10 h-10 flex items-center justify-center bg-primary-light text-gray-800 font-medium rounded">8</div>
+                                <div class="w-10 h-10 flex items-center justify-center bg-primary-light text-gray-800 font-medium rounded">3</div>
+                                <div class="w-10 h-10 flex items-center justify-center bg-primary-light text-gray-800 font-medium rounded">3</div>
+                                <div class="w-10 h-10 flex items-center justify-center bg-primary-light text-gray-800 font-medium rounded">1</div>
+                            </div>
+                        </div>
+                        
+                        <!-- 步骤 2 -->
+                        <div>
+                            <h3 class="text-lg font-medium text-gray-800 mb-2">步骤 2：计数统计</h3>
+                            <p class="text-gray-700 mb-3">统计数组中每个值出现的次数，存储在计数数组 count 中</p>
+                            <div class="overflow-x-auto">
+                                <table class="min-w-full border-collapse">
+                                    <thead>
+                                        <tr class="bg-gray-100">
+                                            <th class="py-2 px-4 border">索引（对应元素值-1）</th>
+                                            <th class="py-2 px-4 border">0</th>
+                                            <th class="py-2 px-4 border">1</th>
+                                            <th class="py-2 px-4 border">2</th>
+                                            <th class="py-2 px-4 border">3</th>
+                                            <th class="py-2 px-4 border">4</th>
+                                            <th class="py-2 px-4 border">5</th>
+                                            <th class="py-2 px-4 border">6</th>
+                                            <th class="py-2 px-4 border">7</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <tr>
+                                            <td class="py-2 px-4 border font-medium">元素值</td>
+                                            <td class="py-2 px-4 border">1</td>
+                                            <td class="py-2 px-4 border">2</td>
+                                            <td class="py-2 px-4 border">3</td>
+                                            <td class="py-2 px-4 border">4</td>
+                                            <td class="py-2 px-4 border">5</td>
+                                            <td class="py-2 px-4 border">6</td>
+                                            <td class="py-2 px-4 border">7</td>
+                                            <td class="py-2 px-4 border">8</td>
+                                        </tr>
+                                        <tr>
+                                            <td class="py-2 px-4 border font-medium">出现次数</td>
+                                            <td class="py-2 px-4 border">1</td>
+                                            <td class="py-2 px-4 border">2</td>
+                                            <td class="py-2 px-4 border">2</td>
+                                            <td class="py-2 px-4 border">1</td>
+                                            <td class="py-2 px-4 border">0</td>
+                                            <td class="py-2 px-4 border">0</td>
+                                            <td class="py-2 px-4 border">0</td>
+                                            <td class="py-2 px-4 border">1</td>
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                        
+                        <!-- 步骤 3 -->
+                        <div>
+                            <h3 class="text-lg font-medium text-gray-800 mb-2">步骤 3：累加计数</h3>
+                            <p class="text-gray-700 mb-3">计算计数数组的前缀和，即每个元素的计数加上前面所有元素的计数</p>
+                            <div class="overflow-x-auto">
+                                <table class="min-w-full border-collapse">
+                                    <thead>
+                                        <tr class="bg-gray-100">
+                                            <th class="py-2 px-4 border">索引</th>
+                                            <th class="py-2 px-4 border">0</th>
+                                            <th class="py-2 px-4 border">1</th>
+                                            <th class="py-2 px-4 border">2</th>
+                                            <th class="py-2 px-4 border">3</th>
+                                            <th class="py-2 px-4 border">4</th>
+                                            <th class="py-2 px-4 border">5</th>
+                                            <th class="py-2 px-4 border">6</th>
+                                            <th class="py-2 px-4 border">7</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <tr>
+                                            <td class="py-2 px-4 border font-medium">原始计数</td>
+                                            <td class="py-2 px-4 border">1</td>
+                                            <td class="py-2 px-4 border">2</td>
+                                            <td class="py-2 px-4 border">2</td>
+                                            <td class="py-2 px-4 border">1</td>
+                                            <td class="py-2 px-4 border">0</td>
+                                            <td class="py-2 px-4 border">0</td>
+                                            <td class="py-2 px-4 border">0</td>
+                                            <td class="py-2 px-4 border">1</td>
+                                        </tr>
+                                        <tr>
+                                            <td class="py-2 px-4 border font-medium">累加计数</td>
+                                            <td class="py-2 px-4 border">1</td>
+                                            <td class="py-2 px-4 border">3</td>
+                                            <td class="py-2 px-4 border">5</td>
+                                            <td class="py-2 px-4 border">6</td>
+                                            <td class="py-2 px-4 border">6</td>
+                                            <td class="py-2 px-4 border">6</td>
+                                            <td class="py-2 px-4 border">6</td>
+                                            <td class="py-2 px-4 border">7</td>
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                            <p class="text-gray-700 mt-3">累加计数数组表示小于等于该元素的元素个数，这将决定元素在排序后数组中的位置</p>
+                        </div>
+                        
+                        <!-- 步骤 4 -->
+                        <div>
+                            <h3 class="text-lg font-medium text-gray-800 mb-2">步骤 4：逆序填充输出数组</h3>
+                            <p class="text-gray-700 mb-3">从后向前遍历原数组，根据累加计数确定每个元素在输出数组中的位置</p>
+                            <div class="space-y-6 mt-4">
+                                <div class="bg-gray-100 p-4 rounded-lg">
+                                    <h4 class="font-medium text-gray-800 mb-2">逆序遍历过程：</h4>
+                                    <ol class="list-decimal list-inside space-y-2 text-gray-700 ml-4">
+                                        <li>最后一个元素是 1，累加计数[0] = 1，将 1 放在输出数组的位置 1-1=0 处</li>
+                                        <li>倒数第二个元素是 3，累加计数[2] = 5，将 3 放在输出数组的位置 5-1=4 处</li>
+                                        <li>倒数第三个元素是 3，累加计数[2] = 4（上一步已减1），将 3 放在输出数组的位置 4-1=3 处</li>
+                                        <li>依此类推...</li>
+                                    </ol>
+                                </div>
+                                
+                                <div>
+                                    <h4 class="font-medium text-gray-800 mb-2">最终排序结果：</h4>
+                                    <div class="flex items-center justify-center space-x-2 my-3 flex-wrap">
+                                        <div class="w-10 h-10 flex items-center justify-center bg-green-500 text-white font-medium rounded">1</div>
+                                        <div class="w-10 h-10 flex items-center justify-center bg-green-500 text-white font-medium rounded">2</div>
+                                        <div class="w-10 h-10 flex items-center justify-center bg-green-500 text-white font-medium rounded">2</div>
+                                        <div class="w-10 h-10 flex items-center justify-center bg-green-500 text-white font-medium rounded">3</div>
+                                        <div class="w-10 h-10 flex items-center justify-center bg-green-500 text-white font-medium rounded">3</div>
+                                        <div class="w-10 h-10 flex items-center justify-center bg-green-500 text-white font-medium rounded">4</div>
+                                        <div class="w-10 h-10 flex items-center justify-center bg-green-500 text-white font-medium rounded">8</div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- 交互式可视化 -->
+            <section id="visualization">
+                <h2 class="text-2xl font-semibold text-gray-800 mb-4 flex items-center">
+                    <i class="fas fa-chart-bar text-primary mr-3"></i>交互式可视化
+                </h2>
+                <div class="bg-white p-6 rounded-lg shadow-md">
+                    <p class="text-gray-700 mb-4">以下是计数排序算法的交互式可视化演示，您可以生成新的随机数组并观察计数排序的执行过程。</p>
+                    
+                    <div class="flex flex-wrap gap-2 mb-4">
+                        <button id="newArray" class="px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600 transition">
+                            <i class="fas fa-random mr-2"></i>生成新数组
+                        </button>
+                        <button id="startSort" class="px-4 py-2 bg-green-500 text-white rounded hover:bg-green-600 transition">
+                            <i class="fas fa-play mr-2"></i>开始排序
+                        </button>
+                        <button id="pauseSort" class="px-4 py-2 bg-yellow-500 text-white rounded hover:bg-yellow-600 transition hidden">
+                            <i class="fas fa-pause mr-2"></i>暂停排序
+                        </button>
+                        <button id="resetSort" class="px-4 py-2 bg-red-500 text-white rounded hover:bg-red-600 transition">
+                            <i class="fas fa-redo mr-2"></i>重置排序
+                        </button>
+                    </div>
+                    
+                    <div class="mb-4">
+                        <label for="speed" class="block text-sm font-medium text-gray-700 mb-1">速度调节：</label>
+                        <input type="range" id="speed" min="1" max="10" value="5" class="w-full md:w-1/2">
+                    </div>
+                    
+                    <div class="flex flex-wrap items-center mb-4 text-sm">
+                        <div class="flex items-center mr-4 mb-2">
+                            <div class="w-4 h-4 bg-blue-400 mr-1"></div>
+                            <span>原始数组</span>
+                        </div>
+                        <div class="flex items-center mr-4 mb-2">
+                            <div class="w-4 h-4 bg-yellow-400 mr-1"></div>
+                            <span>计数数组</span>
+                        </div>
+                        <div class="flex items-center mr-4 mb-2">
+                            <div class="w-4 h-4 bg-green-500 mr-1"></div>
+                            <span>已排序</span>
+                        </div>
+                        <div class="flex items-center mr-4 mb-2">
+                            <div class="w-4 h-4 bg-red-400 mr-1"></div>
+                            <span>当前处理元素</span>
+                        </div>
+                    </div>
+                    
+                    <div id="array-container" class="h-64 flex items-end justify-center border-b border-gray-300"></div>
+                    
+                    <div id="count-array-container" class="mt-4 h-32 flex items-end justify-center border-b border-gray-300"></div>
+                    
+                    <div id="info-container" class="mt-4 text-gray-700">
+                        <p id="current-step">准备开始计数排序...</p>
+                    </div>
+                </div>
+            </section>
+            
+            <!-- 代码实现 -->
+            <section id="implementation">
+                <h2 class="text-2xl font-semibold text-gray-800 mb-4 flex items-center">
+                    <i class="fas fa-code text-primary mr-3"></i>代码实现
+                </h2>
+                <div class="bg-white p-6 rounded-lg shadow-md">
+                    <div class="mb-6">
+                        <h3 class="text-xl font-medium text-gray-800 mb-3">C++ 实现</h3>
+                        <pre class="bg-gray-800 text-white p-4 rounded-lg overflow-x-auto code-block"><code class="language-cpp">// 计数排序 - C++ 实现
+#include &lt;iostream&gt;
+#include &lt;vector&gt;
+#include &lt;algorithm&gt;
+
+// 计数排序函数
+void countingSort(std::vector&lt;int&gt;& arr) {
+    // 如果数组为空，直接返回
+    if (arr.empty()) {
+        return;
+    }
+    
+    // 寻找数组的最大值和最小值
+    int max_val = *std::max_element(arr.begin(), arr.end());
+    int min_val = *std::min_element(arr.begin(), arr.end());
+    
+    // 计算范围和计数数组的大小
+    int range = max_val - min_val + 1;
+    
+    // 创建计数数组和输出数组
+    std::vector&lt;int&gt; count(range, 0);
+    std::vector&lt;int&gt; output(arr.size());
+    
+    // 统计每个元素出现的次数
+    for (int i = 0; i < arr.size(); i++) {
+        count[arr[i] - min_val]++;
+    }
+    
+    // 计算累加计数（前缀和）
+    for (int i = 1; i < range; i++) {
+        count[i] += count[i - 1];
+    }
+    
+    // 从后向前遍历原数组，构建输出数组
+    for (int i = arr.size() - 1; i >= 0; i--) {
+        output[count[arr[i] - min_val] - 1] = arr[i];
+        count[arr[i] - min_val]--;
+    }
+    
+    // 将排序结果复制回原数组
+    for (int i = 0; i < arr.size(); i++) {
+        arr[i] = output[i];
+    }
+}
+
+// 主函数示例
+int main() {
+    std::vector&lt;int&gt; arr = {4, 2, 2, 8, 3, 3, 1};
+    
+    std::cout &lt;&lt; "排序前: ";
+    for (int num : arr) {
+        std::cout &lt;&lt; num &lt;&lt; " ";
+    }
+    std::cout &lt;&lt; std::endl;
+    
+    countingSort(arr);
+    
+    std::cout &lt;&lt; "排序后: ";
+    for (int num : arr) {
+        std::cout &lt;&lt; num &lt;&lt; " ";
+    }
+    std::cout &lt;&lt; std::endl;
+    
+    return 0;
+}</code></pre>
+                    </div>
+                    
+                    <div>
+                        <h3 class="text-xl font-medium text-gray-800 mb-3">优化技巧</h3>
+                        <ul class="list-disc list-inside space-y-2 text-gray-700 ml-4">
+                            <li><span class="font-medium">范围压缩：</span>通过记录最小值，可以将计数数组的大小从 max+1 减小到 max-min+1</li>
+                            <li><span class="font-medium">对象排序：</span>对于非整数或含有附加数据的元素，可以创建值-索引映射来保持原始数据的完整性</li>
+                            <li><span class="font-medium">原地排序：</span>在某些情况下，可以优化空间使用，尽量减少额外的内存分配</li>
+                            <li><span class="font-medium">并行计算：</span>在大数据集上，可以使用并行计算技术分别计算不同范围的计数，然后合并结果</li>
+                        </ul>
+                    </div>
+                </div>
+            </section>
+            
+            <!-- 时间复杂度分析 -->
+            <section id="complexity">
+                <h2 class="text-2xl font-semibold text-gray-800 mb-4 flex items-center">
+                    <i class="fas fa-clock text-primary mr-3"></i>时间复杂度分析
+                </h2>
+                <div class="bg-white p-6 rounded-lg shadow-md">
+                    <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+                        <div class="p-4 border border-green-200 rounded-lg bg-green-50">
+                            <h3 class="text-lg font-medium text-gray-800 mb-2">最佳情况</h3>
+                            <p class="text-2xl font-bold text-green-600 mb-2">O(n+k)</p>
+                            <p class="text-gray-700 text-sm">其中 n 是数组长度，k 是元素的范围</p>
+                        </div>
+                        <div class="p-4 border border-blue-200 rounded-lg bg-blue-50">
+                            <h3 class="text-lg font-medium text-gray-800 mb-2">平均情况</h3>
+                            <p class="text-2xl font-bold text-blue-600 mb-2">O(n+k)</p>
+                            <p class="text-gray-700 text-sm">计数排序的时间复杂度不受输入数据的分布影响</p>
+                        </div>
+                        <div class="p-4 border border-blue-200 rounded-lg bg-blue-50">
+                            <h3 class="text-lg font-medium text-gray-800 mb-2">最差情况</h3>
+                            <p class="text-2xl font-bold text-blue-600 mb-2">O(n+k)</p>
+                            <p class="text-gray-700 text-sm">即使在最差情况下，时间复杂度仍然是 O(n+k)</p>
+                        </div>
+                    </div>
+                    
+                    <div class="mt-6">
+                        <h3 class="text-lg font-medium text-gray-800 mb-3">空间复杂度</h3>
+                        <p class="text-gray-700 mb-4">计数排序的空间复杂度主要来自于计数数组和输出数组：</p>
+                        <ul class="list-disc list-inside space-y-2 text-gray-700 ml-4">
+                            <li><span class="font-medium">计数数组：</span>O(k) - k 是元素的范围</li>
+                            <li><span class="font-medium">输出数组：</span>O(n) - n 是数组长度</li>
+                            <li><span class="font-medium">总空间复杂度：</span>O(n+k)</li>
+                        </ul>
+                        <p class="text-gray-700 mt-2">当 k 远大于 n 时，空间开销会显著增大，此时计数排序可能不是最佳选择</p>
+                    </div>
+                    
+                    <div class="mt-6 bg-gray-100 p-5 rounded-lg">
+                        <h3 class="text-lg font-medium text-gray-800 mb-3">计数排序的性能特点</h3>
+                        <ul class="list-disc list-inside space-y-2 text-gray-700 ml-4">
+                            <li>计数排序是一种<span class="font-medium">线性时间复杂度</span>的排序算法，在特定条件下可以超越基于比较的排序算法的 O(n log n) 下界</li>
+                            <li>当数据范围 k 较小且集中时，计数排序非常高效，例如对年龄、分数等范围有限的数据进行排序</li>
+                            <li>计数排序是<span class="font-medium">稳定的</span>，相同元素在排序后保持原有的相对顺序</li>
+                            <li>由于不基于比较，计数排序不受输入数据分布的影响，始终保持 O(n+k) 的时间复杂度</li>
+                        </ul>
+                    </div>
+                </div>
+            </section>
+            
+            <!-- 应用场景 -->
+            <section id="applications">
+                <h2 class="text-2xl font-semibold text-gray-800 mb-4 flex items-center">
+                    <i class="fas fa-briefcase text-primary mr-3"></i>应用场景
+                </h2>
+                <div class="bg-white p-6 rounded-lg shadow-md">
+                    <p class="text-gray-700 mb-4">计数排序在特定场景下有显著优势，常用于以下应用：</p>
+                    
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                        <div class="border-l-4 border-primary pl-4">
+                            <h3 class="text-lg font-medium text-gray-800 mb-2">有限范围整数排序</h3>
+                            <p class="text-gray-700">对于范围有限的整数数组，如年龄、分数等，计数排序表现极佳</p>
+                        </div>
+                        <div class="border-l-4 border-primary pl-4">
+                            <h3 class="text-lg font-medium text-gray-800 mb-2">基数排序的辅助</h3>
+                            <p class="text-gray-700">在基数排序算法中，每一轮对某一位上的数字排序时通常使用计数排序</p>
+                        </div>
+                        <div class="border-l-4 border-primary pl-4">
+                            <h3 class="text-lg font-medium text-gray-800 mb-2">词频统计</h3>
+                            <p class="text-gray-700">计数排序的思想可以应用于统计文本中单词出现的频率</p>
+                        </div>
+                        <div class="border-l-4 border-primary pl-4">
+                            <h3 class="text-lg font-medium text-gray-800 mb-2">数据去重与合并</h3>
+                            <p class="text-gray-700">统计重复元素的出现次数，实现高效的数据去重和合并操作</p>
+                        </div>
+                    </div>
+                    
+                    <div class="mt-6 bg-gray-100 p-5 rounded-lg">
+                        <h3 class="text-lg font-medium text-gray-800 mb-3">经典题目</h3>
+                        <div class="space-y-4">
+                            <div>
+                                <h4 class="font-medium text-gray-800 mb-2">1. 数组中的第 K 个最大元素</h4>
+                                <p class="text-gray-700 mb-2">当元素范围已知且较小时，可以使用计数排序找出第 K 个最大元素</p>
+                                <div class="bg-white p-3 rounded shadow-sm">
+                                    <p class="text-gray-700 text-sm">使用计数排序对数组排序，然后直接找到第 K 个元素，时间复杂度为 O(n+k)</p>
+                                </div>
+                            </div>
+                            <div>
+                                <h4 class="font-medium text-gray-800 mb-2">2. 前 K 个高频元素</h4>
+                                <p class="text-gray-700 mb-2">统计元素出现频率，然后找出出现频率最高的 K 个元素</p>
+                                <div class="bg-white p-3 rounded shadow-sm">
+                                    <p class="text-gray-700 text-sm">使用计数思想统计元素频率，再进行排序找出前 K 个高频元素</p>
+                                </div>
+                            </div>
+                            <div>
+                                <h4 class="font-medium text-gray-800 mb-2">3. 多数元素（出现次数超过 n/2 的元素）</h4>
+                                <p class="text-gray-700 mb-2">使用计数排序确定每个元素出现的次数，找出出现次数最多的元素</p>
+                                <div class="bg-white p-3 rounded shadow-sm">
+                                    <p class="text-gray-700 text-sm">应用计数排序的思想，不需要完整的排序过程，只需统计频率即可</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="mt-6">
+                        <h3 class="text-lg font-medium text-gray-800 mb-3">练习题目</h3>
+                        <ul class="list-disc list-inside space-y-3 text-gray-700 ml-4">
+                            <li><a href="https://leetcode.cn/problems/sort-colors/" target="_blank" class="text-blue-600 hover:underline">力扣 75. 颜色分类</a> - 给定红、白、蓝三种颜色的对象，将它们排序</li>
+                            <li><a href="https://leetcode.cn/problems/top-k-frequent-elements/" target="_blank" class="text-blue-600 hover:underline">力扣 347. 前 K 个高频元素</a> - 找出数组中出现频率前 K 高的元素</li>
+                            <li><a href="https://leetcode.cn/problems/h-index/" target="_blank" class="text-blue-600 hover:underline">力扣 274. H 指数</a> - 计算研究者的 h 指数，可以使用计数排序思想</li>
+                        </ul>
+                    </div>
+                </div>
+            </section>
+            
+            <!-- 与其他排序算法比较 -->
+            <section id="comparison">
+                <h2 class="text-2xl font-semibold text-gray-800 mb-4 flex items-center">
+                    <i class="fas fa-balance-scale text-primary mr-3"></i>与其他排序算法比较
+                </h2>
+                <div class="bg-white p-6 rounded-lg shadow-md overflow-x-auto">
+                    <table class="min-w-full bg-white">
+                        <thead>
+                            <tr>
+                                <th class="py-3 px-4 border-b border-gray-200 bg-gray-50 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">算法</th>
+                                <th class="py-3 px-4 border-b border-gray-200 bg-gray-50 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">最佳时间</th>
+                                <th class="py-3 px-4 border-b border-gray-200 bg-gray-50 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">平均时间</th>
+                                <th class="py-3 px-4 border-b border-gray-200 bg-gray-50 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">最差时间</th>
+                                <th class="py-3 px-4 border-b border-gray-200 bg-gray-50 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">空间复杂度</th>
+                                <th class="py-3 px-4 border-b border-gray-200 bg-gray-50 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">稳定性</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr class="bg-gray-100">
+                                <td class="py-2 px-4 border-b border-gray-200 text-sm font-medium">计数排序</td>
+                                <td class="py-2 px-4 border-b border-gray-200 text-sm">O(n+k)</td>
+                                <td class="py-2 px-4 border-b border-gray-200 text-sm">O(n+k)</td>
+                                <td class="py-2 px-4 border-b border-gray-200 text-sm">O(n+k)</td>
+                                <td class="py-2 px-4 border-b border-gray-200 text-sm">O(n+k)</td>
+                                <td class="py-2 px-4 border-b border-gray-200 text-sm">稳定</td>
+                            </tr>
+                            <tr>
+                                <td class="py-2 px-4 border-b border-gray-200 text-sm font-medium">快速排序</td>
+                                <td class="py-2 px-4 border-b border-gray-200 text-sm">O(n log n)</td>
+                                <td class="py-2 px-4 border-b border-gray-200 text-sm">O(n log n)</td>
+                                <td class="py-2 px-4 border-b border-gray-200 text-sm">O(n²)</td>
+                                <td class="py-2 px-4 border-b border-gray-200 text-sm">O(log n)</td>
+                                <td class="py-2 px-4 border-b border-gray-200 text-sm">不稳定</td>
+                            </tr>
+                            <tr class="bg-gray-100">
+                                <td class="py-2 px-4 border-b border-gray-200 text-sm font-medium">归并排序</td>
+                                <td class="py-2 px-4 border-b border-gray-200 text-sm">O(n log n)</td>
+                                <td class="py-2 px-4 border-b border-gray-200 text-sm">O(n log n)</td>
+                                <td class="py-2 px-4 border-b border-gray-200 text-sm">O(n log n)</td>
+                                <td class="py-2 px-4 border-b border-gray-200 text-sm">O(n)</td>
+                                <td class="py-2 px-4 border-b border-gray-200 text-sm">稳定</td>
+                            </tr>
+                            <tr>
+                                <td class="py-2 px-4 border-b border-gray-200 text-sm font-medium">基数排序</td>
+                                <td class="py-2 px-4 border-b border-gray-200 text-sm">O(nk)</td>
+                                <td class="py-2 px-4 border-b border-gray-200 text-sm">O(nk)</td>
+                                <td class="py-2 px-4 border-b border-gray-200 text-sm">O(nk)</td>
+                                <td class="py-2 px-4 border-b border-gray-200 text-sm">O(n+k)</td>
+                                <td class="py-2 px-4 border-b border-gray-200 text-sm">稳定</td>
+                            </tr>
+                            <tr class="bg-gray-100">
+                                <td class="py-2 px-4 border-b border-gray-200 text-sm font-medium">桶排序</td>
+                                <td class="py-2 px-4 border-b border-gray-200 text-sm">O(n+k)</td>
+                                <td class="py-2 px-4 border-b border-gray-200 text-sm">O(n+k)</td>
+                                <td class="py-2 px-4 border-b border-gray-200 text-sm">O(n²)</td>
+                                <td class="py-2 px-4 border-b border-gray-200 text-sm">O(n+k)</td>
+                                <td class="py-2 px-4 border-b border-gray-200 text-sm">稳定</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                    <p class="mt-4 text-gray-700 text-sm">* 其中 n 是数组长度，k 在计数排序中是元素范围，在基数排序中是数字位数</p>
+                </div>
+            </section>
+        </main>
+        
+        <!-- 页脚 -->
+        <footer class="mt-10 p-6 bg-gray-800 text-white flex flex-col md:flex-row justify-between items-center">
+            <div class="mb-4 md:mb-0">
+                <p class="text-sm"></p>
+            </div>
+            <div class="flex space-x-4">
+                <a href="index.html" class="text-gray-300 hover:text-white transition-colors">首页</a>
+                <a href="选择排序.html" class="text-gray-300 hover:text-white transition-colors">选择排序</a>
+                <a href="快速排序.html" class="text-gray-300 hover:text-white transition-colors">快速排序</a>
+                <a href="归并排序.html" class="text-gray-300 hover:text-white transition-colors">归并排序</a>
+            </div>
+            <button id="back-to-top" class="fixed right-6 bottom-6 p-3 bg-primary rounded-full shadow-lg text-white hidden">
+                <i class="fas fa-arrow-up"></i>
+            </button>
+        </footer>
+        
+        <!-- ScrollReveal -->
+        <script src="https://unpkg.com/scrollreveal"></script>
+        
+        <!-- Highlight.js -->
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.7.0/highlight.min.js"></script>
+        <script>hljs.highlightAll();</script>
+        
+        <script>
+            // ScrollReveal 初始化
+            ScrollReveal().reveal('.section, h2, .bg-white', {
+                distance: '50px',
+                duration: 1000,
+                delay: 200,
+                easing: 'cubic-bezier(0.5, 0, 0, 1)'
+            });
+            
+            // 回到顶部按钮
+            const backToTopButton = document.getElementById('back-to-top');
+            
+            window.addEventListener('scroll', () => {
+                if (window.pageYOffset > 300) {
+                    backToTopButton.classList.remove('hidden');
+                } else {
+                    backToTopButton.classList.add('hidden');
+                }
+            });
+            
+            backToTopButton.addEventListener('click', () => {
+                window.scrollTo({
+                    top: 0,
+                    behavior: 'smooth'
+                });
+            });
+            
+            // 计数排序交互式可视化
+            document.addEventListener('DOMContentLoaded', function() {
+                // 获取DOM元素
+                const arrayContainer = document.getElementById('array-container');
+                const countArrayContainer = document.getElementById('count-array-container');
+                const infoContainer = document.getElementById('current-step');
+                const newArrayBtn = document.getElementById('newArray');
+                const startSortBtn = document.getElementById('startSort');
+                const pauseSortBtn = document.getElementById('pauseSort');
+                const resetSortBtn = document.getElementById('resetSort');
+                const speedSlider = document.getElementById('speed');
+                
+                // 初始化变量
+                let array = [];
+                let countArray = [];
+                let outputArray = [];
+                const arraySize = 12;    // 数组大小
+                const maxValue = 20;     // 最大值
+                const minValue = 1;      // 最小值
+                let animationSpeed = 1000 / parseInt(speedSlider.value);
+                let animations = [];
+                let animationInterval;
+                let isPaused = false;
+                let currentAnimationStep = 0;
+                
+                // 创建新的随机数组
+                function generateRandomArray() {
+                    array = [];
+                    for (let i = 0; i < arraySize; i++) {
+                        array.push(Math.floor(Math.random() * (maxValue - minValue + 1)) + minValue);
+                    }
+                    renderArray(array);
+                    resetAnimationState();
+                    infoContainer.textContent = "准备开始计数排序...";
+                    
+                    // 清空计数数组显示
+                    countArrayContainer.innerHTML = '';
+                }
+                
+                // 渲染原始数组
+                function renderArray(arr, currentIndex = -1, sortedIndices = []) {
+                    arrayContainer.innerHTML = '';
+                    const maxArrVal = Math.max(...arr, maxValue);
+                    
+                    arr.forEach((val, idx) => {
+                        const bar = document.createElement('div');
+                        const height = (val / maxArrVal) * 100;
+                        
+                        bar.style.height = `${height}%`;
+                        bar.style.width = `${80 / arraySize}%`;
+                        bar.style.margin = '0 0.2%';
+                        bar.style.position = 'relative';
+                        
+                        // 设置颜色
+                        if (idx === currentIndex) {
+                            bar.style.backgroundColor = '#F87171'; // 当前处理元素
+                        } else if (sortedIndices.includes(idx)) {
+                            bar.style.backgroundColor = '#10B981'; // 已排序
+                        } else {
+                            bar.style.backgroundColor = '#60A5FA'; // 默认
+                        }
+                        
+                        // 添加数值标签
+                        const label = document.createElement('div');
+                        label.textContent = val;
+                        label.style.position = 'absolute';
+                        label.style.bottom = '-25px';
+                        label.style.width = '100%';
+                        label.style.textAlign = 'center';
+                        label.style.fontSize = '12px';
+                        bar.appendChild(label);
+                        
+                        arrayContainer.appendChild(bar);
+                    });
+                }
+                
+                // 渲染计数数组
+                function renderCountArray(counts, range, highlightIndex = -1) {
+                    countArrayContainer.innerHTML = '';
+                    const maxCount = counts.length > 0 ? Math.max(...counts) : 0;
+                    
+                    for (let i = 0; i < range; i++) {
+                        const count = counts[i] || 0;
+                        const bar = document.createElement('div');
+                        const height = maxCount > 0 ? (count / maxCount) * 100 : 0;
+                        
+                        bar.style.height = `${height}%`;
+                        bar.style.width = `${80 / range}%`;
+                        bar.style.margin = '0 0.2%';
+                        bar.style.position = 'relative';
+                        
+                        // 设置颜色
+                        if (i === highlightIndex) {
+                            bar.style.backgroundColor = '#F87171'; // 高亮
+                        } else {
+                            bar.style.backgroundColor = '#FBBF24'; // 默认
+                        }
+                        
+                        // 添加数值标签
+                        const label = document.createElement('div');
+                        label.textContent = count;
+                        label.style.position = 'absolute';
+                        label.style.bottom = '-25px';
+                        label.style.width = '100%';
+                        label.style.textAlign = 'center';
+                        label.style.fontSize = '12px';
+                        bar.appendChild(label);
+                        
+                        // 添加索引标签
+                        const indexLabel = document.createElement('div');
+                        indexLabel.textContent = i + minValue;
+                        indexLabel.style.position = 'absolute';
+                        indexLabel.style.top = '-25px';
+                        indexLabel.style.width = '100%';
+                        indexLabel.style.textAlign = 'center';
+                        indexLabel.style.fontSize = '12px';
+                        bar.appendChild(indexLabel);
+                        
+                        countArrayContainer.appendChild(bar);
+                    }
+                }
+                
+                // 生成计数排序的动画步骤
+                function generateCountingSortAnimations(arr) {
+                    const animations = [];
+                    const n = arr.length;
+                    
+                    if (n === 0) return animations;
+                    
+                    // 找出最大值和最小值
+                    const max = Math.max(...arr);
+                    const min = Math.min(...arr);
+                    const range = max - min + 1;
+                    
+                    animations.push({
+                        step: '初始化',
+                        array: [...arr],
+                        counts: [],
+                        message: `找出数组范围：最小值 = ${min}, 最大值 = ${max}, 范围 = ${range}`
+                    });
+                    
+                    // 创建计数数组
+                    const count = new Array(range).fill(0);
+                    
+                    // 统计每个元素出现的次数
+                    for (let i = 0; i < n; i++) {
+                        const element = arr[i];
+                        const index = element - min;
+                        count[index]++;
+                        
+                        animations.push({
+                            step: '计数',
+                            array: [...arr],
+                            counts: [...count],
+                            range: range,
+                            currentIndex: i,
+                            countIndex: index,
+                            message: `统计元素 ${element}：count[${index}] = ${count[index]}`
+                        });
+                    }
+                    
+                    // 累加计数（前缀和）
+                    for (let i = 1; i < range; i++) {
+                        count[i] += count[i - 1];
+                        
+                        animations.push({
+                            step: '累加',
+                            array: [...arr],
+                            counts: [...count],
+                            range: range,
+                            countIndex: i,
+                            message: `累加计数：count[${i}] = count[${i}] + count[${i - 1}] = ${count[i]}`
+                        });
+                    }
+                    
+                    // 创建输出数组
+                    const output = new Array(n).fill(0);
+                    
+                    // 从后向前遍历原始数组，构建输出数组
+                    for (let i = n - 1; i >= 0; i--) {
+                        const element = arr[i];
+                        const index = element - min;
+                        output[count[index] - 1] = element;
+                        
+                        animations.push({
+                            step: '填充',
+                            array: [...arr],
+                            output: [...output],
+                            counts: [...count],
+                            range: range,
+                            currentIndex: i,
+                            countIndex: index,
+                            outputIndex: count[index] - 1,
+                            message: `处理元素 ${element}：放置在输出数组位置 ${count[index] - 1}`
+                        });
+                        
+                        count[index]--;
+                        
+                        animations.push({
+                            step: '减少计数',
+                            array: [...arr],
+                            output: [...output],
+                            counts: [...count],
+                            range: range,
+                            countIndex: index,
+                            message: `减少计数：count[${index}] = ${count[index]}`
+                        });
+                    }
+                    
+                    // 将输出数组复制回原始数组
+                    animations.push({
+                        step: '完成',
+                        array: [...output],
+                        sortedIndices: Array.from({length: n}, (_, i) => i),
+                        message: `计数排序完成！`
+                    });
+                    
+                    return animations;
+                }
+                
+                // 开始排序动画
+                function startSortAnimation() {
+                    if (animations.length === 0 || currentAnimationStep >= animations.length) {
+                        // 为当前数组生成动画
+                        animations = generateCountingSortAnimations([...array]);
+                        currentAnimationStep = 0;
+                    }
+                    
+                    startSortBtn.classList.add('hidden');
+                    pauseSortBtn.classList.remove('hidden');
+                    isPaused = false;
+                    
+                    animationInterval = setInterval(() => {
+                        if (currentAnimationStep < animations.length) {
+                            const step = animations[currentAnimationStep];
+                            
+                            if (step.output) {
+                                renderArray(step.output, step.currentIndex, Array.from({length: step.output.length}, (_, i) => 
+                                    step.output[i] !== 0 ? i : -1).filter(i => i !== -1));
+                            } else {
+                                renderArray(step.array, step.currentIndex, step.sortedIndices || []);
+                            }
+                            
+                            if (step.counts && step.counts.length > 0) {
+                                renderCountArray(step.counts, step.range || step.counts.length, step.countIndex);
+                            }
+                            
+                            infoContainer.textContent = step.message;
+                            currentAnimationStep++;
+                        } else {
+                            clearInterval(animationInterval);
+                            infoContainer.textContent = "排序完成!";
+                            pauseSortBtn.classList.add('hidden');
+                            startSortBtn.classList.remove('hidden');
+                            
+                            // 显示全部排序完成
+                            if (animations.length > 0) {
+                                const finalStep = animations[animations.length - 1];
+                                renderArray(finalStep.array, -1, Array.from({length: finalStep.array.length}, (_, i) => i));
+                            }
+                        }
+                    }, animationSpeed);
+                }
+                
+                // 暂停排序动画
+                function pauseSortAnimation() {
+                    clearInterval(animationInterval);
+                    isPaused = true;
+                    pauseSortBtn.classList.add('hidden');
+                    startSortBtn.classList.remove('hidden');
+                }
+                
+                // 重置动画状态
+                function resetAnimationState() {
+                    clearInterval(animationInterval);
+                    animations = [];
+                    currentAnimationStep = 0;
+                    isPaused = false;
+                    pauseSortBtn.classList.add('hidden');
+                    startSortBtn.classList.remove('hidden');
+                }
+                
+                // 事件监听器
+                newArrayBtn.addEventListener('click', generateRandomArray);
+                startSortBtn.addEventListener('click', startSortAnimation);
+                pauseSortBtn.addEventListener('click', pauseSortAnimation);
+                resetSortBtn.addEventListener('click', () => {
+                    resetAnimationState();
+                    renderArray(array);
+                    countArrayContainer.innerHTML = '';
+                    infoContainer.textContent = "排序已重置";
+                });
+                
+                speedSlider.addEventListener('input', function() {
+                    animationSpeed = 1000 / parseInt(this.value);
+                    if (!isPaused && animationInterval) {
+                        clearInterval(animationInterval);
+                        startSortAnimation();
+                    }
+                });
+                
+                // 初始化
+                generateRandomArray();
+            });
+        </script>
+    </div>
+</body>
+</html> 

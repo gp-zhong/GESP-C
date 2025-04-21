@@ -1,0 +1,194 @@
+
+<!DOCTYPE html>
+<html lang="zh-CN">
+    <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <title>GESP素养学习笔记</title>
+        <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
+        <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css" rel="stylesheet">
+        <!-- TailwindCSS -->
+        <script src="https://cdn.tailwindcss.com"></script>
+        <!-- Font Awesome -->
+        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+        <style>
+            .card {
+                background: white;
+                border-radius: 16px;
+                box-shadow: 0 10px 25px rgba(0, 0, 0, 0.05);
+                transition: all 0.3s ease;
+            }
+            .card:hover {
+                transform: translateY(-5px);
+                box-shadow: 0 15px 30px rgba(0, 0, 0, 0.1);
+            }
+            pre {
+                background-color: #f6f8fa;
+                border-radius: 8px;
+                overflow-x: auto;
+            }
+            code {
+                font-family: 'Fira Code', monospace;
+            }
+            .algorithm-step {
+                counter-increment: step;
+                position: relative;
+            }
+            .algorithm-step:before {
+                content: counter(step);
+                position: absolute;
+                left: -40px;
+                top: 0;
+                width: 30px;
+                height: 30px;
+                background-color: #6366f1;
+                color: white;
+                border-radius: 50%;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                font-weight: bold;
+            }
+            .highlight {
+                background-color: #FFF8DC;
+                padding: 2px 4px;
+                border-radius: 4px;
+            }
+            .strong {
+                color: #e74c3c;
+            }
+        </style>
+    </head>
+    <body class="py-10">  
+        <!-- 主内容区域 -->         
+        <div class="container mx-auto px-8">
+            <div class="card p-8 mb-8">
+                <h2 class="text-2xl font-bold text-indigo-700 mb-4">GESP简介</h2>    
+                <div class="flex flex-col md:flex-row gap-6 mt-6">
+                    <div class="flex-1 bg-gradient-to-br from-indigo-50 to-purple-50 p-5 rounded-lg">
+                        <p><strong class="text-red-600">GESP（Grade Examination of Software Programming）</strong>
+                            是由中国计算机学会（CCF）推出的编程能力等级认证，旨在科学评估青少年的编程能力，推动编程教育的普及与规范化。该认证覆盖图形化编程（Scratch）、Python、C++三种编程语言，分为1-8级（根据语言不同有所差异），考试形式为理论+实操，适合中小学生及编程爱好者参与。通过认证可获得CCF官方证书，高等级成绩还可衔接CSP-J/S（信息学竞赛认证）。
+                        </p>
+                    </div>                    
+                </div>
+                <p class="text-white">__________________ </p>
+                <h2 class="text-2xl font-bold text-indigo-700 mb-4">学习GESP的必要性</h2>    
+                <div class="flex flex-col md:flex-row gap-6 mt-6">
+                    <div class="flex-1 bg-gradient-to-br from-indigo-50 to-purple-50 p-5 rounded-lg">
+                        <p><strong class="text-blue-600">1.权威认证与升学助力</strong></p>
+                        <p>CCF是国内计算机领域权威机构，GESP证书在升学（如科技特长生、强基计划）和竞赛（如CSP-J/S）中具备参考价值。</p>
+                        
+                        <p><strong class="text-blue-600">2.逻辑思维与问题解决能力</strong></p>
+                        <p>编程训练提升抽象思维、逻辑推理能力，对数学、物理等学科学习有直接帮助。</p>   
+
+                        <p><strong class="text-blue-600">3.兴趣导向与职业启蒙</strong></p>
+                        <p>通过图形化到代码的进阶学习，激发学生对计算机科学的兴趣，为未来从事AI、软件开发等领域打下基础。</p>
+                    </div>                    
+                </div>
+                <p class="text-white">__________________ </p>
+                <h2 class="text-2xl font-bold text-indigo-700 mb-4">学习规划建议（以C++为例）</h2>    
+                <div class="flex flex-col md:flex-row gap-6 mt-6">
+                    <div class="flex-1 bg-gradient-to-br from-indigo-50 to-purple-50 p-5 rounded-lg">
+                        <p><strong class="text-red-600">阶段1：入门基础（1-3个月）</strong></p>
+                        <p><strong class="text-blue-600">目标：</strong>掌握基础语法、循环/条件语句、简单算法（如排序）。</p>                        
+                        <p><strong class="text-blue-600">学习内容：</strong></p>                        
+                        <ul class="list-disc pl-5 space-y-2 text-gray-700">
+                            <li>第一行两个整数 N 和 变量、数据类型、运算符</li>
+                            <li>分支语句（if-else）、循环（for/while）</li>
+                            <li>数组、函数、类</li>
+                            <li>文件操作、异常处理</li>
+                            <li>常见算法（如搜索、排序）</li>
+                        </ul>               
+                        <p><strong class="text-blue-600">资源推荐：</strong>官方教材《CCF GESP指南》、Codecademy、洛谷新手题库。</p>
+                    </div>                    
+                </div>
+                <div class="flex flex-col md:flex-row gap-6 mt-6">
+                    <div class="flex-1 bg-gradient-to-br from-indigo-50 to-purple-50 p-5 rounded-lg">
+                        <p><strong class="text-red-600">阶段2：进阶提升（3-6个月）</strong></p>
+                        <p><strong class="text-blue-600">目标：</strong>攻克递归、数据结构（栈/队列）、中等难度算法（贪心、动态规划基础）。</p>
+                        <p><strong class="text-blue-600">学习内容：</strong></p>                       
+                        <ul class="list-disc pl-5 space-y-2 text-gray-700">
+                            <li>字符串处理、结构体</li>
+                            <li>递归与分治思想</li>
+                            <li>线性数据结构（链表、栈、队列）</li>
+                        </ul>
+                        <p><strong class="text-blue-600">实践建议：</strong>每周完成3-5道算法题（如LeetCode简单题、GESP模拟题）。</p>                        
+                    </div>
+                </div>
+                <div class="flex flex-col md:flex-row gap-6 mt-6">
+                    <div class="flex-1 bg-gradient-to-br from-indigo-50 to-purple-50 p-5 rounded-lg">
+                        <p><strong class="text-red-600">阶段3：冲刺备考（1-2个月）</strong></p>
+                        <p><strong class="text-blue-600">目标：</strong>针对性突破考试高频考点，模拟实战。</p>
+                        <p><strong class="text-blue-600">学习内容：</strong></p>                                               
+                        <ul class="list-disc pl-5 space-y-2 text-gray-700">
+                            <li>历年真题分析与限时训练</li>
+                            <li>代码调试技巧与时间复杂度优化</li>
+                            <li>易错点总结（如边界条件、数据类型溢出）</li>
+                        </ul>
+                        <p><strong class="text-blue-600">资源推荐：</strong>CCF官方模拟考试平台、AcWing题库、参加线上/线下集训。</p>
+                    </div>
+                </div>                
+                <p class="text-white">__________________ </p>
+                <h2 class="text-2xl font-bold text-indigo-700 mb-4">注意事项</h2>    
+                <div class="flex flex-col md:flex-row gap-6 mt-6">
+                    <div class="flex-1 bg-gradient-to-br from-indigo-50 to-purple-50 p-5 rounded-lg">
+                        <p><strong class="text-blue-600">1.年龄与起点匹配：</strong></p>
+                        <ul class="list-disc pl-5 space-y-2 text-gray-700">
+                            <li>1-3级：适合小学生（7-12岁）</li>
+                            <li>4-6级：适合初中生（13-15岁）</li>
+                            <li>7-8级：适合高中生（16-18岁）</li>
+                        </ul>                        
+                        <p><strong class="text-blue-600">2.持续实践：</strong>编程能力依赖“写代码→调试→优化”的闭环，建议每日练习30分钟以上。</p>
+                        <p><strong class="text-blue-600">3.以考促学：</strong>每3-6个月报考一次GESP，通过考试检验学习成果并调整计划。</p>
+                    </div>                    
+                </div>
+                <p class="text-white">__________________ </p>
+                <h2 class="text-2xl font-bold text-indigo-700 mb-4">总结</h2>    
+                <div class="flex flex-col md:flex-row gap-6 mt-6">
+                    <div class="flex-1 bg-gradient-to-br from-indigo-50 to-purple-50 p-5 rounded-lg">
+                        <p>GESP不仅是一张证书，更是培养计算思维的有效路径。建议根据学生基础制定个性化学习计划，结合兴趣与目标选择编程语言，坚持“理论+实战”双轨并行，逐步提升解决问题的能力。</p>
+                        <p>祝愿每位学习者都能在GESP的旅程中收获成长，享受编程带来的乐趣！</p>
+                    </div>                    
+                </div>
+            </div>
+        </div>
+        
+        <!-- Back to top button -->
+        <button id="backToTop" class="fixed bottom-6 right-6 bg-primary hover:bg-primary-dark text-red-500 rounded-full p-3 shadow-lg transition-all duration-300 opacity-0 invisible">
+            <i class="fas fa-arrow-up"></i>
+        </button>
+
+        <!-- JavaScript for Back to top button -->
+        <script>
+            const backToTop = document.getElementById('backToTop');
+            
+            window.addEventListener('scroll', () => {
+                if (window.scrollY > 300) {
+                    backToTop.classList.remove('opacity-0', 'invisible');
+                    backToTop.classList.add('opacity-100', 'visible');
+                } else {
+                    backToTop.classList.remove('opacity-100', 'visible');
+                    backToTop.classList.add('opacity-0', 'invisible');
+                }
+            });
+            
+            backToTop.addEventListener('click', () => {
+                window.scrollTo({
+                    top: 0,
+                    behavior: 'smooth'
+                });
+            });
+        </script>
+        <!-- Simple ScrollReveal effect -->
+        <script src="https://unpkg.com/scrollreveal"></script>
+        <script>
+            ScrollReveal().reveal('section', { 
+                delay: 200,
+                distance: '20px',
+                origin: 'bottom',
+                duration: 800,
+                easing: 'ease-in-out'
+            });
+        </script>
+    </body>
+</html>

@@ -1,0 +1,845 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>希尔排序</title>
+    <!-- TailwindCSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&family=Roboto+Mono&display=swap" rel="stylesheet">
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        primary: {
+                            light: '#a5f3fc',
+                            DEFAULT: '#06b6d4',
+                            dark: '#0891b2',
+                        },
+                        secondary: {
+                            light: '#c7d2fe',
+                            DEFAULT: '#818cf8',
+                            dark: '#6366f1',
+                        },
+                        codeBlock: '#1e293b',
+                    },
+                    fontFamily: {
+                        sans: ['Poppins', 'sans-serif'],
+                        mono: ['Roboto Mono', 'monospace'],
+                    },
+                }
+            }
+        }
+    </script>
+    <style>
+        .card-hover {
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+        }
+        .card-hover:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 25px -5px rgba(6, 182, 212, 0.1), 0 10px 10px -5px rgba(6, 182, 212, 0.04);
+        }
+        .code-block::-webkit-scrollbar {
+            height: 8px;
+        }
+        .code-block::-webkit-scrollbar-thumb {
+            background-color: #06b6d4;
+            border-radius: 4px;
+        }
+        .code-block::-webkit-scrollbar-track {
+            background-color: #e2e8f0;
+            border-radius: 4px;
+        }
+    </style>
+</head>
+<body class="bg-gray-50 font-sans">
+    <div class="min-h-screen max-w-6xl mx-auto px-8 py-10">
+        <!-- Header -->
+        <header class="mb-12 text-center">
+            <div class="inline-block px-3 py-1 bg-primary-light text-primary-dark rounded-full text-sm font-medium mb-4">
+                算法基础
+            </div>
+            <h1 class="text-4xl font-bold text-gray-800 mb-4">希尔排序</h1>
+            <p class="text-lg text-gray-600 max-w-3xl mx-auto">一种基于插入排序的高效改进算法，通过比较相距一定间隔的元素来排序</p>
+        </header>
+
+        <!-- Main Content -->
+        <main class="space-y-12">
+            <!-- 算法概述 -->
+            <section class="section bg-white rounded-xl p-8 shadow-md">
+                <h2 class="text-2xl font-bold text-gray-800 mb-6 flex items-center">
+                    <i class="fas fa-info-circle text-primary mr-3"></i>算法概述
+                </h2>
+                <div class="space-y-4">
+                    <p class="text-gray-700">希尔排序（Shell Sort）是由Donald Shell在1959年提出的一种排序算法，是插入排序的一种更高效的改进版本。希尔排序是非稳定排序算法。</p>
+                    <p class="text-gray-700">希尔排序的基本思想是：先将整个待排序的记录序列分割成为若干子序列分别进行直接插入排序，待整个序列中的记录"基本有序"时，再对全体记录进行一次直接插入排序。</p>
+                    
+                    <div class="bg-gray-50 p-4 rounded-lg border-l-4 border-primary mt-4">
+                        <h3 class="font-semibold text-gray-800 mb-2">核心思想</h3>
+                        <p class="text-gray-700">希尔排序通过将比较的全部元素分为几个区域来提升插入排序的性能。这样可以让一个元素可以一次性地朝最终位置前进一大步。然后算法再取越来越小的步长进行排序，最终算法以步长为1进行排序（也就是普通的插入排序）。</p>
+                    </div>
+                </div>
+            </section>
+
+            <!-- 算法工作原理 -->
+            <section class="section bg-white rounded-xl p-8 shadow-md">
+                <h2 class="text-2xl font-bold text-gray-800 mb-6 flex items-center">
+                    <i class="fas fa-cogs text-primary mr-3"></i>工作原理
+                </h2>
+                <div class="space-y-4">
+                    <p class="text-gray-700">希尔排序的工作原理如下：</p>
+                    <ol class="list-decimal list-inside space-y-2 text-gray-700 ml-4">
+                        <li>选择一个增量序列 t1, t2, ..., tk，其中 ti > tj (i < j)，tk = 1</li>
+                        <li>按增量序列个数 k，对序列进行 k 趟排序</li>
+                        <li>每趟排序，根据对应的增量 ti，将待排序列分割成若干长度为 m 的子序列，分别对各子表进行直接插入排序</li>
+                        <li>仅增量因子为 1 时，整个序列作为一个表来处理，表长度即为整个序列的长度</li>
+                    </ol>
+
+                    <div class="mt-6">
+                        <h3 class="font-semibold text-gray-800 mb-4">示例说明：</h3>
+                        <p class="text-gray-700 mb-4">假设有数组：[13, 14, 94, 33, 82, 25, 59, 94, 65, 23, 45, 27, 73, 25, 39, 10]</p>
+                        <p class="text-gray-700 mb-2">我们使用增量序列 {5, 3, 1}，执行过程如下：</p>
+                        
+                        <div class="bg-gray-50 p-4 rounded-lg">
+                            <p class="text-gray-700"><strong>第一轮（增量为5）：</strong>将数组分成5组，每组内部进行插入排序</p>
+                            <p class="text-gray-700">[<span class="text-primary font-bold">13</span>, 14, 94, 33, 82, <span class="text-primary font-bold">25</span>, 59, 94, 65, 23, <span class="text-primary font-bold">45</span>, 27, 73, 25, 39, <span class="text-primary font-bold">10</span>]</p>
+                            <p class="text-gray-700">[13, <span class="text-secondary font-bold">14</span>, 94, 33, 82, 25, <span class="text-secondary font-bold">59</span>, 94, 65, 23, 45, <span class="text-secondary font-bold">27</span>, 73, 25, 39, 10]</p>
+                            <p class="text-gray-700">[13, 14, <span class="text-green-600 font-bold">94</span>, 33, 82, 25, 59, <span class="text-green-600 font-bold">94</span>, 65, 23, 45, 27, <span class="text-green-600 font-bold">73</span>, 25, 39, 10]</p>
+                            <p class="text-gray-700">[13, 14, 94, <span class="text-red-500 font-bold">33</span>, 82, 25, 59, 94, <span class="text-red-500 font-bold">65</span>, 23, 45, 27, 73, <span class="text-red-500 font-bold">25</span>, 39, 10]</p>
+                            <p class="text-gray-700">[13, 14, 94, 33, <span class="text-purple-600 font-bold">82</span>, 25, 59, 94, 65, <span class="text-purple-600 font-bold">23</span>, 45, 27, 73, 25, <span class="text-purple-600 font-bold">39</span>, 10]</p>
+                            <p class="text-gray-700 mt-2">排序后：[10, 14, 73, 25, 23, 13, 27, 94, 33, 39, 45, 59, 94, 65, 82, 25]</p>
+                        </div>
+                        
+                        <div class="bg-gray-50 p-4 rounded-lg mt-3">
+                            <p class="text-gray-700"><strong>第二轮（增量为3）：</strong>将数组分成3组，每组内部进行插入排序</p>
+                            <p class="text-gray-700 mt-2">排序后：[10, 14, 25, 25, 23, 13, 27, 33, 39, 45, 59, 65, 73, 82, 94, 94]</p>
+                        </div>
+                        
+                        <div class="bg-gray-50 p-4 rounded-lg mt-3">
+                            <p class="text-gray-700"><strong>第三轮（增量为1）：</strong>相当于普通插入排序</p>
+                            <p class="text-gray-700 mt-2">最终排序结果：[10, 13, 14, 23, 25, 25, 27, 33, 39, 45, 59, 65, 73, 82, 94, 94]</p>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- 交互式可视化 Section -->
+            <section class="section bg-white rounded-xl p-8 shadow-md">
+                <div class="flex items-center mb-6">
+                    <i class="fas fa-chart-bar text-primary text-xl mr-3"></i>
+                    <h2 class="text-2xl font-bold text-gray-800">交互式可视化</h2>
+                </div>
+                <div class="space-y-6">
+                    <p class="text-gray-700">通过这个交互式演示，您可以直观地了解希尔排序的工作过程以及增量序列如何影响排序效率。</p>
+                    
+                    <!-- 控制面板 -->
+                    <div class="flex flex-wrap gap-4 mb-6 bg-gray-50 p-4 rounded-lg">
+                        <button id="newArrayBtn" class="px-4 py-2 bg-primary hover:bg-primary-dark text-white rounded-lg transition-colors flex items-center">
+                            <i class="fas fa-random mr-2"></i>新数组
+                        </button>
+                        <button id="startBtn" class="px-4 py-2 bg-green-500 hover:bg-green-600 text-white rounded-lg transition-colors flex items-center">
+                            <i class="fas fa-play mr-2"></i>开始排序
+                        </button>
+                        <button id="resetBtn" class="px-4 py-2 bg-red-500 hover:bg-red-600 text-white rounded-lg transition-colors flex items-center" disabled>
+                            <i class="fas fa-undo-alt mr-2"></i>重置
+                        </button>
+                        
+                        <div class="flex items-center ml-auto">
+                            <label for="speed" class="mr-2 text-gray-700">速度:</label>
+                            <input type="range" id="speed" min="1" max="5" value="3" class="w-24 h-2 bg-gray-300 rounded-lg appearance-none cursor-pointer">
+                            <span id="speedValue" class="ml-2 text-gray-700 min-w-[60px]">中等</span>
+                        </div>
+                        
+                        <div class="flex items-center ml-4">
+                            <label for="gapSequence" class="mr-2 text-gray-700">增量序列:</label>
+                            <select id="gapSequence" class="px-3 py-1 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary">
+                                <option value="shell">Shell序列 (n/2^k)</option>
+                                <option value="hibbard">Hibbard序列 (2^k-1)</option>
+                                <option value="sedgewick">Sedgewick序列</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <!-- 可视化区域 -->
+                    <div class="flex flex-col md:flex-row gap-6">
+                        <div class="flex-1 bg-gray-100 rounded-lg p-4">
+                            <h3 class="text-lg font-semibold text-gray-800 mb-4">当前数组</h3>
+                            <div id="array-container" class="h-64 flex items-end justify-center gap-1"></div>
+                        </div>
+                        
+                        <div class="flex-1 bg-gray-100 rounded-lg p-4">
+                            <h3 class="text-lg font-semibold text-gray-800 mb-2">步骤说明</h3>
+                            <div id="step-info" class="mb-3 p-3 bg-white rounded-lg min-h-[60px]">
+                                准备开始希尔排序。点击"开始排序"按钮开始。
+                            </div>
+                            <div class="mt-4">
+                                <h4 class="font-medium text-gray-800 mb-2">当前状态</h4>
+                                <div class="grid grid-cols-2 gap-2">
+                                    <div class="bg-white p-2 rounded-lg">
+                                        <span class="text-sm text-gray-600">当前步骤:</span>
+                                        <div id="current-step" class="font-mono">等待开始</div>
+                                    </div>
+                                    <div class="bg-white p-2 rounded-lg">
+                                        <span class="text-sm text-gray-600">当前增量:</span>
+                                        <div id="current-gap" class="font-mono">-</div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- 图例 -->
+                    <div class="mt-4 flex flex-wrap gap-4 justify-center">
+                        <div class="flex items-center">
+                            <div class="w-4 h-4 bg-blue-500 rounded mr-2"></div>
+                            <span class="text-sm">未排序</span>
+                        </div>
+                        <div class="flex items-center">
+                            <div class="w-4 h-4 bg-yellow-500 rounded mr-2"></div>
+                            <span class="text-sm">当前比较</span>
+                        </div>
+                        <div class="flex items-center">
+                            <div class="w-4 h-4 bg-purple-500 rounded mr-2"></div>
+                            <span class="text-sm">当前插入</span>
+                        </div>
+                        <div class="flex items-center">
+                            <div class="w-4 h-4 bg-green-500 rounded mr-2"></div>
+                            <span class="text-sm">已排序</span>
+                        </div>
+                        <div class="flex items-center">
+                            <div class="w-4 h-4 bg-gray-400 rounded mr-2"></div>
+                            <span class="text-sm">相同增量组</span>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- 时间复杂度分析 -->
+            <section class="section bg-white rounded-xl p-8 shadow-md">
+                <h2 class="text-2xl font-bold text-gray-800 mb-6 flex items-center">
+                    <i class="fas fa-chart-line text-primary mr-3"></i>时间复杂度分析
+                </h2>
+                <div class="space-y-4">
+                    <p class="text-gray-700">希尔排序的时间复杂度分析比较复杂，与增量序列的选择有关：</p>
+                    
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mt-3">
+                        <div class="bg-gray-50 p-4 rounded-lg">
+                            <h3 class="font-semibold text-gray-800 mb-2">最坏时间复杂度</h3>
+                            <p class="text-gray-700">根据增量序列的不同，最坏时间复杂度为O(n²)，但可以优化</p>
+                        </div>
+                        <div class="bg-gray-50 p-4 rounded-lg">
+                            <h3 class="font-semibold text-gray-800 mb-2">最优时间复杂度</h3>
+                            <p class="text-gray-700">当数据已经排序时，为O(n)</p>
+                        </div>
+                        <div class="bg-gray-50 p-4 rounded-lg">
+                            <h3 class="font-semibold text-gray-800 mb-2">平均时间复杂度</h3>
+                            <p class="text-gray-700">根据增量序列的选择，在O(n^1.3)到O(n²)之间</p>
+                        </div>
+                        <div class="bg-gray-50 p-4 rounded-lg">
+                            <h3 class="font-semibold text-gray-800 mb-2">空间复杂度</h3>
+                            <p class="text-gray-700">O(1)，仅需要常数空间</p>
+                        </div>
+                    </div>
+
+                    <div class="bg-gray-100 p-4 rounded-lg mt-4">
+                        <h3 class="font-semibold text-gray-800 mb-2">常见增量序列及其复杂度</h3>
+                        <ul class="list-disc list-inside space-y-2 text-gray-700">
+                            <li><strong>Shell增量序列</strong>：{n/2, n/4, ..., 1}，最坏时间复杂度为O(n²)</li>
+                            <li><strong>Hibbard增量序列</strong>：{1, 3, 7, ..., 2ᵏ-1}，最坏时间复杂度为O(n^1.5)</li>
+                            <li><strong>Sedgewick增量序列</strong>：{1, 5, 19, 41, 109, ...}，最坏时间复杂度为O(n^1.3)</li>
+                        </ul>
+                    </div>
+                </div>
+            </section>
+
+            <!-- 代码实现 -->
+            <section class="section bg-white rounded-xl p-8 shadow-md">
+                <h2 class="text-2xl font-bold text-gray-800 mb-6 flex items-center">
+                    <i class="fas fa-code text-primary mr-3"></i>代码实现
+                </h2>
+                
+                <div class="bg-codeBlock rounded-lg overflow-hidden">
+                    <div class="flex justify-between items-center px-4 py-2 bg-gray-700 text-white">
+                        <span class="font-mono text-sm">C++ 实现</span>
+                        <div class="flex space-x-2">
+                            <div class="w-3 h-3 rounded-full bg-red-500"></div>
+                            <div class="w-3 h-3 rounded-full bg-yellow-500"></div>
+                            <div class="w-3 h-3 rounded-full bg-green-500"></div>
+                        </div>
+                    </div>
+                    <pre class="code-block p-4 text-white font-mono text-sm overflow-x-auto"><code class="language-cpp">#include &lt;iostream&gt;
+#include &lt;vector&gt;
+using namespace std;
+
+// 希尔排序函数
+void shellSort(vector&lt;int&gt; &arr) {
+    int n = arr.size();
+    
+    // 使用Shell推荐的增量序列：n/2, n/4, ..., 1
+    for (int gap = n/2; gap > 0; gap /= 2) {
+        // 对每个子序列进行插入排序
+        for (int i = gap; i < n; i++) {
+            int temp = arr[i];
+            int j;
+            
+            // 对子序列进行插入排序
+            for (j = i; j >= gap && arr[j - gap] > temp; j -= gap) {
+                arr[j] = arr[j - gap];
+            }
+            
+            arr[j] = temp;
+        }
+    }
+}
+
+// 打印数组
+void printArray(const vector&lt;int&gt; &arr) {
+    for (int num : arr) {
+        cout << num << " ";
+    }
+    cout << endl;
+}
+
+int main() {
+    vector&lt;int&gt; arr = {13, 14, 94, 33, 82, 25, 59, 94, 65, 23, 45, 27, 73, 25, 39, 10};
+    
+    cout << "排序前: ";
+    printArray(arr);
+    
+    shellSort(arr);
+    
+    cout << "排序后: ";
+    printArray(arr);
+    
+    return 0;
+}
+</code></pre>
+                </div>
+
+                <!-- Python 实现 -->
+                <div class="bg-codeBlock rounded-lg overflow-hidden mt-6">
+                    <div class="flex justify-between items-center px-4 py-2 bg-gray-700 text-white">
+                        <span class="font-mono text-sm">Python 实现</span>
+                        <div class="flex space-x-2">
+                            <div class="w-3 h-3 rounded-full bg-red-500"></div>
+                            <div class="w-3 h-3 rounded-full bg-yellow-500"></div>
+                            <div class="w-3 h-3 rounded-full bg-green-500"></div>
+                        </div>
+                    </div>
+                    <pre class="code-block p-4 text-white font-mono text-sm overflow-x-auto"><code class="language-python">def shell_sort(arr):
+    n = len(arr)
+    gap = n // 2  # 初始间隔
+    
+    # 逐渐减小间隔
+    while gap > 0:
+        # 对每个子序列进行插入排序
+        for i in range(gap, n):
+            temp = arr[i]
+            j = i
+            
+            # 对子序列进行插入排序
+            while j >= gap and arr[j - gap] > temp:
+                arr[j] = arr[j - gap]
+                j -= gap
+                
+            arr[j] = temp
+            
+        gap //= 2  # 缩小间隔
+    
+    return arr
+
+# 测试
+if __name__ == "__main__":
+    arr = [13, 14, 94, 33, 82, 25, 59, 94, 65, 23, 45, 27, 73, 25, 39, 10]
+    print("排序前:", arr)
+    sorted_arr = shell_sort(arr)
+    print("排序后:", sorted_arr)</code></pre>
+                </div>
+            </section>
+
+            <!-- 优缺点分析 -->
+            <section class="section bg-white rounded-xl p-8 shadow-md">
+                <h2 class="text-2xl font-bold text-gray-800 mb-6 flex items-center">
+                    <i class="fas fa-balance-scale text-primary mr-3"></i>优缺点分析
+                </h2>
+                
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <!-- 优点 -->
+                    <div class="bg-green-50 p-6 rounded-lg border-l-4 border-green-500">
+                        <h3 class="text-xl text-green-700 font-semibold mb-4">优点</h3>
+                        <ul class="list-disc list-inside space-y-2 text-gray-700">
+                            <li>适合中等规模的数据排序（几千到几万条数据）</li>
+                            <li>在近乎有序的数据处理时效率高</li>
+                            <li>比简单插入排序更高效，减少了数据元素移动的次数</li>
+                            <li>是原地排序算法，不需要额外空间</li>
+                            <li>实现简单，易于编码</li>
+                        </ul>
+                    </div>
+                    
+                    <!-- 缺点 -->
+                    <div class="bg-red-50 p-6 rounded-lg border-l-4 border-red-500">
+                        <h3 class="text-xl text-red-700 font-semibold mb-4">缺点</h3>
+                        <ul class="list-disc list-inside space-y-2 text-gray-700">
+                            <li>对于大规模数据，性能不如快速排序、堆排序和归并排序</li>
+                            <li>不稳定排序算法，相等元素的相对位置可能会发生变化</li>
+                            <li>增量序列的选择对性能影响很大，但没有通用的最佳选择</li>
+                            <li>理论分析复杂，难以准确分析其时间复杂度</li>
+                        </ul>
+                    </div>
+                </div>
+            </section>
+
+            <!-- 应用场景 -->
+            <section class="section bg-white rounded-xl p-8 shadow-md">
+                <h2 class="text-2xl font-bold text-gray-800 mb-6 flex items-center">
+                    <i class="fas fa-tasks text-primary mr-3"></i>应用场景
+                </h2>
+                
+                <div class="space-y-4">
+                    <p class="text-gray-700">希尔排序在以下场景中较为适用：</p>
+                    
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mt-4">
+                        <div class="card-hover bg-white p-5 rounded-lg border border-gray-200 shadow-sm">
+                            <div class="flex items-center mb-3">
+                                <i class="fas fa-database text-primary mr-3 text-xl"></i>
+                                <h3 class="font-semibold text-gray-800">中等规模数据排序</h3>
+                            </div>
+                            <p class="text-gray-600">当数据量在几千到几万条时，希尔排序表现良好</p>
+                        </div>
+                        
+                        <div class="card-hover bg-white p-5 rounded-lg border border-gray-200 shadow-sm">
+                            <div class="flex items-center mb-3">
+                                <i class="fas fa-laptop-code text-primary mr-3 text-xl"></i>
+                                <h3 class="font-semibold text-gray-800">嵌入式系统</h3>
+                            </div>
+                            <p class="text-gray-600">在内存受限的嵌入式系统中，希尔排序是一个不错的选择</p>
+                        </div>
+                        
+                        <div class="card-hover bg-white p-5 rounded-lg border border-gray-200 shadow-sm">
+                            <div class="flex items-center mb-3">
+                                <i class="fas fa-sort-amount-up text-primary mr-3 text-xl"></i>
+                                <h3 class="font-semibold text-gray-800">部分有序数据</h3>
+                            </div>
+                            <p class="text-gray-600">当数据已经部分有序时，希尔排序的效率会更高</p>
+                        </div>
+                        
+                        <div class="card-hover bg-white p-5 rounded-lg border border-gray-200 shadow-sm">
+                            <div class="flex items-center mb-3">
+                                <i class="fas fa-memory text-primary mr-3 text-xl"></i>
+                                <h3 class="font-semibold text-gray-800">内存受限环境</h3>
+                            </div>
+                            <p class="text-gray-600">由于是原地排序，在内存有限的环境中优于需要额外空间的算法</p>
+                        </div>
+                    </div>
+                    
+                    <div class="bg-blue-50 p-6 rounded-lg mt-6">
+                        <h3 class="text-xl text-blue-700 font-semibold mb-3">实际应用举例</h3>
+                        <ul class="list-disc list-inside space-y-2 text-gray-700">
+                            <li>UNIX操作系统早期版本中的sort命令使用希尔排序</li>
+                            <li>作为快速排序的辅助算法，当分区大小小于某个阈值时转向希尔排序</li>
+                            <li>数据库系统中对中等规模表格进行排序</li>
+                            <li>机器学习中对特征向量进行预处理排序</li>
+                        </ul>
+                    </div>
+                </div>
+            </section>
+        </main>
+        
+        <!-- 页脚 -->
+        <footer class="mt-10 p-6 bg-gray-800 text-white flex flex-col md:flex-row justify-between items-center">
+            <div class="mb-4 md:mb-0">
+                <p class="text-sm"> </p>
+            </div>
+            <div class="flex space-x-4">
+                <a href="index.html" class="text-gray-300 hover:text-white transition-colors">首页</a>
+                <a href="桶排序.html" class="text-gray-300 hover:text-white transition-colors">桶排序</a>
+                <a href="锦标赛排序.html" class="text-gray-300 hover:text-white transition-colors">锦标赛排序</a>
+                <a href="Tim 排序.html" class="text-gray-300 hover:text-white transition-colors">Tim 排序</a>
+            </div>
+            <button id="back-to-top" class="fixed right-6 bottom-6 p-3 bg-primary rounded-full shadow-lg text-white hidden">
+                <i class="fas fa-arrow-up"></i>
+            </button>
+        </footer>
+        
+        <!-- ScrollReveal -->
+        <script src="https://unpkg.com/scrollreveal"></script>
+        
+        <!-- Highlight.js -->
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.7.0/highlight.min.js"></script>
+        <script>hljs.highlightAll();</script>
+        
+        <script>
+            // ScrollReveal 初始化
+            ScrollReveal().reveal('.section, h2, .bg-white', {
+                distance: '50px',
+                duration: 1000,
+                delay: 200,
+                easing: 'cubic-bezier(0.5, 0, 0, 1)'
+            });
+            
+            // 回到顶部按钮
+            const backToTopButton = document.getElementById('back-to-top');
+            
+            window.addEventListener('scroll', () => {
+                if (window.pageYOffset > 300) {
+                    backToTopButton.classList.remove('hidden');
+                } else {
+                    backToTopButton.classList.add('hidden');
+                }
+            });
+            
+            backToTopButton.addEventListener('click', () => {
+                window.scrollTo({
+                    top: 0,
+                    behavior: 'smooth'
+                });
+            });
+            
+            // 希尔排序交互式可视化
+            document.addEventListener('DOMContentLoaded', function() {
+                // 获取DOM元素
+                const arrayContainer = document.getElementById('array-container');
+                const stepInfo = document.getElementById('step-info');
+                const currentStep = document.getElementById('current-step');
+                const currentGap = document.getElementById('current-gap');
+                const newArrayBtn = document.getElementById('newArrayBtn');
+                const startBtn = document.getElementById('startBtn');
+                const resetBtn = document.getElementById('resetBtn');
+                const speedSlider = document.getElementById('speed');
+                const speedValue = document.getElementById('speedValue');
+                const gapSequenceSelect = document.getElementById('gapSequence');
+                
+                // 定义常量
+                const ARRAY_SIZE = 16;
+                const MAX_VALUE = 100;
+                const MIN_VALUE = 5;
+                
+                // 定义变量
+                let array = [];
+                let arrayBars = [];
+                let sortingInProgress = false;
+                let sortingPaused = false;
+                let sortingTimeout = null;
+                
+                // 样式类
+                const NORMAL = 'bg-blue-500';
+                const COMPARING = 'bg-yellow-500';
+                const SWAPPING = 'bg-purple-500';
+                const SORTED = 'bg-green-500';
+                const SAME_GAP = 'bg-gray-400';
+                
+                // 初始化
+                initVisualization();
+                
+                // 初始化可视化
+                function initVisualization() {
+                    // 生成随机数组
+                    generateNewArray();
+                    
+                    // 更新速度文本
+                    updateSpeedText();
+                    
+                    // 事件监听器
+                    newArrayBtn.addEventListener('click', generateNewArray);
+                    startBtn.addEventListener('click', toggleSorting);
+                    resetBtn.addEventListener('click', resetSorting);
+                    speedSlider.addEventListener('input', updateSpeedText);
+                }
+                
+                // 生成新的随机数组
+                function generateNewArray() {
+                    resetSorting();
+                    array = [];
+                    arrayContainer.innerHTML = '';
+                    arrayBars = [];
+                    
+                    // 生成随机数组
+                    for (let i = 0; i < ARRAY_SIZE; i++) {
+                        array.push(Math.floor(Math.random() * (MAX_VALUE - MIN_VALUE + 1)) + MIN_VALUE);
+                    }
+                    
+                    renderArray();
+                    stepInfo.textContent = "生成了新的随机数组。点击\"开始排序\"按钮以开始排序。";
+                    currentStep.textContent = "准备排序";
+                    currentGap.textContent = "-";
+                }
+                
+                // 渲染数组
+                function renderArray(highlightIndices = [], compareIndices = [], currentIndex = -1) {
+                    arrayContainer.innerHTML = '';
+                    arrayBars = [];
+                    
+                    const maxHeight = arrayContainer.clientHeight - 40;  // 留出空间显示值
+                    const barWidth = Math.floor((arrayContainer.clientWidth - ARRAY_SIZE * 4) / ARRAY_SIZE);
+                    
+                    for (let i = 0; i < array.length; i++) {
+                        const barHeight = Math.floor((array[i] / MAX_VALUE) * maxHeight);
+                        const bar = document.createElement('div');
+                        
+                        // 根据状态设置样式
+                        if (compareIndices.includes(i)) {
+                            bar.classList.add(COMPARING);
+                        } else if (currentIndex === i) {
+                            bar.classList.add(SWAPPING);
+                        } else if (highlightIndices.includes(i)) {
+                            bar.classList.add(SAME_GAP);
+                        } else {
+                            bar.classList.add(NORMAL);
+                        }
+                        
+                        bar.classList.add('rounded-t-sm', 'flex', 'items-end', 'justify-center', 'transition-all', 'duration-200');
+                        bar.style.height = `${barHeight}px`;
+                        bar.style.width = `${barWidth}px`;
+                        bar.style.margin = '0 2px';
+                        
+                        // 添加元素值标签
+                        const label = document.createElement('span');
+                        label.textContent = array[i];
+                        label.classList.add('text-xs', 'font-medium', 'text-white', 'mb-1');
+                        bar.appendChild(label);
+                        
+                        arrayContainer.appendChild(bar);
+                        arrayBars.push(bar);
+                    }
+                }
+                
+                // 更新速度文本
+                function updateSpeedText() {
+                    const speed = speedSlider.value;
+                    let speedText = '';
+                    
+                    switch (parseInt(speed)) {
+                        case 1: speedText = '非常慢'; break;
+                        case 2: speedText = '慢'; break;
+                        case 3: speedText = '中等'; break;
+                        case 4: speedText = '快'; break;
+                        case 5: speedText = '非常快'; break;
+                    }
+                    
+                    speedValue.textContent = speedText;
+                }
+                
+                // 获取延迟时间
+                function getDelay() {
+                    const speed = parseInt(speedSlider.value);
+                    switch (speed) {
+                        case 1: return 1000;
+                        case 2: return 500;
+                        case 3: return 250;
+                        case 4: return 100;
+                        case 5: return 50;
+                        default: return 250;
+                    }
+                }
+                
+                // 开始/暂停排序
+                function toggleSorting() {
+                    if (!sortingInProgress) {
+                        // 开始排序
+                        sortingInProgress = true;
+                        sortingPaused = false;
+                        startBtn.innerHTML = '<i class="fas fa-pause mr-2"></i>暂停';
+                        startBtn.classList.remove('bg-green-500', 'hover:bg-green-600');
+                        startBtn.classList.add('bg-yellow-500', 'hover:bg-yellow-600');
+                        newArrayBtn.disabled = true;
+                        resetBtn.disabled = false;
+                        
+                        // 基于选择的增量序列执行希尔排序
+                        shellSort();
+                    } else {
+                        // 暂停/继续排序
+                        sortingPaused = !sortingPaused;
+                        startBtn.innerHTML = sortingPaused ? 
+                            '<i class="fas fa-play mr-2"></i>继续' : 
+                            '<i class="fas fa-pause mr-2"></i>暂停';
+                    }
+                }
+                
+                // 重置排序
+                function resetSorting() {
+                    if (sortingTimeout) {
+                        clearTimeout(sortingTimeout);
+                        sortingTimeout = null;
+                    }
+                    
+                    sortingInProgress = false;
+                    sortingPaused = false;
+                    
+                    startBtn.disabled = false;
+                    startBtn.innerHTML = '<i class="fas fa-play mr-2"></i>开始排序';
+                    startBtn.classList.remove('bg-yellow-500', 'hover:bg-yellow-600');
+                    startBtn.classList.add('bg-green-500', 'hover:bg-green-600');
+                    newArrayBtn.disabled = false;
+                    resetBtn.disabled = true;
+                    
+                    renderArray();
+                    
+                    stepInfo.textContent = "排序已重置。点击\"开始排序\"按钮重新开始。";
+                    currentStep.textContent = "等待开始";
+                    currentGap.textContent = "-";
+                }
+                
+                // 获取选定的增量序列
+                function getGapSequence(length) {
+                    const type = gapSequenceSelect.value;
+                    let gaps = [];
+                    
+                    // Shell序列: n/2, n/4, n/8, ..., 1
+                    if (type === 'shell') {
+                        for (let gap = Math.floor(length / 2); gap > 0; gap = Math.floor(gap / 2)) {
+                            gaps.push(gap);
+                        }
+                    }
+                    // Hibbard序列: 2^k - 1
+                    else if (type === 'hibbard') {
+                        let k = 1;
+                        while ((Math.pow(2, k) - 1) < length) {
+                            k++;
+                        }
+                        
+                        while (--k > 0) {
+                            gaps.push(Math.pow(2, k) - 1);
+                        }
+                    }
+                    // Sedgewick序列
+                    else if (type === 'sedgewick') {
+                        // 使用 Sedgewick 前几个值: 1, 5, 19, 41, 109...
+                        const sedgewickSequence = [1, 5, 19, 41, 109, 209, 505, 929, 2161, 3905, 8929];
+                        
+                        for (let i = sedgewickSequence.length - 1; i >= 0; i--) {
+                            if (sedgewickSequence[i] < length) {
+                                for (let j = i; j >= 0; j--) {
+                                    gaps.push(sedgewickSequence[j]);
+                                }
+                                break;
+                            }
+                        }
+                    }
+                    
+                    return gaps;
+                }
+                
+                // 希尔排序动画
+                async function shellSort() {
+                    const delays = getDelay();
+                    const len = array.length;
+                    const gaps = getGapSequence(len);
+                    
+                    stepInfo.textContent = `开始希尔排序，使用增量序列: ${gaps.join(', ')}`;
+                    
+                    // 对每个间隔进行排序
+                    for (let g = 0; g < gaps.length; g++) {
+                        const gap = gaps[g];
+                        currentGap.textContent = gap;
+                        
+                        stepInfo.textContent = `当前增量: ${gap}，将数组分成 ${gap} 个子序列`;
+                        await pause(delays);
+                        
+                        // 对每个子序列进行插入排序
+                        for (let i = gap; i < len; i++) {
+                            if (!sortingInProgress) return;
+                            
+                            // 暂停检查
+                            await checkPause();
+                            
+                            const temp = array[i];
+                            let j = i;
+                            
+                            stepInfo.textContent = `正在处理元素 array[${i}] = ${temp}, 与间隔 ${gap} 的元素比较`;
+                            currentStep.textContent = `处理索引 ${i}`;
+                            
+                            // 高亮显示相同增量的元素
+                            let sameGapIndices = [];
+                            for (let k = i % gap; k < len; k += gap) {
+                                sameGapIndices.push(k);
+                            }
+                            renderArray(sameGapIndices, [], i);
+                            await pause(delays);
+                            
+                            // 插入排序内的比较和移动
+                            while (j >= gap && array[j - gap] > temp) {
+                                if (!sortingInProgress) return;
+                                
+                                // 暂停检查
+                                await checkPause();
+                                
+                                stepInfo.textContent = `比较: array[${j-gap}] = ${array[j-gap]} > ${temp}，需要交换`;
+                                currentStep.textContent = `比较并交换`;
+                                
+                                // 高亮比较元素
+                                renderArray(sameGapIndices, [j, j-gap], i);
+                                await pause(delays);
+                                
+                                array[j] = array[j - gap];
+                                j -= gap;
+                                
+                                renderArray(sameGapIndices, [j], i);
+                                await pause(delays / 2);
+                            }
+                            
+                            if (j !== i) {
+                                array[j] = temp;
+                                stepInfo.textContent = `将 ${temp} 插入到位置 ${j}`;
+                                renderArray(sameGapIndices, [], j);
+                                await pause(delays);
+                            } else {
+                                stepInfo.textContent = `${temp} 已经在正确位置，无需移动`;
+                                await pause(delays / 2);
+                            }
+                        }
+                    }
+                    
+                    // 排序完成
+                    stepInfo.textContent = "排序完成！";
+                    currentStep.textContent = "已完成";
+                    currentGap.textContent = "1";
+                    
+                    // 显示排序完成的动画效果
+                    const sortedIndices = Array.from({length: len}, (_, i) => i);
+                    for (let i = 0; i < len; i++) {
+                        if (!sortingInProgress) return;
+                        
+                        arrayBars[i].classList.remove(NORMAL);
+                        arrayBars[i].classList.add(SORTED);
+                        await pause(50);
+                    }
+                    
+                    sortingInProgress = false;
+                    startBtn.innerHTML = '<i class="fas fa-play mr-2"></i>开始排序';
+                    startBtn.classList.remove('bg-yellow-500', 'hover:bg-yellow-600');
+                    startBtn.classList.add('bg-green-500', 'hover:bg-green-600');
+                    startBtn.disabled = false;
+                    newArrayBtn.disabled = false;
+                }
+                
+                // 检查是否暂停
+                async function checkPause() {
+                    if (sortingPaused) {
+                        return new Promise(resolve => {
+                            function checkAgain() {
+                                if (sortingPaused) {
+                                    sortingTimeout = setTimeout(checkAgain, 100);
+                                } else {
+                                    resolve();
+                                }
+                            }
+                            checkAgain();
+                        });
+                    }
+                }
+                
+                // 暂停函数
+                function pause(ms) {
+                    return new Promise(resolve => {
+                        sortingTimeout = setTimeout(resolve, ms);
+                    });
+                }
+            });
+        </script>
+    </div>
+</body>
+</html> 

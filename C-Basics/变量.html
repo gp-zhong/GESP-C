@@ -1,0 +1,447 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>C++ 变量</title>
+    <!-- TailwindCSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&family=Roboto+Mono&display=swap" rel="stylesheet">
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        primary: {
+                            light: '#a5f3fc',
+                            DEFAULT: '#06b6d4',
+                            dark: '#0891b2',
+                        },
+                        secondary: {
+                            light: '#c7d2fe',
+                            DEFAULT: '#818cf8',
+                            dark: '#6366f1',
+                        },
+                        codeBlock: '#1e293b',
+                    },
+                    fontFamily: {
+                        sans: ['Poppins', 'sans-serif'],
+                        mono: ['Roboto Mono', 'monospace'],
+                    },
+                }
+            }
+        }
+    </script>
+    <style>
+        .card-hover {
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+        }
+        .card-hover:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 25px -5px rgba(6, 182, 212, 0.1), 0 10px 10px -5px rgba(6, 182, 212, 0.04);
+        }
+        .code-block::-webkit-scrollbar {
+            height: 8px;
+        }
+        .code-block::-webkit-scrollbar-thumb {
+            background-color: #06b6d4;
+            border-radius: 4px;
+        }
+        .code-block::-webkit-scrollbar-track {
+            background-color: #e2e8f0;
+            border-radius: 4px;
+        }
+    </style>
+</head>
+<body class="bg-gray-50 font-sans">
+    <div class="min-h-screen max-w-6xl mx-auto px-8 py-10">
+        <!-- Header -->
+        <header class="mb-12 text-center">
+            <div class="inline-block px-3 py-1 bg-primary-light text-primary-dark rounded-full text-sm font-medium mb-4">
+                C++ 编程入门
+            </div>
+            <h1 class="text-4xl font-bold text-gray-800 mb-4">C++ 变量与变量</h1>
+            <p class="text-lg text-gray-600 max-w-3xl mx-auto">掌握 C++ 变量类型、定义与作用域，构建程序的基本数据存储</p>
+        </header>
+
+        <!-- Main Content -->
+        <main>
+            <!-- 数据类型 Section -->
+            <section class="mb-12 bg-white rounded-2xl shadow-md p-8">
+                <div class="flex items-center mb-6">
+                    <i class="fas fa-database text-primary text-xl mr-3"></i>
+                    <h2 class="text-2xl font-bold text-gray-800">数据类型</h2>
+                </div>
+                <div class="space-y-4 text-gray-700">
+                    <p>C++ 中的变量需要明确的数据类型，这决定了变量可以存储的数据种类以及占用的内存空间。以下是几种基本数据类型：</p>
+                    
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mt-6">
+                        <div class="card-hover p-6 bg-gray-50 rounded-xl">
+                            <h3 class="text-lg font-semibold text-gray-800 mb-3">
+                                <i class="fas fa-toggle-on text-primary-dark mr-2"></i>
+                                布尔类型 (bool)
+                            </h3>
+                            <p class="mb-2">用于逻辑运算，只有两个可能的值：</p>
+                            <ul class="list-disc pl-5 space-y-1">
+                                <li><code>true</code> - 真（非零）</li>
+                                <li><code>false</code> - 假（零）</li>
+                            </ul>
+                            <div class="mt-3 overflow-x-auto bg-codeBlock rounded-lg p-3">
+                                <pre class="text-gray-100 font-mono text-sm"><code>bool is_correct = true;
+bool has_error = false;</code></pre>
+                            </div>
+                        </div>
+                        
+                        <div class="card-hover p-6 bg-gray-50 rounded-xl">
+                            <h3 class="text-lg font-semibold text-gray-800 mb-3">
+                                <i class="fas fa-hashtag text-primary-dark mr-2"></i>
+                                整数类型 (int)
+                            </h3>
+                            <p class="mb-2">用于存储整数，有多种大小：</p>
+                            <ul class="list-disc pl-5 space-y-1">
+                                <li><code>short int</code> - 短整型</li>
+                                <li><code>int</code> - 标准整型</li>
+                                <li><code>long int</code> - 长整型</li>
+                                <li><code>long long int</code> - 长长整型</li>
+                            </ul>
+                            <div class="mt-3 overflow-x-auto bg-codeBlock rounded-lg p-3">
+                                <pre class="text-gray-100 font-mono text-sm"><code>int count = 42;
+long long big_number = 9223372036854775807LL;</code></pre>
+                            </div>
+                        </div>
+                        
+                        <div class="card-hover p-6 bg-gray-50 rounded-xl">
+                            <h3 class="text-lg font-semibold text-gray-800 mb-3">
+                                <i class="fas fa-font text-primary-dark mr-2"></i>
+                                字符类型 (char)
+                            </h3>
+                            <p class="mb-2">用于存储单个字符，如字母、数字和符号：</p>
+                            <ul class="list-disc pl-5 space-y-1">
+                                <li>存储 ASCII 码表中的字符</li>
+                                <li>通常占用 1 个字节</li>
+                                <li>字符常量用单引号 <code>'a'</code> 表示</li>
+                            </ul>
+                            <div class="mt-3 overflow-x-auto bg-codeBlock rounded-lg p-3">
+                                <pre class="text-gray-100 font-mono text-sm"><code>char letter = 'A';
+char digit = '5';
+char symbol = '+';
+// 也可以用 ASCII 码值
+char newline = 10; // 等同于 '\n'</code></pre>
+                            </div>
+                        </div>
+                        
+                        <div class="card-hover p-6 bg-gray-50 rounded-xl">
+                            <h3 class="text-lg font-semibold text-gray-800 mb-3">
+                                <i class="fas fa-percentage text-primary-dark mr-2"></i>
+                                浮点类型
+                            </h3>
+                            <p class="mb-2">用于存储带小数点的数值：</p>
+                            <ul class="list-disc pl-5 space-y-1">
+                                <li><code>float</code> - 单精度浮点数</li>
+                                <li><code>double</code> - 双精度浮点数</li>
+                                <li><code>long double</code> - 扩展精度浮点数</li>
+                            </ul>
+                            <div class="mt-3 overflow-x-auto bg-codeBlock rounded-lg p-3">
+                                <pre class="text-gray-100 font-mono text-sm"><code>float price = 9.99f;
+double pi = 3.14159265358979;
+long double precise = 3.14159265358979323846L;</code></pre>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="mt-8">
+                        <h3 class="text-xl font-semibold text-gray-800 mb-4">定宽整数类型</h3>
+                        <p class="mb-4">C++11 引入了定宽整数类型，可以确保整数类型在不同平台上具有相同的位宽：</p>
+                        
+                        <div class="overflow-x-auto bg-codeBlock rounded-lg p-4 mb-4">
+                            <pre class="text-gray-100 font-mono text-sm"><code>#include &lt;cstdint&gt; // 需要包含此头文件
+
+// 有符号定宽整数类型
+int8_t a = -128;       // 8位有符号整数
+int16_t b = 32767;     // 16位有符号整数
+int32_t c = 2147483647;// 32位有符号整数
+int64_t d = 9223372036854775807; // 64位有符号整数
+
+// 无符号定宽整数类型
+uint8_t e = 255;       // 8位无符号整数
+uint16_t f = 65535;    // 16位无符号整数
+uint32_t g = 4294967295; // 32位无符号整数
+uint64_t h = 18446744073709551615U; // 64位无符号整数</code></pre>
+                        </div>
+                        
+                        <div class="p-5 bg-blue-50 rounded-xl border-l-4 border-blue-400">
+                            <div class="flex items-start">
+                                <i class="fas fa-info-circle text-blue-500 mt-1 mr-3"></i>
+                                <div>
+                                    <h4 class="text-lg font-semibold text-gray-800 mb-2">定宽整数的优势</h4>
+                                    <p class="text-gray-700">
+                                        定宽整数类型可以确保在不同系统和编译器下变量的大小保持一致，有助于编写可移植的代码，特别是处理二进制数据或需要确切控制内存布局时非常有用。
+                                    </p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="mt-8">
+                        <h3 class="text-xl font-semibold text-gray-800 mb-4">类型转换</h3>
+                        <p class="mb-4">C++ 中数据类型之间可以进行转换：</p>
+                        
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                            <div class="card-hover p-6 bg-gray-50 rounded-xl">
+                                <h4 class="text-lg font-medium text-gray-800 mb-3">隐式转换</h4>
+                                <p class="mb-2">编译器自动执行的类型转换：</p>
+                                <div class="overflow-x-auto bg-codeBlock rounded-lg p-3">
+                                    <pre class="text-gray-100 font-mono text-sm"><code>int i = 5;
+double d = i;    // int 隐式转换为 double，d = 5.0
+char c = 65;     // int 隐式转换为 char，c = 'A'
+int b = true;    // bool 隐式转换为 int，b = 1</code></pre>
+                                </div>
+                            </div>
+                            
+                            <div class="card-hover p-6 bg-gray-50 rounded-xl">
+                                <h4 class="text-lg font-medium text-gray-800 mb-3">显式转换（强制类型转换）</h4>
+                                <p class="mb-2">程序员明确指定的类型转换：</p>
+                                <div class="overflow-x-auto bg-codeBlock rounded-lg p-3">
+                                    <pre class="text-gray-100 font-mono text-sm"><code>double pi = 3.14159;
+int rounded = (int)pi;        // C风格强制转换，rounded = 3
+int rounded2 = static_cast&lt;int&gt;(pi); // C++风格转换，rounded2 = 3
+
+char c = 'A';
+int ascii = static_cast&lt;int&gt;(c); // ascii = 65</code></pre>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="mt-4 p-5 bg-yellow-50 rounded-lg border-l-4 border-yellow-400">
+                            <div class="flex items-start">
+                                <i class="fas fa-exclamation-triangle text-yellow-500 mt-1 mr-3"></i>
+                                <p class="text-gray-700">
+                                    类型转换可能导致数据精度丢失（如浮点数转整数时小数部分被截断）或者数据溢出（如较大的整数转换为较小的整数类型）。进行类型转换时应当注意可能的风险。
+                                </p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+            
+            <!-- 变量定义 Section -->
+            <section class="mb-12 bg-white rounded-2xl shadow-md p-8">
+                <div class="flex items-center mb-6">
+                    <i class="fas fa-pencil-alt text-primary text-xl mr-3"></i>
+                    <h2 class="text-2xl font-bold text-gray-800">定义变量</h2>
+                </div>
+                <div class="space-y-4 text-gray-700">
+                    <p>定义变量需要指定变量类型和变量名。变量名是标识符，必须遵循C++命名规则。</p>
+                    
+                    <div class="overflow-x-auto bg-codeBlock rounded-lg p-4 mb-4">
+                        <pre class="text-gray-100 font-mono text-sm"><code>// 基本变量定义语法
+int number;         // 定义整型变量，未初始化
+double price = 9.99; // 定义浮点型变量并初始化
+char grade = 'A';   // 定义字符型变量并初始化</code></pre>
+                    </div>
+                    
+                    <div class="p-5 bg-primary-light bg-opacity-10 rounded-lg">
+                        <p class="mb-2">变量定义的注意事项：</p>
+                        <ul class="list-disc pl-5 space-y-1">
+                            <li>全局变量（定义在函数外）会被自动初始化为0</li>
+                            <li>局部变量（定义在函数内）不会自动初始化，使用前必须赋值</li>
+                            <li>变量名区分大小写，命名应有意义以提高代码可读性</li>
+                        </ul>
+                    </div>
+                </div>
+            </section>
+
+            <!-- 变量作用域 Section -->
+            <section class="mb-12 bg-white rounded-2xl shadow-md p-8">
+                <div class="flex items-center mb-6">
+                    <i class="fas fa-layer-group text-primary text-xl mr-3"></i>
+                    <h2 class="text-2xl font-bold text-gray-800">变量作用域</h2>
+                </div>
+                <div class="space-y-4 text-gray-700">
+                    <p>变量的作用域决定了变量在程序中的可见性和生命周期。C++中主要有两种作用域：</p>
+                    
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mt-6">
+                        <div class="card-hover p-6 bg-gray-50 rounded-xl">
+                            <h3 class="text-lg font-semibold text-gray-800 mb-3">
+                                <i class="fas fa-globe text-primary-dark mr-2"></i>
+                                全局作用域
+                            </h3>
+                            <p>全局变量定义在所有函数外部，程序从变量定义点到文件结束处都可以访问。</p>
+                            <div class="mt-3 overflow-x-auto bg-codeBlock rounded-lg p-3">
+                                <pre class="text-gray-100 font-mono text-sm"><code>int global_var = 100; // 全局变量
+
+void function() {
+    // 可以访问 global_var
+    global_var = 200;
+}</code></pre>
+                            </div>
+                        </div>
+                        
+                        <div class="card-hover p-6 bg-gray-50 rounded-xl">
+                            <h3 class="text-lg font-semibold text-gray-800 mb-3">
+                                <i class="fas fa-cube text-primary-dark mr-2"></i>
+                                局部作用域
+                            </h3>
+                            <p>局部变量定义在函数或代码块内部，只能在定义它的块内部访问。</p>
+                            <div class="mt-3 overflow-x-auto bg-codeBlock rounded-lg p-3">
+                                <pre class="text-gray-100 font-mono text-sm"><code>void function() {
+    int local_var = 50; // 局部变量
+    
+    {
+        int block_var = 25; // 块作用域变量
+        // 可以访问 local_var 和 block_var
+    }
+    // 这里不能访问 block_var
+}</code></pre>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="mt-6 overflow-x-auto bg-codeBlock rounded-lg p-4">
+                        <pre class="text-gray-100 font-mono text-sm"><code>// 变量作用域示例
+#include &lt;iostream&gt;
+using namespace std;
+
+int g = 20;  // 定义全局变量
+
+int main() {
+    int g = 10;         // 定义局部变量
+    cout << g << endl;  // 输出 10（局部变量）
+    
+    {
+        int g = 5;      // 在内部块中再次定义同名变量
+        cout << g << endl;  // 输出 5（最内层的局部变量）
+    }
+    
+    cout << g << endl;  // 输出 10（外层局部变量）
+    cout << ::g << endl; // 输出 20（使用作用域解析运算符访问全局变量）
+    
+    return 0;
+}</code></pre>
+                    </div>
+                    
+                    <div class="p-5 bg-yellow-50 rounded-xl border-l-4 border-yellow-400 mt-4">
+                        <div class="flex items-start">
+                            <i class="fas fa-exclamation-triangle text-yellow-500 mt-1 mr-3"></i>
+                            <div>
+                                <h3 class="text-lg font-semibold text-gray-800 mb-2">变量遮蔽警告</h3>
+                                <p class="text-gray-700">
+                                    当在内层作用域定义了与外层作用域同名的变量时，内层变量会"遮蔽"外层变量。在代码块内，只能访问到最内层作用域中的同名变量。这种情况可能导致意外的错误，应尽量避免变量名重复的情况。
+                                </p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- 常量 Section -->
+            <section class="mb-12 bg-white rounded-2xl shadow-md p-8">
+                <div class="flex items-center mb-6">
+                    <i class="fas fa-lock text-primary text-xl mr-3"></i>
+                    <h2 class="text-2xl font-bold text-gray-800">常量</h2>
+                </div>
+                <div class="space-y-4 text-gray-700">
+                    <p>常量是在程序执行期间不会改变的固定值。通过 <code>const</code> 关键字定义常量可以增加代码的安全性。</p>
+                    
+                    <div class="overflow-x-auto bg-codeBlock rounded-lg p-4 mb-4">
+                        <pre class="text-gray-100 font-mono text-sm"><code>// 定义常量
+const double PI = 3.14159265358979323846;
+const int MAX_STUDENTS = 30;
+
+// 尝试修改常量会导致编译错误
+// PI = 3.14; // 错误：不能修改常量</code></pre>
+                    </div>
+                    
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mt-6">
+                        <div class="card-hover p-6 bg-gray-50 rounded-xl">
+                            <h3 class="text-lg font-semibold text-gray-800 mb-3">
+                                <i class="fas fa-shield-alt text-primary-dark mr-2"></i>
+                                常量的优势
+                            </h3>
+                            <ul class="list-disc pl-5 space-y-1">
+                                <li>防止程序意外修改数值</li>
+                                <li>提高代码可读性，标记特殊数值</li>
+                                <li>便于维护，只需修改一处定义</li>
+                                <li>编译器可以进行更多优化</li>
+                            </ul>
+                        </div>
+                        
+                        <div class="card-hover p-6 bg-gray-50 rounded-xl">
+                            <h3 class="text-lg font-semibold text-gray-800 mb-3">
+                                <i class="fas fa-code text-primary-dark mr-2"></i>
+                                常见常量用法
+                            </h3>
+                            <div class="overflow-x-auto bg-codeBlock rounded-lg p-3">
+                                <pre class="text-gray-100 font-mono text-sm"><code>// 数学常量
+const double PI = 3.14159265358979323846;
+const double E = 2.71828182845904523536;
+
+// 系统限制常量
+const int MAX_USERS = 1000;
+const int BUFFER_SIZE = 4096;
+
+// 配置常量
+const char* SERVER_IP = "192.168.1.1";
+const int PORT = 8080;</code></pre>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+        </main>
+
+        <!-- Footer -->
+        <footer class="mt-16 text-center text-gray-500 text-sm">
+            <div class="flex justify-center mt-6 space-x-4">
+                <a href="语法基础.html" class="text-primary hover:text-primary-dark transition-colors duration-300">
+                    <i class="fas fa-arrow-left mr-1"></i>语法基础
+                </a>
+                <a href="运算.html" class="text-primary hover:text-primary-dark transition-colors duration-300">
+                    运算<i class="fas fa-arrow-right ml-1"></i>
+                </a>
+            </div>
+        </footer>
+    </div>
+
+    <!-- Back to top button -->
+    <button id="backToTop" class="fixed bottom-6 right-6 bg-primary hover:bg-primary-dark text-white rounded-full p-3 shadow-lg transition-all duration-300 opacity-0 invisible">
+        <i class="fas fa-arrow-up"></i>
+    </button>
+
+    <!-- JavaScript for Back to top button -->
+    <script>
+        const backToTop = document.getElementById('backToTop');
+        
+        window.addEventListener('scroll', () => {
+            if (window.scrollY > 300) {
+                backToTop.classList.remove('opacity-0', 'invisible');
+                backToTop.classList.add('opacity-100', 'visible');
+            } else {
+                backToTop.classList.remove('opacity-100', 'visible');
+                backToTop.classList.add('opacity-0', 'invisible');
+            }
+        });
+        
+        backToTop.addEventListener('click', () => {
+            window.scrollTo({
+                top: 0,
+                behavior: 'smooth'
+            });
+        });
+    </script>
+    <!-- Simple ScrollReveal effect -->
+    <script src="https://unpkg.com/scrollreveal"></script>
+    <script>
+        ScrollReveal().reveal('section', { 
+            delay: 200,
+            distance: '20px',
+            origin: 'bottom',
+            duration: 800,
+            easing: 'ease-in-out'
+        });
+    </script>
+</body>
+</html> 

@@ -1,0 +1,362 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>均摊复杂度</title>
+    <!-- TailwindCSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&family=Roboto+Mono&display=swap" rel="stylesheet">
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        primary: {
+                            light: '#a5f3fc',
+                            DEFAULT: '#06b6d4',
+                            dark: '#0891b2',
+                        },
+                        secondary: {
+                            light: '#c7d2fe',
+                            DEFAULT: '#818cf8',
+                            dark: '#6366f1',
+                        },
+                        codeBlock: '#1e293b',
+                    },
+                    fontFamily: {
+                        sans: ['Poppins', 'sans-serif'],
+                        mono: ['Roboto Mono', 'monospace'],
+                    },
+                }
+            }
+        }
+    </script>
+    <style>
+        .card-hover {
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+        }
+        .card-hover:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 25px -5px rgba(6, 182, 212, 0.1), 0 10px 10px -5px rgba(6, 182, 212, 0.04);
+        }
+        .code-block::-webkit-scrollbar {
+            height: 8px;
+        }
+        .code-block::-webkit-scrollbar-thumb {
+            background-color: #06b6d4;
+            border-radius: 4px;
+        }
+        .code-block::-webkit-scrollbar-track {
+            background-color: #e2e8f0;
+            border-radius: 4px;
+        }
+    </style>
+</head>
+<body class="bg-gray-50 font-sans">
+    <div class="min-h-screen max-w-6xl mx-auto px-8 py-10">
+        <!-- Header -->
+        <header class="mb-12 text-center">
+            <div class="inline-block px-3 py-1 bg-primary-light text-primary-dark rounded-full text-sm font-medium mb-4">
+                算法基础
+            </div>
+            <h1 class="text-4xl font-bold text-gray-800 mb-4">均摊复杂度分析</h1>
+            <p class="text-lg text-gray-600 max-w-3xl mx-auto">理解算法分析中的均摊时间复杂度、摊还分析与应用场景</p>
+        </header>
+
+        <!-- Main Content -->
+        <main>
+            <!-- 均摊复杂度概览 Section -->
+            <section class="mb-12 bg-white rounded-2xl shadow-md p-8">
+                <div class="flex items-center mb-6">
+                    <i class="fas fa-balance-scale text-primary text-xl mr-3"></i>
+                    <h2 class="text-2xl font-bold text-gray-800">均摊复杂度概述</h2>
+                </div>
+                <div class="space-y-4 text-gray-700">
+                    <p>均摊复杂度（Amortized Complexity）是分析数据结构和算法效率的一种方法，它考虑了操作序列的整体性能，而非单独分析每个操作。当一个操作序列中某些操作偶尔会很耗时，但大部分操作都很快时，均摊分析可以给出更精确的时间复杂度评估。</p>
+                    
+                    <div class="p-5 bg-primary-light bg-opacity-10 rounded-lg">
+                        <p>均摊分析的核心思想是"分期偿还"：将复杂操作的开销分摊到一系列简单操作中，使得整个操作序列的平均性能表现更加稳定。</p>
+                    </div>
+
+                    <p>均摊复杂度与平均复杂度（Average Case Complexity）不同：</p>
+                    <ul class="list-disc list-inside space-y-2 pl-4">
+                        <li><strong>平均复杂度</strong>：基于输入数据分布的期望值，需要假设输入数据服从特定概率分布</li>
+                        <li><strong>均摊复杂度</strong>：最坏情况下操作序列的平均开销，不依赖于输入数据的概率分布</li>
+                    </ul>
+                </div>
+            </section>
+            
+            <!-- 常见分析方法 Section -->
+            <section class="mb-12 bg-white rounded-2xl shadow-md p-8">
+                <div class="flex items-center mb-6">
+                    <i class="fas fa-tools text-primary text-xl mr-3"></i>
+                    <h2 class="text-2xl font-bold text-gray-800">均摊分析方法</h2>
+                </div>
+                <div class="space-y-4 text-gray-700">
+                    <p>均摊分析有三种主要方法：聚合分析、核算法和势能法。</p>
+                    
+                    <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-4">
+                        <div class="card-hover p-6 bg-gray-50 rounded-xl">
+                            <h3 class="text-lg font-semibold text-gray-800 mb-3">聚合分析 (Aggregate Analysis)</h3>
+                            <p>确定 n 个操作的总时间上界 T(n)，然后得到均摊时间上界 T(n)/n。</p>
+                        </div>
+                        
+                        <div class="card-hover p-6 bg-gray-50 rounded-xl">
+                            <h3 class="text-lg font-semibold text-gray-800 mb-3">核算法 (Accounting Method)</h3>
+                            <p>对不同操作赋予不同的费用，可能与实际运行时间不同。某些操作可能存下"存款"给未来高代价操作使用。</p>
+                        </div>
+                        
+                        <div class="card-hover p-6 bg-gray-50 rounded-xl">
+                            <h3 class="text-lg font-semibold text-gray-800 mb-3">势能法 (Potential Method)</h3>
+                            <p>维护一个势能函数 Φ(D)，表示数据结构 D 的"势能"。操作 i 的均摊代价 = 实际代价 + 势能变化。</p>
+                        </div>
+                    </div>
+                </div>
+            </section>
+            
+            <!-- 均摊复杂度示例 Section -->
+            <section class="mb-12 bg-white rounded-2xl shadow-md p-8">
+                <div class="flex items-center mb-6">
+                    <i class="fas fa-expand-arrows-alt text-primary text-xl mr-3"></i>
+                    <h2 class="text-2xl font-bold text-gray-800">典型案例：动态数组</h2>
+                </div>
+                <div class="space-y-4 text-gray-700">
+                    <p>动态数组（如 C++ 中的 vector）是均摊分析的经典应用。我们以 push_back 操作为例分析其均摊复杂度。</p>
+                    
+                    <div class="overflow-x-auto bg-codeBlock rounded-lg p-4 mb-4">
+                        <pre class="text-gray-100 font-mono text-sm"><code>// C++ 动态数组 push_back 操作的简化实现
+template &lt;typename T&gt;
+class DynamicArray {
+private:
+    T* array;
+    int size; // 当前元素数量
+    int capacity; // 当前容量
+    
+    void resize() {
+        capacity *= 2; // 每次扩容为原来的两倍
+        T* new_array = new T[capacity];
+        
+        // 复制原数组所有元素到新数组
+        for (int i = 0; i < size; i++) {
+            new_array[i] = array[i];
+        }
+        
+        delete[] array;
+        array = new_array;
+    }
+    
+public:
+    DynamicArray() : size(0), capacity(1) {
+        array = new T[capacity];
+    }
+    
+    ~DynamicArray() {
+        delete[] array;
+    }
+    
+    void push_back(const T& element) {
+        if (size == capacity) {
+            resize(); // 扩容操作
+        }
+        array[size++] = element;
+    }
+    
+    // 其他方法...
+};</code></pre>
+                    </div>
+                    
+                    <h3 class="text-xl font-semibold text-gray-800 mt-6 mb-3">分析</h3>
+                    <p>对 push_back 操作的时间复杂度分析：</p>
+                    <ul class="list-disc list-inside space-y-2 pl-4">
+                        <li>当 size < capacity 时，push_back 是 O(1) 操作</li>
+                        <li>当 size = capacity 时，需要进行 resize() 扩容，这是 O(n) 操作</li>
+                    </ul>
+
+                    <div class="p-5 bg-gray-50 rounded-xl mt-4">
+                        <h4 class="font-semibold mb-3">聚合分析法</h4>
+                        <p>假设开始时容量为 1，考虑执行 n 次 push_back 操作：</p>
+                        <ul class="list-disc list-inside space-y-1 pl-4 text-sm">
+                            <li>扩容发生在第 1, 2, 4, 8, 16, ..., 2<sup>k</sup> 次操作</li>
+                            <li>第 i 次扩容需要复制 2<sup>i-1</sup> 个元素</li>
+                            <li>总复制次数 = 1 + 2 + 4 + 8 + ... + 2<sup>k</sup>，其中 2<sup>k</sup> < n</li>
+                            <li>这是一个等比数列，和为 2<sup>k+1</sup> - 1 < 2n</li>
+                            <li>所以 n 次操作的总时间复杂度为 O(n)</li>
+                            <li>平均到每次操作，均摊时间复杂度为 O(1)</li>
+                        </ul>
+                    </div>
+
+                    <div class="p-5 bg-gray-50 rounded-xl mt-4">
+                        <h4 class="font-semibold mb-3">势能法分析</h4>
+                        <p>设势能函数 Φ(D) = 2 × size - capacity</p>
+                        <ul class="list-disc list-inside space-y-1 pl-4 text-sm">
+                            <li>初始时，size = 0, capacity = 1，Φ(D) = -1</li>
+                            <li>正常 push_back (无扩容)：size += 1, Φ(D) += 2</li>
+                            <li>扩容 push_back：size += 1, capacity *= 2, Φ(D) = 2(size) - 2(size) = 0</li>
+                            <li>对于扩容操作，实际代价为 O(size)，势能变化为 Φ(after) - Φ(before) = 0 - (2 × (size-1) - (size-1)) = -(size-1)</li>
+                            <li>均摊代价 = 实际代价 + 势能变化 = O(size) - (size-1) = O(1)</li>
+                        </ul>
+                    </div>
+                </div>
+            </section>
+            
+            <!-- 其他均摊复杂度示例 Section -->
+            <section class="mb-12 bg-white rounded-2xl shadow-md p-8">
+                <div class="flex items-center mb-6">
+                    <i class="fas fa-code-branch text-primary text-xl mr-3"></i>
+                    <h2 class="text-2xl font-bold text-gray-800">其他均摊复杂度案例</h2>
+                </div>
+                <div class="space-y-4 text-gray-700">
+                    <h3 class="text-xl font-semibold text-gray-800 mb-3">1. 二进制计数器</h3>
+                    <p>一个 n 位二进制计数器从 0 开始递增到 2<sup>n</sup>-1，然后溢出归零。我们可以分析其均摊复杂度。</p>
+                    
+                    <div class="overflow-x-auto bg-codeBlock rounded-lg p-4 mb-4">
+                        <pre class="text-gray-100 font-mono text-sm"><code>void increment(vector&lt;int&gt;&amp; counter) {
+    int n = counter.size();
+    for (int i = 0; i < n; i++) {
+        if (counter[i] == 0) {
+            counter[i] = 1;
+            break;
+        }
+        counter[i] = 0;
+    }
+}</code></pre>
+                    </div>
+                    
+                    <div class="p-5 bg-gray-50 rounded-xl mt-4">
+                        <p>分析：最坏情况下（如 0111→1000），需要翻转 n 位，复杂度为 O(n)。但在 2<sup>n</sup> 次操作中：</p>
+                        <ul class="list-disc list-inside space-y-1 pl-4">
+                            <li>最低位翻转 2<sup>n</sup> 次</li>
+                            <li>第二位翻转 2<sup>n-1</sup> 次</li>
+                            <li>第 i 位翻转 2<sup>n-i+1</sup> 次</li>
+                            <li>总翻转次数 = 2<sup>n</sup> + 2<sup>n-1</sup> + ... + 2 + 1 = 2<sup>n+1</sup> - 1</li>
+                            <li>均摊到每次操作，时间复杂度为 O(1)</li>
+                        </ul>
+                    </div>
+
+                    <h3 class="text-xl font-semibold text-gray-800 mt-6 mb-3">2. 单调栈操作</h3>
+                    <p>在单调栈算法中，每个元素最多入栈和出栈各一次，所以 n 个元素的操作时间复杂度为 O(n)，均摊到每个元素的时间复杂度为 O(1)。</p>
+                    
+                    <div class="overflow-x-auto bg-codeBlock rounded-lg p-4 mb-4">
+                        <pre class="text-gray-100 font-mono text-sm"><code>vector&lt;int&gt; nextGreaterElement(vector&lt;int&gt;&amp; nums) {
+    int n = nums.size();
+    vector&lt;int&gt; result(n, -1);
+    stack&lt;int&gt; s; // 存储索引
+    
+    for (int i = 0; i < n; i++) {
+        // 当栈不为空且当前元素大于栈顶元素时，栈顶元素找到了下一个更大的元素
+        while (!s.empty() && nums[i] > nums[s.top()]) {
+            result[s.top()] = nums[i];
+            s.pop();
+        }
+        s.push(i);
+    }
+    
+    return result;
+}</code></pre>
+                    </div>
+                </div>
+            </section>
+            
+            <!-- 应用场景 Section -->
+            <section class="bg-white rounded-2xl shadow-md p-8">
+                <div class="flex items-center mb-6">
+                    <i class="fas fa-lightbulb text-primary text-xl mr-3"></i>
+                    <h2 class="text-2xl font-bold text-gray-800">均摊分析的应用场景</h2>
+                </div>
+                <div class="space-y-4 text-gray-700">
+                    <p>均摊复杂度分析在以下场景特别有用：</p>
+                    
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-4">
+                        <div class="card-hover p-6 bg-gray-50 rounded-xl">
+                            <h3 class="text-lg font-semibold text-gray-800 mb-3">数据结构操作</h3>
+                            <ul class="list-disc list-inside space-y-1 pl-4">
+                                <li>动态数组（如 C++ vector）</li>
+                                <li>伸展树（Splay Tree）</li>
+                                <li>并查集（Union-Find）的路径压缩操作</li>
+                                <li>斐波那契堆（Fibonacci Heap）</li>
+                            </ul>
+                        </div>
+                        
+                        <div class="card-hover p-6 bg-gray-50 rounded-xl">
+                            <h3 class="text-lg font-semibold text-gray-800 mb-3">算法技术</h3>
+                            <ul class="list-disc list-inside space-y-1 pl-4">
+                                <li>增量法构建凸包</li>
+                                <li>延迟删除技术</li>
+                                <li>懒惰传播（Lazy Propagation）</li>
+                                <li>双端队列的滑动窗口技术</li>
+                            </ul>
+                        </div>
+                    </div>
+                    
+                    <div class="bg-yellow-50 border-l-4 border-yellow-400 p-4 rounded-r mt-4">
+                        <div class="flex items-start">
+                            <i class="fas fa-exclamation-triangle text-yellow-500 mt-1 mr-3"></i>
+                            <div>
+                                <h4 class="font-semibold text-gray-800 mb-2">注意事项</h4>
+                                <p>均摊分析通常假设操作序列从空数据结构开始，且操作数量足够多。在某些情况下（如操作序列很短或从特定状态开始），均摊分析可能不够准确。</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+        </main>
+
+        <!-- Footer -->
+        <footer class="mt-16 text-center text-gray-500 text-sm">
+            <div class="flex justify-center mt-6 space-x-4">
+                <a href="简介.html" class="text-primary hover:text-primary-dark transition-colors duration-300">
+                    <i class="fas fa-home mr-1"></i>首页
+                </a>
+                <a href="复杂度分析.html" class="text-primary hover:text-primary-dark transition-colors duration-300">
+                    <i class="fas fa-arrow-left ml-1"></i>复杂度分析
+                </a>
+                <a href="模拟算法.html" class="text-primary hover:text-primary-dark transition-colors duration-300">
+                    模拟算法<i class="fas fa-arrow-right ml-1"></i>
+                </a>
+            </div>
+        </footer>
+    </div>
+
+    <!-- Back to top button -->
+    <button id="backToTop" class="fixed bottom-6 right-6 bg-primary hover:bg-primary-dark text-white rounded-full p-3 shadow-lg transition-all duration-300 opacity-0 invisible">
+        <i class="fas fa-arrow-up"></i>
+    </button>
+
+    <!-- JavaScript for Back to top button -->
+    <script>
+        const backToTop = document.getElementById('backToTop');
+        
+        window.addEventListener('scroll', () => {
+            if (window.scrollY > 300) {
+                backToTop.classList.remove('opacity-0', 'invisible');
+                backToTop.classList.add('opacity-100', 'visible');
+            } else {
+                backToTop.classList.remove('opacity-100', 'visible');
+                backToTop.classList.add('opacity-0', 'invisible');
+            }
+        });
+        
+        backToTop.addEventListener('click', () => {
+            window.scrollTo({
+                top: 0,
+                behavior: 'smooth'
+            });
+        });
+    </script>
+    <!-- Simple ScrollReveal effect -->
+    <script src="https://unpkg.com/scrollreveal"></script>
+    <script>
+        ScrollReveal().reveal('section', { 
+            delay: 200,
+            distance: '20px',
+            origin: 'bottom',
+            duration: 800,
+            easing: 'ease-in-out'
+        });
+    </script>
+</body>
+</html> 

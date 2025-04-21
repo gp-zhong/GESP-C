@@ -1,0 +1,635 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>最长回文子序列问题</title>
+    <!-- TailwindCSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&family=Roboto+Mono&display=swap" rel="stylesheet">
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        primary: {
+                            light: '#93c5fd',
+                            DEFAULT: '#3b82f6',
+                            dark: '#1d4ed8',
+                        },
+                        secondary: {
+                            light: '#c7d2fe',
+                            DEFAULT: '#6366f1',
+                            dark: '#4338ca',
+                        },
+                        codeBlock: '#1e293b',
+                    },
+                    fontFamily: {
+                        sans: ['Poppins', 'sans-serif'],
+                        mono: ['Roboto Mono', 'monospace'],
+                    },
+                }
+            }
+        }
+    </script>
+    <style>
+        .card-hover {
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+        }
+        .card-hover:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 25px -5px rgba(59, 130, 246, 0.1), 0 10px 10px -5px rgba(59, 130, 246, 0.04);
+        }
+        .code-block::-webkit-scrollbar {
+            height: 8px;
+        }
+        .code-block::-webkit-scrollbar-thumb {
+            background-color: #3b82f6;
+            border-radius: 4px;
+        }
+        .code-block::-webkit-scrollbar-track {
+            background-color: #e2e8f0;
+            border-radius: 4px;
+        }
+    </style>
+</head>
+<body class="bg-gray-50 font-sans">
+    <!-- Back to top button -->
+    <button id="backToTop" class="fixed bottom-6 right-6 bg-primary hover:bg-primary-dark text-white rounded-full p-3 shadow-lg transition-all duration-300 opacity-0 invisible">
+        <i class="fas fa-arrow-up"></i>
+    </button>
+
+    <div class="min-h-screen max-w-6xl mx-auto px-8 py-10">
+        <!-- Header -->
+        <header class="mb-12 text-center">
+            <div class="inline-block px-3 py-1 bg-primary-light text-primary-dark rounded-full text-sm font-medium mb-4">
+                动态规划经典问题
+            </div>
+            <h1 class="text-4xl font-bold text-gray-800 mb-4">最长回文子序列问题</h1>
+            <p class="text-lg text-gray-600 max-w-3xl mx-auto">通过动态规划求解序列的回文优化问题</p>
+        </header>
+
+        <!-- Main Content -->
+        <main>
+            <!-- Problem Description -->
+            <section class="mb-12 bg-white rounded-2xl shadow-md p-8">
+                <div class="flex items-center mb-6">
+                    <i class="fas fa-lightbulb text-primary text-xl mr-3"></i>
+                    <h2 class="text-2xl font-bold text-gray-800">基本概念</h2>
+                </div>
+                <div class="space-y-4 text-gray-700">
+                    <p>
+                        <strong>最长回文子序列</strong>（Longest Palindromic Subsequence，简称LPS）是指在一个字符串中找到的具有最大长度的回文子序列。回文序列是指从前往后读和从后往前读都一样的序列。
+                    </p>
+                    <p>
+                        与最长公共子序列（LCS）问题类似，LPS问题同样具有<strong>最优子结构</strong>和<strong>重叠子问题</strong>特性，适合使用动态规划方法求解。子序列可以通过删除原始序列中的某些字符而不改变剩余字符的相对位置来获得。
+                    </p>
+                    <div class="pl-4 border-l-4 border-primary-light bg-blue-50 p-4 rounded-md">
+                        <p class="font-semibold mb-2">例如：</p>
+                        <p>对于字符串 <span class="font-mono bg-gray-100 px-1 py-0.5 rounded">"bbbab"</span></p>
+                        <p>最长回文子序列是 <span class="font-mono bg-gray-100 px-1 py-0.5 rounded">"bbbb"</span>，长度为4</p>
+                        <p class="mt-2 text-sm text-gray-600">注意：字符序列"bbbb"在原字符串中不要求连续，但必须保持相对顺序。"b"字符分别来自原字符串的第1、2、3和5位置。</p>
+                    </div>
+                </div>
+            </section>
+            
+            <!-- Dynamic Programming Solution -->
+            <section class="mb-12">
+                <div class="flex items-center mb-6">
+                    <i class="fas fa-code text-primary text-xl mr-3"></i>
+                    <h2 class="text-2xl font-bold text-gray-800">动态规划解法</h2>
+                </div>
+                
+                <div class="bg-white rounded-2xl shadow-md p-8 mb-8">
+                    <h3 class="text-xl font-semibold text-gray-800 mb-4">核心思想</h3>
+                    <p class="text-gray-700 mb-6">
+                        LPS问题的关键在于找出如何利用子问题的最优解构建原问题的最优解。我们需要分析字符串中的字符匹配情况。
+                    </p>
+                    
+                    <div class="card-hover bg-gray-50 p-5 rounded-xl mb-6">
+                        <div class="flex items-center mb-3">
+                            <i class="fas fa-info-circle text-secondary mr-2"></i>
+                            <h4 class="font-semibold">状态定义与分析</h4>
+                        </div>
+                        <p class="text-gray-700 mb-3">定义dp[i][j]表示字符串s从索引i到j的子串中，最长回文子序列的长度。对于每对字符s[i]和s[j]，有两种情况：</p>
+                        <ul class="list-disc pl-5 space-y-2 text-gray-700">
+                            <li>如果s[i] = s[j]，那么可以将这两个字符作为回文子序列的两端，加上s[i+1]到s[j-1]的最长回文子序列。</li>
+                            <li>如果s[i] ≠ s[j]，则必须舍弃其中一个字符，取s[i+1]到s[j]或s[i]到s[j-1]中的最长回文子序列。</li>
+                        </ul>
+                    </div>
+                </div>
+                
+                <!-- State Transition Equation -->
+                <div class="bg-white rounded-2xl shadow-md p-8 mb-8">
+                    <h3 class="text-xl font-semibold text-gray-800 mb-6">状态转移方程</h3>
+                    
+                    <div class="py-4 px-6 bg-primary-light bg-opacity-20 rounded-lg text-center mb-4">
+                        <p class="font-mono text-primary-dark font-semibold">
+                            如果 s[i] == s[j]: dp[i][j] = dp[i+1][j-1] + 2
+                        </p>
+                        <p class="font-mono text-primary-dark font-semibold mt-2">
+                            否则: dp[i][j] = max(dp[i+1][j], dp[i][j-1])
+                        </p>
+                    </div>
+                    
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-8 mb-6">
+                        <div>
+                            <h4 class="text-lg font-medium text-gray-800 mb-4">边界条件</h4>
+                            <ul class="list-disc pl-5 space-y-2 text-gray-700">
+                                <li>对于任意i，dp[i][i] = 1（单个字符是回文）</li>
+                                <li>最终结果为dp[0][n-1]，表示整个字符串的最长回文子序列长度</li>
+                            </ul>
+                        </div>
+                        <div>
+                            <h4 class="text-lg font-medium text-gray-800 mb-4">算法复杂度</h4>
+                            <ul class="list-disc pl-5 space-y-2 text-gray-700">
+                                <li><strong>时间复杂度:</strong> O(n²)，其中n是字符串的长度</li>
+                                <li><strong>空间复杂度:</strong> O(n²)，可优化至O(n)</li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Code Implementation -->
+                <div class="bg-white rounded-2xl shadow-md p-8">
+                    <h3 class="text-xl font-semibold text-gray-800 mb-4">代码实现</h3>
+                    <div class="code-block overflow-x-auto bg-codeBlock rounded-lg p-4">
+                        <pre class="text-gray-100 font-mono text-sm"><code>int longestPalindromeSubseq(string s) {
+    int n = s.length();
+    vector&lt;vector&lt;int&gt;&gt; dp(n, vector&lt;int&gt;(n, 0));
+    
+    // 单个字符是回文，长度为1
+    for (int i = 0; i < n; i++) {
+        dp[i][i] = 1;
+    }
+    
+    // 从短到长填充dp数组
+    for (int len = 2; len <= n; len++) {
+        for (int i = 0; i <= n - len; i++) {
+            int j = i + len - 1;
+            if (s[i] == s[j]) {
+                dp[i][j] = dp[i+1][j-1] + 2;
+            } else {
+                dp[i][j] = max(dp[i+1][j], dp[i][j-1]);
+            }
+        }
+    }
+    
+    return dp[0][n-1];
+}</code></pre>
+                    </div>
+                    
+                    <div class="mt-6">
+                        <h4 class="text-lg font-medium text-gray-800 mb-4">空间优化实现</h4>
+                        <p class="text-gray-700 mb-3">可以使用滚动数组将空间复杂度从O(n²)优化到O(n)：</p>
+                        <div class="code-block overflow-x-auto bg-codeBlock rounded-lg p-4">
+                            <pre class="text-gray-100 font-mono text-sm"><code>int longestPalindromeSubseq(string s) {
+    int n = s.length();
+    vector&lt;int&gt; dp(n, 1);  // 初始化为1，表示单个字符
+    
+    for (int i = n - 2; i >= 0; i--) {
+        int prev = 0;  // 暂存dp[i+1][j-1]的值
+        for (int j = i + 1; j < n; j++) {
+            int temp = dp[j];  // 保存当前dp[j]，即下一轮的dp[i+1][j-1]
+            if (s[i] == s[j]) {
+                dp[j] = prev + 2;
+            } else {
+                dp[j] = max(dp[j], dp[j-1]);
+            }
+            prev = temp;
+        }
+    }
+    
+    return dp[n-1];
+}</code></pre>
+                        </div>
+                    </div>
+                </div>
+            </section>
+            
+            <!-- Example Problems -->
+            <section class="mb-12">
+                <h2 class="text-2xl font-bold text-gray-800 mb-8 flex items-center">
+                    <i class="fas fa-code-branch text-primary mr-3"></i>
+                    <span>示例问题与解答</span>
+                </h2>
+                
+                <!-- Example Problem 1 -->
+                <div class="bg-white rounded-2xl shadow-md p-8 mb-8">
+                    <h3 class="text-xl font-semibold text-gray-800 mb-4">问题1：LeetCode 516. 最长回文子序列</h3>
+                    
+                    <div class="mb-6">
+                        <h4 class="text-lg font-medium text-gray-800 mb-3">描述</h4>
+                        <p class="text-gray-700 mb-3">
+                            给定一个字符串 s，找到其中最长的回文子序列，并返回该序列的长度。可以假设 s 的最大长度为 1000。
+                        </p>
+                        <div class="bg-gray-100 p-4 rounded-lg mb-4">
+                            <p class="text-gray-800 font-medium">示例：</p>
+                            <p class="text-gray-700">
+                                <strong>输入:</strong> "bbbab"<br>
+                                <strong>输出:</strong> 4<br>
+                                <strong>解释:</strong> 一个可能的最长回文子序列为 "bbbb"。
+                            </p>
+                        </div>
+                    </div>
+                    
+                    <div class="mb-6">
+                        <h4 class="text-lg font-medium text-gray-800 mb-3">解题思路</h4>
+                        <p class="text-gray-700 mb-3">
+                            这是标准的最长回文子序列问题，使用前面介绍的动态规划方法可以解决：
+                        </p>
+                        <ol class="list-decimal pl-5 space-y-2 text-gray-700">
+                            <li>定义二维数组 dp[i][j] 表示字符串 s 从索引 i 到 j 的最长回文子序列长度</li>
+                            <li>对于每一个子串，如果首尾字符相同，则最长回文子序列长度为内部子串的最长回文子序列长度加2</li>
+                            <li>否则，最长回文子序列长度为去掉首字符或去掉尾字符后子串的最长回文子序列长度的较大值</li>
+                        </ol>
+                    </div>
+                    
+                    <div class="code-block overflow-x-auto bg-codeBlock rounded-lg p-4">
+                        <pre class="text-gray-100 font-mono text-sm"><code>class Solution {
+public:
+    int longestPalindromeSubseq(string s) {
+        int n = s.length();
+        vector&lt;vector&lt;int&gt;&gt; dp(n, vector&lt;int&gt;(n, 0));
+        
+        // 单个字符是回文
+        for (int i = 0; i < n; i++) {
+            dp[i][i] = 1;
+        }
+        
+        // 计算从短到长的所有子串
+        for (int len = 2; len <= n; len++) {
+            for (int i = 0; i <= n - len; i++) {
+                int j = i + len - 1;
+                if (s[i] == s[j]) {
+                    dp[i][j] = dp[i+1][j-1] + 2;
+                } else {
+                    dp[i][j] = max(dp[i+1][j], dp[i][j-1]);
+                }
+            }
+        }
+        
+        return dp[0][n-1];
+    }
+};</code></pre>
+                    </div>
+                </div>
+                
+                <!-- Example Problem 2 -->
+                <div class="bg-white rounded-2xl shadow-md p-8">
+                    <h3 class="text-xl font-semibold text-gray-800 mb-4">问题2：最短回文子串的字符插入</h3>
+                    
+                    <div class="mb-6">
+                        <h4 class="text-lg font-medium text-gray-800 mb-3">描述</h4>
+                        <p class="text-gray-700 mb-3">
+                            给定一个字符串，找到使其成为回文串所需插入的最少字符数。
+                        </p>
+                        <div class="bg-gray-100 p-4 rounded-lg mb-4">
+                            <p class="text-gray-800 font-medium">示例：</p>
+                            <p class="text-gray-700">
+                                <strong>输入:</strong> "ab"<br>
+                                <strong>输出:</strong> 1<br>
+                                <strong>解释:</strong> 插入 'a' 或 'b' 都可以使其变成回文串 "aba" 或 "bab"
+                            </p>
+                        </div>
+                    </div>
+                    
+                    <div class="mb-6">
+                        <h4 class="text-lg font-medium text-gray-800 mb-3">解题思路</h4>
+                        <p class="text-gray-700 mb-3">
+                            这个问题与最长回文子序列有直接关系：需要插入的最少字符数 = 字符串长度 - 最长回文子序列长度。
+                        </p>
+                        <p class="text-gray-700 mb-3">
+                            分析：如果我们知道了原字符串中最长的回文子序列，那么只需要在适当位置添加字符使剩余字符也成为回文的一部分。
+                        </p>
+                    </div>
+                    
+                    <div class="code-block overflow-x-auto bg-codeBlock rounded-lg p-4">
+                        <pre class="text-gray-100 font-mono text-sm"><code>int minInsertions(string s) {
+    int n = s.length();
+    
+    // 计算s的最长回文子序列长度
+    vector&lt;vector&lt;int&gt;&gt; dp(n, vector&lt;int&gt;(n, 0));
+    for (int i = 0; i < n; i++) {
+        dp[i][i] = 1;
+    }
+    
+    for (int len = 2; len <= n; len++) {
+        for (int i = 0; i <= n - len; i++) {
+            int j = i + len - 1;
+            if (s[i] == s[j]) {
+                dp[i][j] = dp[i+1][j-1] + 2;
+            } else {
+                dp[i][j] = max(dp[i+1][j], dp[i][j-1]);
+            }
+        }
+    }
+    
+    // 需要插入的最少字符数 = 字符串长度 - 最长回文子序列长度
+    return n - dp[0][n-1];
+}</code></pre>
+                    </div>
+                    
+                    <div class="mt-6">
+                        <h4 class="text-lg font-medium text-gray-800 mb-3">其他解法</h4>
+                        <p class="text-gray-700">
+                            也可以直接使用动态规划求解，定义 dp[i][j] 为使子串 s[i...j] 成为回文串所需的最小插入次数。
+                            当 s[i] == s[j] 时，dp[i][j] = dp[i+1][j-1]；
+                            否则，dp[i][j] = min(dp[i+1][j], dp[i][j-1]) + 1。
+                        </p>
+                    </div>
+                </div>
+                
+                <!-- Example Problem 3 -->
+                <div class="bg-white rounded-2xl shadow-md p-8 mb-8">
+                    <h3 class="text-xl font-semibold text-gray-800 mb-4">问题3：回文子序列的数量</h3>
+                    
+                    <div class="mb-6">
+                        <h4 class="text-lg font-medium text-gray-800 mb-3">描述</h4>
+                        <p class="text-gray-700 mb-3">
+                            给定一个字符串s，计算s中不同回文子序列的个数。由于结果可能很大，需要对10^9 + 7取模。
+                        </p>
+                        <div class="bg-gray-100 p-4 rounded-lg mb-4">
+                            <p class="text-gray-800 font-medium">示例：</p>
+                            <p class="text-gray-700">
+                                <strong>输入:</strong> "bccb"<br>
+                                <strong>输出:</strong> 6<br>
+                                <strong>解释:</strong> 6个不同的回文子序列是 "b", "c", "bb", "cc", "bcb", "bccb"
+                            </p>
+                        </div>
+                    </div>
+                    
+                    <div class="mb-6">
+                        <h4 class="text-lg font-medium text-gray-800 mb-3">解题思路</h4>
+                        <p class="text-gray-700 mb-3">
+                            这是回文子序列的扩展问题，我们需要计算所有不同的回文子序列：
+                        </p>
+                        <ol class="list-decimal pl-5 space-y-2 text-gray-700">
+                            <li>定义dp[i][j]表示s[i...j]中不同回文子序列的个数</li>
+                            <li>当s[i] == s[j]时，我们需要考虑s[i+1...j-1]中是否还有与s[i]相同的字符</li>
+                            <li>当s[i] != s[j]时，dp[i][j] = dp[i+1][j] + dp[i][j-1] - dp[i+1][j-1]（去重）</li>
+                        </ol>
+                    </div>
+                    
+                    <div class="code-block overflow-x-auto bg-codeBlock rounded-lg p-4">
+                        <pre class="text-gray-100 font-mono text-sm"><code>int countPalindromicSubsequences(string s) {
+    int n = s.length();
+    const int MOD = 1000000007;
+    vector&lt;vector&lt;int&gt;&gt; dp(n, vector&lt;int&gt;(n, 0));
+    
+    // 单个字符是回文
+    for (int i = 0; i < n; i++) {
+        dp[i][i] = 1;
+    }
+    
+    // 计算从短到长的所有子串
+    for (int len = 2; len <= n; len++) {
+        for (int i = 0; i <= n - len; i++) {
+            int j = i + len - 1;
+            
+            if (s[i] != s[j]) {
+                // 去掉重复计算的部分
+                dp[i][j] = (dp[i+1][j] + dp[i][j-1] - dp[i+1][j-1] + MOD) % MOD;
+            } else {
+                // 找s[i+1...j-1]中是否有与s[i]相同的字符
+                int left = i + 1;
+                int right = j - 1;
+                
+                while (left <= right && s[left] != s[i]) left++;
+                while (left <= right && s[right] != s[i]) right--;
+                
+                if (left > right) {
+                    // 中间没有与s[i]相同的字符
+                    dp[i][j] = (2 * dp[i+1][j-1] + 2) % MOD;
+                } else if (left == right) {
+                    // 中间只有一个与s[i]相同的字符
+                    dp[i][j] = (2 * dp[i+1][j-1] + 1) % MOD;
+                } else {
+                    // 中间有多个与s[i]相同的字符
+                    dp[i][j] = (2 * dp[i+1][j-1] - dp[left+1][right-1] + MOD) % MOD;
+                }
+            }
+        }
+    }
+    
+    return dp[0][n-1];
+}</code></pre>
+                    </div>
+                </div>
+                
+                <!-- Example Problem 4 -->
+                <div class="bg-white rounded-2xl shadow-md p-8">
+                    <h3 class="text-xl font-semibold text-gray-800 mb-4">问题4：最长回文子串与最长回文子序列的关系</h3>
+                    
+                    <div class="mb-6">
+                        <h4 class="text-lg font-medium text-gray-800 mb-3">描述</h4>
+                        <p class="text-gray-700 mb-3">
+                            探讨最长回文子串与最长回文子序列的区别与联系，以及如何通过动态规划分别求解。
+                        </p>
+                        <div class="bg-gray-100 p-4 rounded-lg mb-4">
+                            <p class="text-gray-800 font-medium">示例：</p>
+                            <p class="text-gray-700">
+                                对于字符串 "aacabdkacaa"：<br>
+                                <strong>最长回文子串:</strong> "aca" (长度为3)<br>
+                                <strong>最长回文子序列:</strong> "aacaa" (长度为5)
+                            </p>
+                        </div>
+                    </div>
+                    
+                    <div class="mb-6">
+                        <h4 class="text-lg font-medium text-gray-800 mb-3">区别与联系</h4>
+                        <div class="space-y-3 text-gray-700">
+                            <p><strong>区别：</strong></p>
+                            <ul class="list-disc pl-5 space-y-2">
+                                <li>子串要求连续，子序列可以不连续但保持相对顺序</li>
+                                <li>最长回文子串用中心扩展法或Manacher算法更高效，而最长回文子序列通常用动态规划</li>
+                                <li>最长回文子序列长度总是大于等于最长回文子串长度</li>
+                            </ul>
+                            
+                            <p class="mt-4"><strong>联系：</strong></p>
+                            <ul class="list-disc pl-5 space-y-2">
+                                <li>都是寻找满足回文条件的字符序列</li>
+                                <li>都可以用动态规划解决（虽然最长回文子串有更优的方法）</li>
+                                <li>如果最长回文子序列是连续的，那么它同时也是最长回文子串</li>
+                            </ul>
+                        </div>
+                    </div>
+                    
+                    <div class="mb-6">
+                        <h4 class="text-lg font-medium text-gray-800 mb-3">最长回文子串的求解方法</h4>
+                        <div class="code-block overflow-x-auto bg-codeBlock rounded-lg p-4">
+                            <pre class="text-gray-100 font-mono text-sm"><code>string longestPalindromicSubstring(string s) {
+    int n = s.length();
+    if (n == 0) return "";
+    
+    // dp[i][j] 表示s[i...j]是否为回文子串
+    vector&lt;vector&lt;bool&gt;&gt; dp(n, vector&lt;bool&gt;(n, false));
+    int start = 0, maxLen = 1;
+    
+    // 所有单个字符都是回文
+    for (int i = 0; i < n; i++) {
+        dp[i][i] = true;
+    }
+    
+    // 检查长度为2的子串
+    for (int i = 0; i < n - 1; i++) {
+        if (s[i] == s[i+1]) {
+            dp[i][i+1] = true;
+            start = i;
+            maxLen = 2;
+        }
+    }
+    
+    // 检查长度大于2的子串
+    for (int len = 3; len <= n; len++) {
+        for (int i = 0; i <= n - len; i++) {
+            int j = i + len - 1;
+            if (s[i] == s[j] && dp[i+1][j-1]) {
+                dp[i][j] = true;
+                start = i;
+                maxLen = len;
+            }
+        }
+    }
+    
+    return s.substr(start, maxLen);
+}</code></pre>
+                        </div>
+                    </div>
+                    
+                    <div>
+                        <h4 class="text-lg font-medium text-gray-800 mb-3">中心扩展法求解最长回文子串</h4>
+                        <p class="text-gray-700 mb-3">
+                            中心扩展法是求解最长回文子串的更高效方法，时间复杂度为O(n²)，但常数因子更小：
+                        </p>
+                        <div class="code-block overflow-x-auto bg-codeBlock rounded-lg p-4">
+                            <pre class="text-gray-100 font-mono text-sm"><code>string longestPalindrome(string s) {
+    int n = s.length();
+    if (n == 0) return "";
+    
+    int start = 0, maxLen = 1;
+    
+    // 从每个可能的中心扩展
+    for (int i = 0; i < n; i++) {
+        // 以单个字符为中心
+        expandAroundCenter(s, i, i, start, maxLen);
+        // 以两个字符之间为中心
+        expandAroundCenter(s, i, i + 1, start, maxLen);
+    }
+    
+    return s.substr(start, maxLen);
+}
+
+void expandAroundCenter(string s, int left, int right, int& start, int& maxLen) {
+    // 从中心向两端扩展
+    while (left >= 0 && right < s.length() && s[left] == s[right]) {
+        left--;
+        right++;
+    }
+    
+    // 计算回文长度
+    int len = right - left - 1;
+    if (len > maxLen) {
+        maxLen = len;
+        start = left + 1;
+    }
+}</code></pre>
+                        </div>
+                    </div>
+                </div>
+            </section>
+            
+            <!-- Application Scenarios -->
+            <section class="mb-12">
+                <h2 class="text-2xl font-bold text-gray-800 mb-8 flex items-center">
+                    <i class="fas fa-lightbulb text-primary mr-3"></i>
+                    <span>应用场景</span>
+                </h2>
+                
+                <div class="bg-white rounded-2xl shadow-md p-8">
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
+                        <div>
+                            <h3 class="text-xl font-semibold text-gray-800 mb-4">生物信息学</h3>
+                            <p class="text-gray-700">
+                                在核酸（DNA或RNA）序列分析中，最长回文子序列算法可以用于识别可能形成发夹结构的序列区域，
+                                这对RNA的二级结构预测和功能分析非常重要。
+                            </p>
+                        </div>
+                        
+                        <div>
+                            <h3 class="text-xl font-semibold text-gray-800 mb-4">文本分析</h3>
+                            <p class="text-gray-700">
+                                在自然语言处理中，最长回文子序列可以用于识别文本中的特殊模式，
+                                这在某些加密算法、数据压缩和模式匹配中有重要应用。
+                            </p>
+                        </div>
+                        
+                        <div>
+                            <h3 class="text-xl font-semibold text-gray-800 mb-4">序列比对</h3>
+                            <p class="text-gray-700">
+                                在分子生物学和序列比对中，最长回文子序列算法提供了一种方法来识别序列中的对称结构，
+                                这对于理解序列的进化和功能关系具有重要意义。
+                            </p>
+                        </div>
+                        
+                        <div>
+                            <h3 class="text-xl font-semibold text-gray-800 mb-4">算法竞赛</h3>
+                            <p class="text-gray-700">
+                                最长回文子序列是算法竞赛中的经典问题，它考察了动态规划、字符串处理和最优子结构的理解，
+                                是掌握高级算法设计技巧的重要训练题。
+                            </p>
+                        </div>
+                    </div>
+                </div>
+            </section>
+        </main>
+
+        <!-- Footer -->
+        <footer class="mt-16 text-center text-gray-500 text-sm">
+            <div class="flex justify-center mt-3 space-x-4">
+                <a href="最长上升子序列.html" class="text-primary hover:text-primary-dark transition-colors duration-300">
+                    <i class="fas fa-arrow-left mr-1"></i>最长上升子序列
+                </a>
+                <a href="记忆化搜索.html" class="text-primary hover:text-primary-dark transition-colors duration-300">
+                    记忆化搜索<i class="fas fa-arrow-right ml-1"></i>
+                </a>
+            </div>
+        </footer>
+    </div>
+
+    <!-- Simple ScrollReveal effect -->
+    <script src="https://unpkg.com/scrollreveal"></script>
+    <script>
+        ScrollReveal().reveal('section', { 
+            delay: 200,
+            distance: '20px',
+            origin: 'bottom',
+            duration: 800,
+            easing: 'ease-in-out'
+        });
+
+        // Back to Top Button Functionality
+        const backToTop = document.getElementById('backToTop');
+        
+        window.addEventListener('scroll', () => {
+            if (window.pageYOffset > 300) {
+                backToTop.classList.remove('opacity-0', 'invisible');
+                backToTop.classList.add('opacity-100', 'visible');
+            } else {
+                backToTop.classList.remove('opacity-100', 'visible');
+                backToTop.classList.add('opacity-0', 'invisible');
+            }
+        });
+        
+        backToTop.addEventListener('click', () => {
+            window.scrollTo({
+                top: 0,
+                behavior: 'smooth'
+            });
+        });
+    </script>
+</body>
+</html> 

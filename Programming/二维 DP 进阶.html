@@ -1,0 +1,884 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>二维DP进阶</title>
+    <!-- TailwindCSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&family=Roboto+Mono&display=swap" rel="stylesheet">
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        primary: {
+                            light: '#93c5fd',
+                            DEFAULT: '#3b82f6',
+                            dark: '#1d4ed8',
+                        },
+                        secondary: {
+                            light: '#c7d2fe',
+                            DEFAULT: '#6366f1',
+                            dark: '#4338ca',
+                        },
+                        codeBlock: '#1e293b',
+                    },
+                    fontFamily: {
+                        sans: ['Poppins', 'sans-serif'],
+                        mono: ['Roboto Mono', 'monospace'],
+                    },
+                }
+            }
+        }
+    </script>
+    <style>
+        .card-hover {
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+        }
+        .card-hover:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 25px -5px rgba(59, 130, 246, 0.1), 0 10px 10px -5px rgba(59, 130, 246, 0.04);
+        }
+        .code-block::-webkit-scrollbar {
+            height: 8px;
+        }
+        .code-block::-webkit-scrollbar-thumb {
+            background-color: #3b82f6;
+            border-radius: 4px;
+        }
+        .code-block::-webkit-scrollbar-track {
+            background-color: #e2e8f0;
+            border-radius: 4px;
+        }
+    </style>
+    <style>
+        /* Progress bar styles */
+        #progress-container {
+            position: fixed;
+            top: 0;
+            width: 100%;
+            height: 5px;
+            z-index: 100;
+        }
+        
+        #progress-bar {
+            height: 100%;
+            background-color: #3b82f6;
+            width: 0%;
+            transition: width 0.2s;
+        }
+        
+        /* Responsive improvements */
+        @media (max-width: 768px) {
+            .grid-cols-1 {
+                grid-template-columns: 1fr;
+            }
+            
+            .md\:grid-cols-2 {
+                grid-template-columns: 1fr;
+            }
+            
+            .px-8 {
+                padding-left: 1rem;
+                padding-right: 1rem;
+            }
+            
+            .text-4xl {
+                font-size: 1.875rem;
+            }
+            
+            .code-block {
+                font-size: 0.75rem;
+            }
+        }
+        
+        /* Print styles */
+        @media print {
+            body {
+                font-size: 12pt;
+                color: #000;
+                background-color: #fff;
+            }
+            
+            .shadow-md, .shadow-lg {
+                box-shadow: none !important;
+            }
+            
+            #backToTop, #progress-container {
+                display: none !important;
+            }
+            
+            a {
+                text-decoration: underline;
+                color: #1d4ed8;
+            }
+            
+            .code-block {
+                border: 1px solid #ddd;
+                background-color: #f8f8f8 !important;
+                color: #333 !important;
+            }
+        }
+    </style>
+</head>
+<body class="bg-gray-50 font-sans">
+    <!-- Reading Progress Bar -->
+    <div id="progress-container">
+        <div id="progress-bar"></div>
+    </div>
+
+    <!-- Back to top button -->
+    <button id="backToTop" class="fixed bottom-6 right-6 bg-primary hover:bg-primary-dark text-white rounded-full p-3 shadow-lg transition-all duration-300 opacity-0 invisible">
+        <i class="fas fa-arrow-up"></i>
+    </button>
+
+    <div class="min-h-screen max-w-6xl mx-auto px-8 py-10">
+        <!-- Header -->
+        <header class="mb-12 text-center">
+            <div class="inline-block px-3 py-1 bg-primary-light text-primary-dark rounded-full text-sm font-medium mb-4">
+                动态规划进阶技巧
+            </div>
+            <h1 class="text-4xl font-bold text-gray-800 mb-4">二维动态规划进阶</h1>
+            <p class="text-lg text-gray-600 max-w-3xl mx-auto">掌握矩阵型、区间型和状态压缩型二维动态规划的高级应用</p>
+            <div class="flex justify-center mt-6 space-x-4">
+                <a href="#matrix-dp" class="px-4 py-2 bg-white shadow-md rounded-lg text-primary font-medium hover:bg-primary hover:text-white transition-colors duration-300">矩阵型DP</a>
+                <a href="#interval-dp" class="px-4 py-2 bg-white shadow-md rounded-lg text-primary font-medium hover:bg-primary hover:text-white transition-colors duration-300">区间型DP</a>
+                <a href="#state-compression" class="px-4 py-2 bg-white shadow-md rounded-lg text-primary font-medium hover:bg-primary hover:text-white transition-colors duration-300">状态压缩型DP</a>
+            </div>
+        </header>
+
+        <!-- Main Content -->
+        <main>
+            <!-- Basic Concept Section -->
+            <section class="mb-12 bg-white rounded-2xl shadow-md p-8">
+                <div class="flex items-center mb-6">
+                    <i class="fas fa-lightbulb text-primary text-xl mr-3"></i>
+                    <h2 class="text-2xl font-bold text-gray-800">基本概念</h2>
+                </div>
+                <div class="space-y-4 text-gray-700">
+                    <p>
+                        <strong>二维动态规划</strong>是指状态表示需要两个维度共同描述的动态规划问题。相比一维动态规划，二维DP通常能解决更复杂的问题，但也意味着更高的时间和空间复杂度。在二维DP中，状态转移通常需要考虑多个方向的依赖关系。
+                    </p>
+                    <p>
+                        二维DP的核心特点是<strong>状态的二维表示</strong>和<strong>复杂的状态转移</strong>。根据问题特点，二维DP主要分为以下几类：
+                    </p>
+                    <div class="pl-4 border-l-4 border-primary-light bg-blue-50 p-4 rounded-md">
+                        <p class="font-semibold mb-2">二维DP的主要类型：</p>
+                        <ol class="list-decimal pl-5 space-y-1">
+                            <li><strong>矩阵型</strong>：状态与二维矩阵中的位置相关，如路径规划、矩阵统计等</li>
+                            <li><strong>区间型</strong>：状态表示区间的起点和终点，如区间合并、回文判定等</li>
+                            <li><strong>双序列型</strong>：状态表示两个序列的匹配关系，如编辑距离、最长公共子序列等</li>
+                            <li><strong>状态压缩型</strong>：用二进制表示状态的某一维度，如集合状态、棋盘状态等</li>
+                        </ol>
+                    </div>
+                </div>
+            </section>
+            
+            <!-- Matrix-type DP Section -->
+            <section id="matrix-dp" class="mb-12">
+                <div class="flex items-center mb-6">
+                    <i class="fas fa-th text-primary text-xl mr-3"></i>
+                    <h2 class="text-2xl font-bold text-gray-800">矩阵型动态规划</h2>
+                </div>
+                
+                <div class="bg-white rounded-2xl shadow-md p-8 mb-8">
+                    <h3 class="text-xl font-semibold text-gray-800 mb-4">核心思想</h3>
+                    <p class="text-gray-700 mb-6">
+                        矩阵型动态规划通常处理在二维网格上移动或选择的问题，其状态与矩阵中的位置(i, j)直接相关。矩阵型DP的状态转移通常有固定的模式，如从上、左、左上等方向转移而来。
+                    </p>
+                    
+                    <div class="card-hover bg-gray-50 p-5 rounded-xl mb-6">
+                        <div class="flex items-center mb-3">
+                            <i class="fas fa-info-circle text-secondary mr-2"></i>
+                            <h4 class="font-semibold">矩阵型DP的常见特点</h4>
+                        </div>
+                        <ul class="list-disc pl-5 space-y-2 text-gray-700">
+                            <li>状态通常表示为dp[i][j]，代表到达(i,j)位置的某种性质</li>
+                            <li>状态转移经常是从相邻位置（上、下、左、右）转移而来</li>
+                            <li>边界条件通常是矩阵的边界，如第一行(i=0)或第一列(j=0)</li>
+                            <li>最终结果可能是矩阵特定位置的值，或整个矩阵的某种统计</li>
+                        </ul>
+                    </div>
+                </div>
+
+                <!-- Example 1: Maximum Path Sum -->
+                <div class="bg-white rounded-2xl shadow-md p-8 mb-8">
+                    <h3 class="text-xl font-semibold text-gray-800 mb-4">例题1：最大路径和</h3>
+                    
+                    <div class="mb-6">
+                        <h4 class="text-lg font-medium text-gray-800 mb-3">问题描述</h4>
+                        <p class="text-gray-700 mb-4">
+                            给定一个 n × m 的二维网格，网格中的每个单元格都有一个非负整数值。找出一条从左上角(0,0)到右下角(n-1,m-1)的路径，使得路径上的数字总和最大。每次只能向下或向右移动。
+                        </p>
+                        <div class="bg-gray-100 p-4 rounded-lg">
+                            <p class="text-gray-800 font-medium">输入示例：</p>
+                            <div class="font-mono bg-white p-2 rounded border mb-2">
+                                [
+                                  [1, 3, 1],
+                                  [1, 5, 1],
+                                  [4, 2, 1]
+                                ]
+                            </div>
+                            <p class="text-gray-800 font-medium">输出示例：</p>
+                            <p class="font-mono bg-white p-2 rounded border">12</p>
+                            <p class="text-gray-600 text-sm mt-2">路径 1→3→5→2→1 的总和是 12。</p>
+                        </div>
+                    </div>
+                    
+                    <div class="mb-6">
+                        <h4 class="text-lg font-medium text-gray-800 mb-3">解题思路</h4>
+                        <p class="text-gray-700 mb-4">
+                            这是一个典型的矩阵型动态规划问题。我们定义状态 dp[i][j] 表示从起点 (0,0) 到达位置 (i,j) 的最大路径和。
+                        </p>
+                        
+                        <div class="py-4 px-6 bg-primary-light bg-opacity-20 rounded-lg text-center mb-4">
+                            <p class="font-mono text-primary-dark font-semibold">
+                                dp[i][j] = grid[i][j] + max(dp[i-1][j], dp[i][j-1])
+                            </p>
+                        </div>
+                        
+                        <p class="text-gray-700 mb-4">
+                            状态转移的含义是：到达(i,j)的最大路径和等于(i,j)位置的值加上从上方或左方到达的最大路径和。
+                        </p>
+                        
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-8 mb-4">
+                            <div>
+                                <h4 class="text-lg font-medium text-gray-800 mb-3">边界条件</h4>
+                                <ul class="list-disc pl-5 space-y-2 text-gray-700">
+                                    <li>dp[0][0] = grid[0][0]，起点的路径和就是起点的值</li>
+                                    <li>对于第一行：dp[0][j] = dp[0][j-1] + grid[0][j]</li>
+                                    <li>对于第一列：dp[i][0] = dp[i-1][0] + grid[i][0]</li>
+                                </ul>
+                            </div>
+                            <div>
+                                <h4 class="text-lg font-medium text-gray-800 mb-3">算法复杂度</h4>
+                                <ul class="list-disc pl-5 space-y-2 text-gray-700">
+                                    <li><strong>时间复杂度</strong>：O(n×m)，需要填充整个DP表</li>
+                                    <li><strong>空间复杂度</strong>：O(n×m)，可以优化到O(min(n,m))</li>
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div>
+                        <h4 class="text-lg font-medium text-gray-800 mb-4">代码实现</h4>
+                        <div class="code-block overflow-x-auto bg-codeBlock rounded-lg p-4">
+                            <pre class="text-gray-100 font-mono text-sm"><code>class Solution {
+public:
+    int maxPathSum(vector&lt;vector&lt;int&gt;&gt;& grid) {
+        int n = grid.size();
+        if (n == 0) return 0;
+        int m = grid[0].size();
+        
+        // 创建DP表
+        vector&lt;vector&lt;int&gt;&gt; dp(n, vector&lt;int&gt;(m, 0));
+        
+        // 初始化起点
+        dp[0][0] = grid[0][0];
+        
+        // 初始化第一行
+        for (int j = 1; j < m; j++) {
+            dp[0][j] = dp[0][j-1] + grid[0][j];
+        }
+        
+        // 初始化第一列
+        for (int i = 1; i < n; i++) {
+            dp[i][0] = dp[i-1][0] + grid[i][0];
+        }
+        
+        // 填充DP表
+        for (int i = 1; i < n; i++) {
+            for (int j = 1; j < m; j++) {
+                dp[i][j] = grid[i][j] + max(dp[i-1][j], dp[i][j-1]);
+            }
+        }
+        
+        // 返回右下角的值
+        return dp[n-1][m-1];
+    }
+};</code></pre>
+                        </div>
+                    </div>
+                    
+                    <div class="mt-6">
+                        <h4 class="text-lg font-medium text-gray-800 mb-3">DP表填充过程示例</h4>
+                        <p class="text-gray-700 mb-3">对于输入示例，DP表的填充过程如下：</p>
+                        
+                        <div class="overflow-x-auto mb-4">
+                            <table class="min-w-full border-collapse border border-gray-300 text-center">
+                                <thead>
+                                    <tr class="bg-gray-100">
+                                        <th class="border border-gray-300 px-4 py-2">DP表</th>
+                                        <th class="border border-gray-300 px-4 py-2">j=0</th>
+                                        <th class="border border-gray-300 px-4 py-2">j=1</th>
+                                        <th class="border border-gray-300 px-4 py-2">j=2</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr>
+                                        <td class="border border-gray-300 px-4 py-2 bg-gray-100">i=0</td>
+                                        <td class="border border-gray-300 px-4 py-2">1</td>
+                                        <td class="border border-gray-300 px-4 py-2">4</td>
+                                        <td class="border border-gray-300 px-4 py-2">5</td>
+                                    </tr>
+                                    <tr>
+                                        <td class="border border-gray-300 px-4 py-2 bg-gray-100">i=1</td>
+                                        <td class="border border-gray-300 px-4 py-2">2</td>
+                                        <td class="border border-gray-300 px-4 py-2">9</td>
+                                        <td class="border border-gray-300 px-4 py-2">10</td>
+                                    </tr>
+                                    <tr>
+                                        <td class="border border-gray-300 px-4 py-2 bg-gray-100">i=2</td>
+                                        <td class="border border-gray-300 px-4 py-2">6</td>
+                                        <td class="border border-gray-300 px-4 py-2">11</td>
+                                        <td class="border border-gray-300 px-4 py-2 bg-blue-100">12</td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                        
+                        <p class="text-gray-700">
+                            最终的结果就是DP表右下角的值：12，这就是最大路径和。
+                        </p>
+                    </div>
+                </div>
+
+                <!-- Example 2: Unique Paths -->
+                <div class="bg-white rounded-2xl shadow-md p-8">
+                    <h3 class="text-xl font-semibold text-gray-800 mb-4">例题2：不同路径</h3>
+                    
+                    <div class="mb-6">
+                        <h4 class="text-lg font-medium text-gray-800 mb-3">问题描述</h4>
+                        <p class="text-gray-700 mb-4">
+                            一个机器人位于一个 m x n 网格的左上角，机器人每次只能向下或者向右移动一步。机器人试图达到网格的右下角，问总共有多少条不同的路径？
+                        </p>
+                        <div class="bg-gray-100 p-4 rounded-lg">
+                            <p class="text-gray-800 font-medium">输入示例：</p>
+                            <p class="font-mono bg-white p-2 rounded border mb-2">m = 3, n = 7</p>
+                            <p class="text-gray-800 font-medium">输出示例：</p>
+                            <p class="font-mono bg-white p-2 rounded border">28</p>
+                        </div>
+                    </div>
+                    
+                    <div class="mb-6">
+                        <h4 class="text-lg font-medium text-gray-800 mb-3">解题思路</h4>
+                        <p class="text-gray-700 mb-4">
+                            这个问题也是矩阵型DP的典型例题。我们定义状态 dp[i][j] 表示从起点到达位置 (i,j) 的不同路径数量。
+                        </p>
+                        
+                        <div class="py-4 px-6 bg-primary-light bg-opacity-20 rounded-lg text-center mb-4">
+                            <p class="font-mono text-primary-dark font-semibold">
+                                dp[i][j] = dp[i-1][j] + dp[i][j-1]
+                            </p>
+                        </div>
+                        
+                        <p class="text-gray-700 mb-4">
+                            状态转移的含义是：到达(i,j)的路径数量等于从上方到达的路径数量加上从左方到达的路径数量。
+                        </p>
+                        
+                        <div class="card-hover bg-gray-50 p-5 rounded-xl mb-4">
+                            <div class="flex items-center mb-3">
+                                <i class="fas fa-lightbulb text-yellow-500 mr-2"></i>
+                                <h4 class="font-semibold">数学解法</h4>
+                            </div>
+                            <p class="text-gray-700">
+                                这个问题实际上也可以用组合数学解决：从起点到终点共需要移动 m-1 + n-1 = m+n-2 次，其中必须包含 m-1 次向下移动和 n-1 次向右移动。因此，不同路径的数量就是从 m+n-2 次移动中选择 m-1 次向下移动的方案数，即 C(m+n-2, m-1)。
+                            </p>
+                        </div>
+                    </div>
+                    
+                    <div>
+                        <h4 class="text-lg font-medium text-gray-800 mb-4">代码实现</h4>
+                        <div class="code-block overflow-x-auto bg-codeBlock rounded-lg p-4">
+                            <pre class="text-gray-100 font-mono text-sm"><code>class Solution {
+public:
+    int uniquePaths(int m, int n) {
+        // 创建DP表
+        vector&lt;vector&lt;int&gt;&gt; dp(m, vector&lt;int&gt;(n, 0));
+        
+        // 初始化第一行和第一列
+        for (int i = 0; i < m; i++) {
+            dp[i][0] = 1;
+        }
+        for (int j = 0; j < n; j++) {
+            dp[0][j] = 1;
+        }
+        
+        // 填充DP表
+        for (int i = 1; i < m; i++) {
+            for (int j = 1; j < n; j++) {
+                dp[i][j] = dp[i-1][j] + dp[i][j-1];
+            }
+        }
+        
+        // 返回右下角的值
+        return dp[m-1][n-1];
+    }
+    
+    // 空间优化版本
+    int uniquePathsOptimized(int m, int n) {
+        vector&lt;int&gt; dp(n, 1);
+        
+        for (int i = 1; i < m; i++) {
+            for (int j = 1; j < n; j++) {
+                dp[j] += dp[j-1];
+            }
+        }
+        
+        return dp[n-1];
+    }
+};</code></pre>
+                        </div>
+                    </div>
+                </div>
+            </section>
+            
+            <!-- Interval-type DP Section -->
+            <section id="interval-dp" class="mb-12">
+                <div class="flex items-center mb-6">
+                    <i class="fas fa-arrows-alt-h text-primary text-xl mr-3"></i>
+                    <h2 class="text-2xl font-bold text-gray-800">区间型动态规划</h2>
+                </div>
+                
+                <div class="bg-white rounded-2xl shadow-md p-8 mb-8">
+                    <h3 class="text-xl font-semibold text-gray-800 mb-4">核心思想</h3>
+                    <p class="text-gray-700 mb-6">
+                        区间型动态规划处理的是关于区间的问题，状态通常用dp[i][j]表示，其中i是区间的起点，j是区间的终点。这类问题的特点是，大区间的解可以由小区间的解得到，遵循"自底向上"的求解思路。
+                    </p>
+                    
+                    <div class="card-hover bg-gray-50 p-5 rounded-xl mb-6">
+                        <div class="flex items-center mb-3">
+                            <i class="fas fa-info-circle text-secondary mr-2"></i>
+                            <h4 class="font-semibold">区间型DP的常见特点</h4>
+                        </div>
+                        <ul class="list-disc pl-5 space-y-2 text-gray-700">
+                            <li>状态表示为dp[i][j]，表示区间[i,j]上的某种性质</li>
+                            <li>转移方程通常考虑如何将区间划分为子区间</li>
+                            <li>计算顺序需要特别注意：通常需要按照区间长度递增的顺序计算</li>
+                            <li>边界条件通常是长度为1的区间（i=j）</li>
+                        </ul>
+                    </div>
+                    
+                    <div class="py-4 px-6 bg-primary-light bg-opacity-20 rounded-lg mb-4">
+                        <p class="text-gray-800 font-medium mb-2">区间DP的常见迭代方式：</p>
+                        <div class="code-block overflow-x-auto bg-codeBlock rounded-lg p-4">
+                            <pre class="text-gray-100 font-mono text-sm"><code>// 按区间长度递增的顺序计算
+for (int len = 2; len <= n; len++) {           // 区间长度
+    for (int i = 0; i <= n - len; i++) {       // 区间起点
+        int j = i + len - 1;                   // 区间终点
+        // 计算dp[i][j]
+    }
+}</code></pre>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Example 1: Stone Merge -->
+                <div class="bg-white rounded-2xl shadow-md p-8 mb-8">
+                    <h3 class="text-xl font-semibold text-gray-800 mb-4">例题1：石子合并</h3>
+                    
+                    <div class="mb-6">
+                        <h4 class="text-lg font-medium text-gray-800 mb-3">问题描述</h4>
+                        <p class="text-gray-700 mb-4">
+                            有N堆石子排成一排，每堆石子有一定的数量。现在要将这N堆石子合并成一堆。每次只能合并相邻的两堆，合并的代价为这两堆石子的数量之和。问将所有石子合并成一堆的最小代价是多少？
+                        </p>
+                        <div class="bg-gray-100 p-4 rounded-lg">
+                            <p class="text-gray-800 font-medium">输入示例：</p>
+                            <p class="font-mono bg-white p-2 rounded border mb-2">[3, 5, 2, 4]</p>
+                            <p class="text-gray-800 font-medium">输出示例：</p>
+                            <p class="font-mono bg-white p-2 rounded border">29</p>
+                            <p class="text-gray-600 text-sm mt-2">
+                                一种最优合并方案是：先合并第2和第3堆，得到[3,7,4]，代价为7；
+                                再合并第1和第2堆，得到[10,4]，代价为10；
+                                最后合并这两堆，代价为14。
+                                总代价为7+10+12=29。
+                            </p>
+                        </div>
+                    </div>
+                    
+                    <div class="mb-6">
+                        <h4 class="text-lg font-medium text-gray-800 mb-3">解题思路</h4>
+                        <p class="text-gray-700 mb-4">
+                            这是一个典型的区间DP问题。我们定义状态dp[i][j]表示将区间[i,j]内的石子合并成一堆的最小代价。sum[i][j]表示区间[i,j]内石子的总数量。
+                        </p>
+                        
+                        <div class="py-4 px-6 bg-primary-light bg-opacity-20 rounded-lg text-center mb-4">
+                            <p class="font-mono text-primary-dark font-semibold">
+                                dp[i][j] = min{dp[i][k] + dp[k+1][j] + sum[i][j]} (i ≤ k < j)
+                            </p>
+                        </div>
+                        
+                        <p class="text-gray-700 mb-4">
+                            状态转移的含义是：区间[i,j]上的最小代价等于将其分成[i,k]和[k+1,j]两部分，分别计算最小代价，再加上合并这两堆的代价（即区间和sum[i][j]）。
+                        </p>
+                        
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-8 mb-4">
+                            <div>
+                                <h4 class="text-lg font-medium text-gray-800 mb-3">边界条件</h4>
+                                <ul class="list-disc pl-5 space-y-2 text-gray-700">
+                                    <li>dp[i][i] = 0，单个石子堆不需要合并，代价为0</li>
+                                    <li>预处理前缀和，方便计算区间和：sum[i][j] = sum[j] - sum[i-1]</li>
+                                </ul>
+                            </div>
+                            <div>
+                                <h4 class="text-lg font-medium text-gray-800 mb-3">算法复杂度</h4>
+                                <ul class="list-disc pl-5 space-y-2 text-gray-700">
+                                    <li><strong>时间复杂度</strong>：O(n³)，三重循环</li>
+                                    <li><strong>空间复杂度</strong>：O(n²)，dp数组大小</li>
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div>
+                        <h4 class="text-lg font-medium text-gray-800 mb-4">代码实现</h4>
+                        <div class="code-block overflow-x-auto bg-codeBlock rounded-lg p-4">
+                            <pre class="text-gray-100 font-mono text-sm"><code>class Solution {
+public:
+    int mergeStones(vector&lt;int&gt;& stones) {
+        int n = stones.size();
+        if (n <= 1) return 0;
+        
+        // 计算前缀和
+        vector&lt;int&gt; prefixSum(n + 1, 0);
+        for (int i = 1; i <= n; i++) {
+            prefixSum[i] = prefixSum[i - 1] + stones[i - 1];
+        }
+        
+        // 初始化dp数组，设置为无穷大
+        vector&lt;vector&lt;int&gt;&gt; dp(n, vector&lt;int&gt;(n, INT_MAX));
+        
+        // 初始化单个石子堆的代价为0
+        for (int i = 0; i < n; i++) {
+            dp[i][i] = 0;
+        }
+        
+        // 按区间长度递增计算
+        for (int len = 2; len <= n; len++) {
+            for (int i = 0; i <= n - len; i++) {
+                int j = i + len - 1;
+                // 计算区间[i,j]的最小代价
+                for (int k = i; k < j; k++) {
+                    dp[i][j] = min(dp[i][j], dp[i][k] + dp[k+1][j] + prefixSum[j+1] - prefixSum[i]);
+                }
+            }
+        }
+        
+        return dp[0][n-1];
+    }
+};</code></pre>
+                        </div>
+                    </div>
+                    
+                    <div class="mt-6">
+                        <h4 class="text-lg font-medium text-gray-800 mb-3">解题分析</h4>
+                        <p class="text-gray-700 mb-3">
+                            解决区间DP问题的关键在于找到正确的状态定义和转移方程。在这个问题中，我们需要枚举所有可能的分割点k，找出使得总代价最小的分割方案。计算时要注意按照区间长度从小到大的顺序进行，确保子问题已经解决。
+                        </p>
+                        
+                        <div class="p-4 bg-yellow-50 rounded-lg">
+                            <div class="flex items-start">
+                                <i class="fas fa-lightbulb text-yellow-500 mt-1 mr-3"></i>
+                                <p class="text-gray-700">
+                                    区间DP问题的另一个常用优化是使用记忆化搜索。对于一些复杂的区间问题，尤其是状态转移不规则的情况，记忆化搜索可能更容易实现。这种方法避免了显式处理计算顺序的问题，系统会自动处理依赖关系。
+                                </p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Example 2: Palindrome Partitioning -->
+                <div class="bg-white rounded-2xl shadow-md p-8">
+                    <h3 class="text-xl font-semibold text-gray-800 mb-4">例题2：回文串分割</h3>
+                    
+                    <div class="mb-6">
+                        <h4 class="text-lg font-medium text-gray-800 mb-3">问题描述</h4>
+                        <p class="text-gray-700 mb-4">
+                            给定一个字符串s，将s分割成一些子串，使每个子串都是回文串。返回符合要求的最少分割次数。
+                        </p>
+                        <div class="bg-gray-100 p-4 rounded-lg">
+                            <p class="text-gray-800 font-medium">输入示例：</p>
+                            <p class="font-mono bg-white p-2 rounded border mb-2">"aab"</p>
+                            <p class="text-gray-800 font-medium">输出示例：</p>
+                            <p class="font-mono bg-white p-2 rounded border">1</p>
+                            <p class="text-gray-600 text-sm mt-2">说明：一种分割方案是 ["aa","b"]，只需要一次分割。</p>
+                        </div>
+                    </div>
+                    
+                    <div class="mb-6">
+                        <h4 class="text-lg font-medium text-gray-800 mb-3">解题思路</h4>
+                        <p class="text-gray-700 mb-4">
+                            这个问题结合了区间DP的思想和回文串的判断。我们需要两个DP数组：
+                        </p>
+                        <ul class="list-disc pl-5 space-y-2 text-gray-700 mb-4">
+                            <li><strong>isPalindrome[i][j]</strong>：表示子串s[i...j]是否为回文串</li>
+                            <li><strong>dp[i]</strong>：表示子串s[0...i]的最小分割次数</li>
+                        </ul>
+                        
+                        <div class="py-4 px-6 bg-primary-light bg-opacity-20 rounded-lg text-center mb-4">
+                            <p class="font-mono text-primary-dark font-semibold mb-2">
+                                isPalindrome[i][j] = (s[i] == s[j]) && (j - i < 2 || isPalindrome[i+1][j-1])
+                            </p>
+                            <p class="font-mono text-primary-dark font-semibold">
+                                dp[i] = min{dp[j] + 1} (0 ≤ j < i, 且s[j+1...i]是回文串)
+                            </p>
+                        </div>
+                        
+                        <p class="text-gray-700 mb-4">
+                            第一个状态转移方程判断子串是否为回文串；第二个状态转移方程利用回文串信息计算最小分割次数。
+                        </p>
+                        
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-8 mb-4">
+                            <div>
+                                <h4 class="text-lg font-medium text-gray-800 mb-3">边界条件</h4>
+                                <ul class="list-disc pl-5 space-y-2 text-gray-700">
+                                    <li>isPalindrome[i][i] = true，单个字符是回文串</li>
+                                    <li>dp[0] = 0，空串不需要分割</li>
+                                    <li>dp[i] = i，最坏情况下每个字符之间都需要分割</li>
+                                </ul>
+                            </div>
+                            <div>
+                                <h4 class="text-lg font-medium text-gray-800 mb-3">算法复杂度</h4>
+                                <ul class="list-disc pl-5 space-y-2 text-gray-700">
+                                    <li><strong>时间复杂度</strong>：O(n²)，两层循环</li>
+                                    <li><strong>空间复杂度</strong>：O(n²)，isPalindrome数组大小</li>
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div>
+                        <h4 class="text-lg font-medium text-gray-800 mb-4">代码实现</h4>
+                        <div class="code-block overflow-x-auto bg-codeBlock rounded-lg p-4">
+                            <pre class="text-gray-100 font-mono text-sm"><code>class Solution {
+public:
+    int minCut(string s) {
+        int n = s.length();
+        if (n <= 1) return 0;
+        
+        // 初始化回文判断数组
+        vector&lt;vector&lt;bool&gt;&gt; isPalindrome(n, vector&lt;bool&gt;(n, false));
+        
+        // 初始化dp数组，最坏情况每个字符之间都需要分割
+        vector&lt;int&gt; dp(n, 0);
+        for (int i = 0; i < n; i++) {
+            dp[i] = i;  // 最大分割次数
+        }
+        
+        // 按区间长度计算回文信息
+        for (int j = 0; j < n; j++) {
+            for (int i = 0; i <= j; i++) {
+                // 判断s[i...j]是否为回文串
+                if (s[i] == s[j] && (j - i < 2 || isPalindrome[i+1][j-1])) {
+                    isPalindrome[i][j] = true;
+                    
+                    // 更新dp值
+                    if (i == 0) {
+                        // 如果整个子串s[0...j]是回文，则不需要分割
+                        dp[j] = 0;
+                    } else {
+                        // 否则，考虑分割点i-1
+                        dp[j] = min(dp[j], dp[i-1] + 1);
+                    }
+                }
+            }
+        }
+        
+        return dp[n-1];
+    }
+};</code></pre>
+                        </div>
+                    </div>
+                    
+                    <div class="mt-6">
+                        <h4 class="text-lg font-medium text-gray-800 mb-3">替代解法：预处理回文信息</h4>
+                        <p class="text-gray-700 mb-3">
+                            另一种思路是先预处理出所有子串的回文信息，然后再计算最小分割次数：
+                        </p>
+                        
+                        <div class="code-block overflow-x-auto bg-codeBlock rounded-lg p-4">
+                            <pre class="text-gray-100 font-mono text-sm"><code>int minCut2(string s) {
+    int n = s.length();
+    if (n <= 1) return 0;
+    
+    // 预处理回文信息
+    vector&lt;vector&lt;bool&gt;&gt; isPalindrome(n, vector&lt;bool&gt;(n, false));
+    for (int i = 0; i < n; i++) {
+        isPalindrome[i][i] = true;  // 单个字符是回文
+    }
+    for (int i = 0; i < n - 1; i++) {
+        isPalindrome[i][i+1] = (s[i] == s[i+1]);  // 两个字符
+    }
+    for (int len = 3; len <= n; len++) {
+        for (int i = 0; i <= n - len; i++) {
+            int j = i + len - 1;
+            isPalindrome[i][j] = (s[i] == s[j] && isPalindrome[i+1][j-1]);
+        }
+    }
+    
+    // 计算最小分割次数
+    vector&lt;int&gt; dp(n, INT_MAX);
+    for (int i = 0; i < n; i++) {
+        if (isPalindrome[0][i]) {
+            dp[i] = 0;  // 如果s[0...i]是回文，不需要分割
+        } else {
+            for (int j = 0; j < i; j++) {
+                if (isPalindrome[j+1][i]) {
+                    dp[i] = min(dp[i], dp[j] + 1);
+                }
+            }
+        }
+    }
+    
+    return dp[n-1];
+}</code></pre>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- State Compression DP Preview -->
+            <section id="state-compression" class="mb-12 bg-white rounded-2xl shadow-md p-8 relative overflow-hidden">
+                <div class="absolute right-0 top-0 bg-primary-light w-1/3 h-full opacity-10 -skew-x-12 transform"></div>
+                <div class="relative z-10">
+                    <div class="flex items-center mb-6">
+                        <i class="fas fa-microchip text-primary text-xl mr-3"></i>
+                        <h2 class="text-2xl font-bold text-gray-800">状态压缩型动态规划</h2>
+                    </div>
+                    
+                    <p class="text-gray-700 mb-6">
+                        状态压缩是一种处理具有组合状态的高级DP技巧，它使用二进制表示来高效存储和操作状态集合。这种技术通常用于处理状态空间很大但可以用位运算压缩的场景。
+                    </p>
+                    
+                    <div class="card-hover bg-gray-50 p-5 rounded-xl mb-6">
+                        <div class="flex items-center mb-3">
+                            <i class="fas fa-info-circle text-secondary mr-2"></i>
+                            <h4 class="font-semibold">状态压缩的应用场景</h4>
+                        </div>
+                        <ul class="list-disc pl-5 space-y-2 text-gray-700">
+                            <li>集合枚举问题，如旅行商问题</li>
+                            <li>棋盘覆盖问题</li>
+                            <li>图的最短哈密顿路径</li>
+                            <li>集合划分问题</li>
+                        </ul>
+                    </div>
+                    
+                    <div class="flex justify-center">
+                        <a href="状态压缩DP.html" class="inline-block px-6 py-3 bg-primary text-white rounded-lg font-medium hover:bg-primary-dark transition-colors duration-300">
+                            <i class="fas fa-arrow-right mr-2"></i> 了解更多
+                        </a>
+                    </div>
+                </div>
+            </section>
+        </main>
+        
+        <!-- Footer -->
+        <footer class="mt-16 text-center text-gray-500 text-sm">
+            <div class="flex justify-center mt-3 space-x-4">
+                <a href="记忆化搜索.html" class="text-primary hover:text-primary-dark transition-colors duration-300">
+                    <i class="fas fa-arrow-left mr-1"></i>记忆化搜索
+                </a>
+                <a href="0-1背包问题.html" class="text-primary hover:text-primary-dark transition-colors duration-300">
+                    0-1背包问题<i class="fas fa-arrow-right ml-1"></i>
+                </a>
+            </div>
+        </footer>
+    </div>
+
+    <!-- ScrollReveal Library -->
+    <script src="https://unpkg.com/scrollreveal"></script>
+    
+    <!-- Custom Scripts -->
+    <script>
+        ScrollReveal().reveal('section', { 
+            delay: 200,
+            distance: '20px',
+            origin: 'bottom',
+            duration: 800,
+            easing: 'ease-in-out'
+        });
+        
+        // Back to Top Button functionality
+        const backToTop = document.getElementById('backToTop');
+        
+        window.addEventListener('scroll', () => {
+            if (window.pageYOffset > 300) {
+                backToTop.classList.remove('opacity-0', 'invisible');
+                backToTop.classList.add('opacity-100', 'visible');
+            } else {
+                backToTop.classList.remove('opacity-100', 'visible');
+                backToTop.classList.add('opacity-0', 'invisible');
+            }
+        });
+        
+        backToTop.addEventListener('click', () => {
+            window.scrollTo({
+                top: 0,
+                behavior: 'smooth'
+            });
+        });
+        
+        // Reading progress bar
+        window.addEventListener('scroll', () => {
+            const windowHeight = window.innerHeight;
+            const documentHeight = document.documentElement.scrollHeight;
+            const scrollTop = window.scrollY;
+            const scrolled = (scrollTop / (documentHeight - windowHeight)) * 100;
+            
+            document.getElementById('progress-bar').style.width = scrolled + '%';
+        });
+        
+        // Add smooth scrolling for anchor links
+        document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+            anchor.addEventListener('click', function(e) {
+                e.preventDefault();
+                
+                const targetId = this.getAttribute('href');
+                const targetElement = document.querySelector(targetId);
+                
+                if (targetElement) {
+                    window.scrollTo({
+                        top: targetElement.offsetTop - 20,
+                        behavior: 'smooth'
+                    });
+                }
+            });
+        });
+        
+        // Toggle code snippets on small screens
+        const codeBlocks = document.querySelectorAll('.code-block');
+        
+        if (window.innerWidth < 768) {
+            codeBlocks.forEach(block => {
+                const height = block.offsetHeight;
+                const parent = block.parentElement;
+                
+                if (height > 300) {
+                    block.style.maxHeight = '200px';
+                    block.style.overflow = 'hidden';
+                    
+                    const toggleButton = document.createElement('button');
+                    toggleButton.innerHTML = '展开代码 <i class="fas fa-chevron-down"></i>';
+                    toggleButton.className = 'mt-2 px-4 py-1 bg-gray-200 text-gray-700 rounded text-sm w-full';
+                    
+                    toggleButton.addEventListener('click', () => {
+                        if (block.style.maxHeight === '200px') {
+                            block.style.maxHeight = height + 'px';
+                            toggleButton.innerHTML = '收起代码 <i class="fas fa-chevron-up"></i>';
+                        } else {
+                            block.style.maxHeight = '200px';
+                            toggleButton.innerHTML = '展开代码 <i class="fas fa-chevron-down"></i>';
+                        }
+                    });
+                    
+                    parent.appendChild(toggleButton);
+                }
+            });
+        }
+    </script>
+</body>
+</html> 

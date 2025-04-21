@@ -1,0 +1,429 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>C++ 数组</title>
+    <!-- TailwindCSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&family=Roboto+Mono&display=swap" rel="stylesheet">
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        primary: {
+                            light: '#a5f3fc',
+                            DEFAULT: '#06b6d4',
+                            dark: '#0891b2',
+                        },
+                        secondary: {
+                            light: '#c7d2fe',
+                            DEFAULT: '#818cf8',
+                            dark: '#6366f1',
+                        },
+                        codeBlock: '#1e293b',
+                    },
+                    fontFamily: {
+                        sans: ['Poppins', 'sans-serif'],
+                        mono: ['Roboto Mono', 'monospace'],
+                    },
+                }
+            }
+        }
+    </script>
+    <style>
+        .card-hover {
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+        }
+        .card-hover:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 25px -5px rgba(6, 182, 212, 0.1), 0 10px 10px -5px rgba(6, 182, 212, 0.04);
+        }
+        .code-block::-webkit-scrollbar {
+            height: 8px;
+        }
+        .code-block::-webkit-scrollbar-thumb {
+            background-color: #06b6d4;
+            border-radius: 4px;
+        }
+        .code-block::-webkit-scrollbar-track {
+            background-color: #e2e8f0;
+            border-radius: 4px;
+        }
+    </style>
+</head>
+<body class="bg-gray-50 font-sans">
+    <div class="min-h-screen max-w-6xl mx-auto px-8 py-10">
+        <!-- Header -->
+        <header class="mb-12 text-center">
+            <div class="inline-block px-3 py-1 bg-primary-light text-primary-dark rounded-full text-sm font-medium mb-4">
+                C++ 编程入门
+            </div>
+            <h1 class="text-4xl font-bold text-gray-800 mb-4">C++ 数组</h1>
+            <p class="text-lg text-gray-600 max-w-3xl mx-auto">掌握 C++ 数组的定义、访问与应用，构建高效的数据存储结构</p>
+        </header>
+
+        <!-- Main Content -->
+        <main>
+            <!-- 数组简介 Section -->
+            <section class="mb-12 bg-white rounded-2xl shadow-md p-8">
+                <div class="flex items-center mb-6">
+                    <i class="fas fa-table text-primary text-xl mr-3"></i>
+                    <h2 class="text-2xl font-bold text-gray-800">数组简介</h2>
+                </div>
+                <div class="space-y-4 text-gray-700">
+                    <p>数组是存放相同类型对象的容器，数组中存放的对象没有名字，而是要通过其所在的位置访问。数组的大小是固定的，不能随意改变数组的长度。</p>
+                    
+                    <div class="p-5 bg-primary-light bg-opacity-10 rounded-lg">
+                        <div class="flex items-start">
+                            <i class="fas fa-lightbulb text-primary mt-1 mr-3"></i>
+                            <div>
+                                <p>数组的主要特点：</p>
+                                <ul class="list-disc pl-5 space-y-1 mt-2">
+                                    <li>元素类型相同</li>
+                                    <li>内存连续存储</li>
+                                    <li>通过索引访问元素</li>
+                                    <li>大小固定不变</li>
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+            
+            <!-- 定义数组 Section -->
+            <section class="mb-12 bg-white rounded-2xl shadow-md p-8">
+                <div class="flex items-center mb-6">
+                    <i class="fas fa-pencil-alt text-primary text-xl mr-3"></i>
+                    <h2 class="text-2xl font-bold text-gray-800">定义数组</h2>
+                </div>
+                <div class="space-y-4 text-gray-700">
+                    <p>数组的声明形如 <code>a[d]</code>，其中，<code>a</code> 是数组的名字，<code>d</code> 是数组中元素的个数。在编译时，<code>d</code> 应该是已知的，也就是说，<code>d</code> 应该是一个整型的常量表达式。</p>
+                    
+                    <div class="overflow-x-auto bg-codeBlock rounded-lg p-4 mb-4">
+                        <pre class="text-gray-100 font-mono text-sm"><code>// 定义数组的常见方式
+int numbers[5];           // 定义一个包含5个整数的数组
+double prices[10];        // 定义一个包含10个浮点数的数组
+char letters[26];         // 定义一个包含26个字符的数组
+
+// 定义数组并初始化
+int scores[3] = {95, 88, 72};              // 完全初始化
+int values[5] = {10, 20};                  // 部分初始化，其余为0
+char vowels[] = {'a', 'e', 'i', 'o', 'u'}; // 编译器自动计算大小</code></pre>
+                    </div>
+                    
+                    <div class="mt-6">
+                        <h3 class="text-xl font-semibold text-gray-800 mb-4">数组大小的限制</h3>
+                        
+                        <div class="overflow-x-auto bg-codeBlock rounded-lg p-4 mb-4">
+                            <pre class="text-gray-100 font-mono text-sm"><code>unsigned int d1 = 42;
+const int d2 = 42;
+
+int arr1[d1];  // 错误：d1 不是常量表达式
+int arr2[d2];  // 正确：arr2 是一个长度为 42 的数组</code></pre>
+                        </div>
+                        
+                        <p>数组的大小必须是一个常量表达式，因此：</p>
+                        <ul class="list-disc pl-5 space-y-1">
+                            <li>可以使用整型字面量 <code>int arr[10];</code></li>
+                            <li>可以使用 const 常量 <code>const int SIZE = 10; int arr[SIZE];</code></li>
+                            <li>可以使用编译时常量表达式 <code>int arr[5+5];</code></li>
+                            <li>不能使用普通变量 <code>int size = 10; int arr[size]; // 错误</code></li>
+                        </ul>
+                    </div>
+                    
+                    <div class="mt-6">
+                        <h3 class="text-xl font-semibold text-gray-800 mb-4">数组赋值限制</h3>
+                        
+                        <div class="overflow-x-auto bg-codeBlock rounded-lg p-4 mb-4">
+                            <pre class="text-gray-100 font-mono text-sm"><code>int arr1[3] = {1, 2, 3};
+int arr2[3];
+
+// 以下操作都是错误的
+arr2 = arr1;      // 错误：不能将一个数组直接赋值给另一个数组
+int arr3 = arr1;  // 错误：不能将数组赋值给变量</code></pre>
+                        </div>
+                        
+                        <p>要复制数组内容，需要逐个元素复制：</p>
+                        <div class="overflow-x-auto bg-codeBlock rounded-lg p-4 mb-4">
+                            <pre class="text-gray-100 font-mono text-sm"><code>int arr1[3] = {1, 2, 3};
+int arr2[3];
+
+// 正确的数组复制方法
+for (int i = 0; i < 3; i++) {
+    arr2[i] = arr1[i];
+}</code></pre>
+                        </div>
+                    </div>
+                    
+                    <div class="p-5 bg-yellow-50 rounded-lg border-l-4 border-yellow-400 mt-6">
+                        <div class="flex items-start">
+                            <i class="fas fa-exclamation-triangle text-yellow-500 mt-1 mr-3"></i>
+                            <div>
+                                <h3 class="text-lg font-semibold text-gray-800 mb-2">注意事项</h3>
+                                <p class="text-gray-700">
+                                    应该尽量将较大的数组定义为全局变量。因为局部变量会被创建在栈区中，过大（大于栈的大小）的数组会爆栈，进而导致运行时错误(RE)。如果将数组声明在全局作用域中，就会在静态区中创建数组。
+                                </p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+            
+            <!-- 访问数组元素 Section -->
+            <section class="mb-12 bg-white rounded-2xl shadow-md p-8">
+                <div class="flex items-center mb-6">
+                    <i class="fas fa-hand-pointer text-primary text-xl mr-3"></i>
+                    <h2 class="text-2xl font-bold text-gray-800">访问数组元素</h2>
+                </div>
+                <div class="space-y-4 text-gray-700">
+                    <p>可以通过下标运算符 <code>[]</code> 来访问数组内元素，数组的索引（即方括号中的值）从 0 开始。以一个包含 10 个元素的数组为例，它的索引为 0 到 9，而非 1 到 10。</p>
+                    
+                    <div class="overflow-x-auto bg-codeBlock rounded-lg p-4 mb-4">
+                        <pre class="text-gray-100 font-mono text-sm"><code>int numbers[5] = {10, 20, 30, 40, 50};
+
+// 访问单个元素
+int first = numbers[0];   // 获取第一个元素，值为10
+int third = numbers[2];   // 获取第三个元素，值为30
+
+// 修改数组元素
+numbers[1] = 25;          // 将第二个元素改为25
+numbers[4] = numbers[3];  // 将第五个元素的值设为第四个元素的值</code></pre>
+                    </div>
+                    
+                    <div class="p-5 bg-blue-50 rounded-xl border-l-4 border-blue-400 mt-4">
+                        <div class="flex items-start">
+                            <i class="fas fa-info-circle text-blue-500 mt-1 mr-3"></i>
+                            <div>
+                                <h3 class="text-lg font-semibold text-gray-800 mb-2">OI中的使用习惯</h3>
+                                <p class="text-gray-700">
+                                    在OI中，为了使用方便，我们通常会将数组开大一点，不使用数组的第一个元素，从下标1开始访问数组元素。这样做的好处是更直观，与题目中描述的下标保持一致。
+                                </p>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="mt-6">
+                        <h3 class="text-xl font-semibold text-gray-800 mb-4">数组实例</h3>
+                        
+                        <div class="card-hover p-6 bg-gray-50 rounded-xl mb-4">
+                            <h4 class="text-lg font-medium text-gray-800 mb-3">例1：读取数组元素</h4>
+                            <div class="overflow-x-auto bg-codeBlock rounded-lg p-3">
+                                <pre class="text-gray-100 font-mono text-sm"><code>#include <iostream>
+using namespace std;
+
+int arr[1001];  // 数组 arr 的下标范围是 [0, 1001)
+
+int main() {
+    int n;
+    cin >> n;
+    for (int i = 1; i <= n; ++i) {
+        cin >> arr[i];
+    }
+    return 0;
+}</code></pre>
+                            </div>
+                        </div>
+                        
+                        <div class="card-hover p-6 bg-gray-50 rounded-xl">
+                            <h4 class="text-lg font-medium text-gray-800 mb-3">例2：数组元素求和</h4>
+                            <div class="overflow-x-auto bg-codeBlock rounded-lg p-3">
+                                <pre class="text-gray-100 font-mono text-sm"><code>#include <iostream>
+using namespace std;
+
+int arr[1001];
+
+int main() {
+    int n;
+    cin >> n;
+    for (int i = 1; i <= n; ++i) {
+        cin >> arr[i];
+    }
+    
+    int sum = 0;
+    for (int i = 1; i <= n; ++i) {
+        sum += arr[i];
+    }
+    
+    cout << sum << endl;
+    return 0;
+}</code></pre>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="mt-6">
+                        <h3 class="text-xl font-semibold text-gray-800 mb-4">越界访问下标</h3>
+                        <p>数组的下标 <code>i</code> 应当满足 <code>0 ≤ i < 数组长度</code>，如果下标越界，则会产生不可预料的后果，如段错误（Segmentation Fault），或者修改预期以外的变量。</p>
+                        
+                        <div class="p-5 bg-red-50 rounded-xl border-l-4 border-red-400 mt-4">
+                            <div class="flex items-start">
+                                <i class="fas fa-exclamation-circle text-red-500 mt-1 mr-3"></i>
+                                <div>
+                                    <h3 class="text-lg font-semibold text-gray-800 mb-2">警告</h3>
+                                    <p class="text-gray-700">
+                                        C++ 不会自动检查数组下标是否越界。使用越界下标访问数组是未定义行为，可能导致程序崩溃或产生难以调试的错误。始终确保数组索引在有效范围内。
+                                    </p>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="overflow-x-auto bg-codeBlock rounded-lg p-4 mt-4">
+                            <pre class="text-gray-100 font-mono text-sm"><code>int numbers[5] = {10, 20, 30, 40, 50};
+
+// 越界访问示例（不要这样做！）
+int value = numbers[5];   // 错误：下标越界
+numbers[-1] = 100;        // 错误：下标越界
+numbers[100] = 999;       // 错误：下标越界</code></pre>
+                        </div>
+                    </div>
+                </div>
+            </section>
+            
+            <!-- 多维数组 Section -->
+            <section class="mb-12 bg-white rounded-2xl shadow-md p-8">
+                <div class="flex items-center mb-6">
+                    <i class="fas fa-th text-primary text-xl mr-3"></i>
+                    <h2 class="text-2xl font-bold text-gray-800">多维数组</h2>
+                </div>
+                <div class="space-y-4 text-gray-700">
+                    <p>多维数组的实质是「数组的数组」，即外层数组的元素是数组。一个二维数组需要两个维度来定义：数组的长度和数组内元素的长度。访问二维数组时需要写出两个索引。</p>
+                    
+                    <div class="overflow-x-auto bg-codeBlock rounded-lg p-4 mb-4">
+                        <pre class="text-gray-100 font-mono text-sm"><code>// 定义二维数组
+int matrix[3][4];  // 一个3行4列的二维数组
+
+// 初始化二维数组
+int grid[3][3] = {
+    {1, 2, 3},
+    {4, 5, 6},
+    {7, 8, 9}
+};
+
+// 访问二维数组元素
+int value = grid[1][2];  // 获取第2行第3列的元素，值为6
+grid[0][0] = 10;         // 将第1行第1列的元素改为10</code></pre>
+                    </div>
+                    
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mt-6">
+                        <div class="card-hover p-6 bg-gray-50 rounded-xl">
+                            <h3 class="text-lg font-semibold text-gray-800 mb-3">
+                                <i class="fas fa-code text-primary-dark mr-2"></i>
+                                二维数组遍历
+                            </h3>
+                            <div class="overflow-x-auto bg-codeBlock rounded-lg p-3">
+                                <pre class="text-gray-100 font-mono text-sm"><code>// 遍历二维数组的所有元素
+int matrix[3][4];
+
+// 使用嵌套循环遍历
+for (int i = 0; i < 3; i++) {
+    for (int j = 0; j < 4; j++) {
+        matrix[i][j] = i * j;
+    }
+}
+
+// 打印二维数组
+for (int i = 0; i < 3; i++) {
+    for (int j = 0; j < 4; j++) {
+        cout << matrix[i][j] << " ";
+    }
+    cout << endl;
+}</code></pre>
+                            </div>
+                        </div>
+                        
+                        <div class="card-hover p-6 bg-gray-50 rounded-xl">
+                            <h3 class="text-lg font-semibold text-gray-800 mb-3">
+                                <i class="fas fa-image text-primary-dark mr-2"></i>
+                                图像处理示例
+                            </h3>
+                            <div class="overflow-x-auto bg-codeBlock rounded-lg p-3">
+                                <pre class="text-gray-100 font-mono text-sm"><code>const int MAXN = 1001;
+int pic[MAXN][MAXN];
+int n, m;
+
+// 读取黑白图片数据
+cin >> n >> m;  // n行m列
+for (int i = 1; i <= n; ++i)
+    for (int j = 1; j <= m; ++j)
+        cin >> pic[i][j];
+
+// 处理图像数据
+// 例如：计算亮度平均值
+int sum = 0;
+for (int i = 1; i <= n; ++i)
+    for (int j = 1; j <= m; ++j)
+        sum += pic[i][j];
+
+double avg = (double)sum / (n * m);</code></pre>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="mt-6">
+                        <h3 class="text-xl font-semibold text-gray-800 mb-4">高维数组</h3>
+                        <p>除了二维数组，C++ 也支持三维、四维，以及更高维的数组：</p>
+                        
+                        <div class="overflow-x-auto bg-codeBlock rounded-lg p-4 mt-4">
+                            <pre class="text-gray-100 font-mono text-sm"><code>// 三维数组定义
+int cube[2][3][4];  // 2个3×4的二维数组
+
+// 三维数组初始化
+int threeDim[2][2][2] = {
+    {{1, 2}, {3, 4}},
+    {{5, 6}, {7, 8}}
+};
+
+// 访问三维数组的元素
+int val = threeDim[1][0][1];  // 值为6
+threeDim[0][1][1] = 10;        // 修改特定元素
+
+// 四维数组
+int fourDim[2][2][2][2];  // 四维数组的定义</code></pre>
+                        </div>
+                        
+                        <div class="p-5 bg-primary-light bg-opacity-10 rounded-lg mt-4">
+                            <div class="flex items-start">
+                                <i class="fas fa-lightbulb text-primary mt-1 mr-3"></i>
+                                <div>
+                                    <p class="text-gray-700">
+                                        高维数组在图形学、人工智能和科学计算等领域特别有用，例如可以用四维数组表示3D空间随时间的变化，或者神经网络的权重矩阵。但请注意，高维数组会占用大量内存，使用时需谨慎。
+                                    </p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+        </main>
+
+        <!-- Footer -->
+        <footer class="mt-16 text-center text-gray-500 text-sm">
+            <div class="flex justify-center mt-6 space-x-4">
+                <a href="变量.html" class="text-primary hover:text-primary-dark transition-colors duration-300">
+                    <i class="fas fa-arrow-left mr-1"></i>变量
+                </a>
+                <a href="循环流程控制.html" class="text-primary hover:text-primary-dark transition-colors duration-300">
+                    循环流程控制<i class="fas fa-arrow-right ml-1"></i>
+                </a>
+            </div>
+        </footer>
+    </div>
+
+    <!-- Simple ScrollReveal effect -->
+    <script src="https://unpkg.com/scrollreveal"></script>
+    <script>
+        ScrollReveal().reveal('section', { 
+            delay: 200,
+            distance: '20px',
+            origin: 'bottom',
+            duration: 800,
+            easing: 'ease-in-out'
+        });
+    </script>
+</body>
+</html>

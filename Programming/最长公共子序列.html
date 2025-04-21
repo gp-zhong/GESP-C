@@ -1,0 +1,989 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>最长公共子序列问题</title>
+    <!-- TailwindCSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&family=Roboto+Mono&display=swap" rel="stylesheet">
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        primary: {
+                            light: '#93c5fd',
+                            DEFAULT: '#3b82f6',
+                            dark: '#1d4ed8',
+                        },
+                        secondary: {
+                            light: '#c7d2fe',
+                            DEFAULT: '#6366f1',
+                            dark: '#4338ca',
+                        },
+                        codeBlock: '#1e293b',
+                    },
+                    fontFamily: {
+                        sans: ['Poppins', 'sans-serif'],
+                        mono: ['Roboto Mono', 'monospace'],
+                    },
+                }
+            }
+        }
+    </script>
+    <style>
+        .card-hover {
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+        }
+        .card-hover:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 25px -5px rgba(59, 130, 246, 0.1), 0 10px 10px -5px rgba(59, 130, 246, 0.04);
+        }
+        .code-block::-webkit-scrollbar {
+            height: 8px;
+        }
+        .code-block::-webkit-scrollbar-thumb {
+            background-color: #3b82f6;
+            border-radius: 4px;
+        }
+        .code-block::-webkit-scrollbar-track {
+            background-color: #e2e8f0;
+            border-radius: 4px;
+        }
+    </style>
+</head>
+<body class="bg-gray-50 font-sans">
+    <!-- Back to top button -->
+    <button id="backToTop" class="fixed bottom-6 right-6 bg-primary hover:bg-primary-dark text-white rounded-full p-3 shadow-lg transition-all duration-300 opacity-0 invisible">
+        <i class="fas fa-arrow-up"></i>
+    </button>
+
+    <div class="min-h-screen max-w-6xl mx-auto px-8 py-10">
+        <!-- Header -->
+        <header class="mb-12 text-center">
+            <div class="inline-block px-3 py-1 bg-primary-light text-primary-dark rounded-full text-sm font-medium mb-4">
+                动态规划经典问题
+            </div>
+            <h1 class="text-4xl font-bold text-gray-800 mb-4">最长公共子序列问题</h1>
+            <p class="text-lg text-gray-600 max-w-3xl mx-auto">通过动态规划高效求解序列匹配的优化问题</p>
+        </header>
+
+        <!-- Main Content -->
+        <main>
+            <!-- Problem Description -->
+            <section class="mb-12 bg-white rounded-2xl shadow-md p-8">
+                <div class="flex items-center mb-6">
+                    <i class="fas fa-lightbulb text-primary text-xl mr-3"></i>
+                    <h2 class="text-2xl font-bold text-gray-800">基本概念</h2>
+                </div>
+                <div class="space-y-4 text-gray-700">
+                    <p>
+                        <strong>最长公共子序列</strong>（Longest Common Subsequence，简称LCS）是指在两个序列中找出最长的公共子序列。子序列是指从序列中删除某些元素后得到的新序列，要求保持元素间的相对顺序不变。与子串不同，子序列不要求连续。
+                    </p>
+                    <p>
+                        LCS问题具有<strong>最优子结构</strong>性质，这意味着问题的最优解包含其子问题的最优解，因此可以应用动态规划思想求解。同时，LCS问题也具有<strong>重叠子问题</strong>特性，即多个父问题会重复计算相同的子问题，这进一步强化了使用动态规划的合理性。
+                    </p>
+                    <div class="pl-4 border-l-4 border-primary-light bg-blue-50 p-4 rounded-md">
+                        <p class="font-semibold mb-2">例如：</p>
+                        <p>序列A: <span class="font-mono bg-gray-100 px-1 py-0.5 rounded">A B C D G H</span></p>
+                        <p>序列B: <span class="font-mono bg-gray-100 px-1 py-0.5 rounded">A E D F H R</span></p>
+                        <p>它们的LCS是: <span class="font-mono bg-gray-100 px-1 py-0.5 rounded">A D H</span>，长度为3</p>
+                        <p class="mt-2 text-sm text-gray-600">注意：元素A、D、H在两个序列中的相对顺序保持不变，但不要求连续。</p>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Dynamic Programming Solution -->
+            <section class="mb-12">
+                <div class="flex items-center mb-6">
+                    <i class="fas fa-code text-primary text-xl mr-3"></i>
+                    <h2 class="text-2xl font-bold text-gray-800">动态规划解法</h2>
+                </div>
+                
+                <div class="bg-white rounded-2xl shadow-md p-8 mb-8">
+                    <h3 class="text-xl font-semibold text-gray-800 mb-4">核心思想</h3>
+                    <p class="text-gray-700 mb-6">
+                        LCS问题的核心在于如何构建状态转移方程。我们需要分析问题的结构，找出子问题之间的递推关系。
+                    </p>
+                    
+                    <div class="card-hover bg-gray-50 p-5 rounded-xl mb-6">
+                        <div class="flex items-center mb-3">
+                            <i class="fas fa-info-circle text-secondary mr-2"></i>
+                            <h4 class="font-semibold">状态定义与分析</h4>
+                        </div>
+                        <p class="text-gray-700 mb-3">定义dp[i][j]表示序列A的前i个元素与序列B的前j个元素的LCS长度。考虑最后一个元素，存在两种情况：</p>
+                        <ul class="list-disc pl-5 space-y-2 text-gray-700">
+                            <li>如果A[i-1] = B[j-1]（序列索引从0开始），则当前LCS可以通过A的前i-1个元素和B的前j-1个元素的LCS加上这个共同元素构成。</li>
+                            <li>如果A[i-1] ≠ B[j-1]，则当前LCS必须是"A的前i-1个元素与B的前j个元素的LCS"和"A的前i个元素与B的前j-1个元素的LCS"中的较大者。</li>
+                        </ul>
+                    </div>
+                </div>
+
+                <!-- State Transition Equation -->
+                <div class="bg-white rounded-2xl shadow-md p-8 mb-8">
+                    <h3 class="text-xl font-semibold text-gray-800 mb-6">状态转移方程</h3>
+                    
+                    <div class="py-4 px-6 bg-primary-light bg-opacity-20 rounded-lg text-center mb-4">
+                        <p class="font-mono text-primary-dark font-semibold">
+                            如果 A[i-1] == B[j-1]: dp[i][j] = dp[i-1][j-1] + 1
+                        </p>
+                        <p class="font-mono text-primary-dark font-semibold mt-2">
+                            否则: dp[i][j] = max(dp[i-1][j], dp[i][j-1])
+                        </p>
+                    </div>
+                    
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-8 mb-6">
+                        <div>
+                            <h4 class="text-lg font-medium text-gray-800 mb-4">边界条件</h4>
+                            <ul class="list-disc pl-5 space-y-2 text-gray-700">
+                                <li>对于任意i或j为0的情况，dp[i][0] = dp[0][j] = 0</li>
+                                <li>这是因为空序列与任何序列的LCS长度都为0</li>
+                            </ul>
+                        </div>
+                        <div>
+                            <h4 class="text-lg font-medium text-gray-800 mb-4">算法复杂度</h4>
+                            <ul class="list-disc pl-5 space-y-2 text-gray-700">
+                                <li><strong>时间复杂度:</strong> O(m×n)，其中m和n是两个序列的长度</li>
+                                <li><strong>空间复杂度:</strong> O(m×n)，需要存储所有状态，可优化至O(min(m,n))</li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Code Implementation -->
+                <div class="bg-white rounded-2xl shadow-md p-8">
+                    <h3 class="text-xl font-semibold text-gray-800 mb-4">代码实现</h3>
+                    <div class="code-block overflow-x-auto bg-codeBlock rounded-lg p-4">
+                        <pre class="text-gray-100 font-mono text-sm"><code>int longestCommonSubsequence(string text1, string text2) {
+    int m = text1.length();
+    int n = text2.length();
+    vector&lt;vector&lt;int&gt;&gt; dp(m + 1, vector&lt;int&gt;(n + 1, 0));
+    
+    for (int i = 1; i <= m; i++) {
+        for (int j = 1; j <= n; j++) {
+            if (text1[i-1] == text2[j-1]) {
+                dp[i][j] = dp[i-1][j-1] + 1;
+            } else {
+                dp[i][j] = max(dp[i-1][j], dp[i][j-1]);
+            }
+        }
+    }
+    
+    return dp[m][n];
+}</code></pre>
+                    </div>
+                    
+                    <div class="mt-6">
+                        <h4 class="text-lg font-medium text-gray-800 mb-4">递归思路与备忘录优化</h4>
+                        <p class="text-gray-700 mb-3">除了自底向上的动态规划方法，LCS问题也可以用递归+备忘录的方式求解：</p>
+                        <div class="code-block overflow-x-auto bg-codeBlock rounded-lg p-4">
+                            <pre class="text-gray-100 font-mono text-sm"><code>class Solution {
+public:
+    int longestCommonSubsequence(string text1, string text2) {
+        int m = text1.length();
+        int n = text2.length();
+        vector&lt;vector&lt;int&gt;&gt; memo(m, vector&lt;int&gt;(n, -1)); // -1表示未计算
+        return dp(text1, text2, m - 1, n - 1, memo);
+    }
+    
+    int dp(string& text1, string& text2, int i, int j, vector&lt;vector&lt;int&gt;&gt;& memo) {
+        // 基础情况
+        if (i < 0 || j < 0) return 0;
+        
+        // 检查备忘录
+        if (memo[i][j] != -1) return memo[i][j];
+        
+        // 计算结果
+        if (text1[i] == text2[j]) {
+            memo[i][j] = dp(text1, text2, i - 1, j - 1, memo) + 1;
+        } else {
+            memo[i][j] = max(dp(text1, text2, i - 1, j, memo), dp(text1, text2, i, j - 1, memo));
+        }
+        
+        return memo[i][j];
+    }
+};</code></pre>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Algorithm Visualization -->
+            <section class="mb-12 bg-white rounded-2xl shadow-md p-8">
+                <div class="flex items-center mb-6">
+                    <i class="fas fa-project-diagram text-primary text-xl mr-3"></i>
+                    <h2 class="text-2xl font-bold text-gray-800">算法过程可视化</h2>
+                </div>
+                
+                <p class="text-gray-700 mb-6">以序列A="ABCBDAB"和序列B="BDCABA"为例，下表展示了dp数组的填充过程:</p>
+                
+                <div class="overflow-x-auto mb-6">
+                    <table class="min-w-full border-collapse border border-gray-300 text-center">
+                        <thead>
+                            <tr class="bg-gray-100">
+                                <th class="border border-gray-300 px-4 py-2">DP表</th>
+                                <th class="border border-gray-300 px-4 py-2">&nbsp;</th>
+                                <th class="border border-gray-300 px-4 py-2">B</th>
+                                <th class="border border-gray-300 px-4 py-2">D</th>
+                                <th class="border border-gray-300 px-4 py-2">C</th>
+                                <th class="border border-gray-300 px-4 py-2">A</th>
+                                <th class="border border-gray-300 px-4 py-2">B</th>
+                                <th class="border border-gray-300 px-4 py-2">A</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td class="border border-gray-300 px-4 py-2 bg-gray-100">&nbsp;</td>
+                                <td class="border border-gray-300 px-4 py-2">0</td>
+                                <td class="border border-gray-300 px-4 py-2">0</td>
+                                <td class="border border-gray-300 px-4 py-2">0</td>
+                                <td class="border border-gray-300 px-4 py-2">0</td>
+                                <td class="border border-gray-300 px-4 py-2">0</td>
+                                <td class="border border-gray-300 px-4 py-2">0</td>
+                            </tr>
+                            <tr>
+                                <td class="border border-gray-300 px-4 py-2 bg-gray-100">A</td>
+                                <td class="border border-gray-300 px-4 py-2">0</td>
+                                <td class="border border-gray-300 px-4 py-2">0</td>
+                                <td class="border border-gray-300 px-4 py-2">0</td>
+                                <td class="border border-gray-300 px-4 py-2">1</td>
+                                <td class="border border-gray-300 px-4 py-2">1</td>
+                                <td class="border border-gray-300 px-4 py-2">1</td>
+                            </tr>
+                            <tr>
+                                <td class="border border-gray-300 px-4 py-2 bg-gray-100">B</td>
+                                <td class="border border-gray-300 px-4 py-2">1</td>
+                                <td class="border border-gray-300 px-4 py-2">1</td>
+                                <td class="border border-gray-300 px-4 py-2">1</td>
+                                <td class="border border-gray-300 px-4 py-2">1</td>
+                                <td class="border border-gray-300 px-4 py-2">2</td>
+                                <td class="border border-gray-300 px-4 py-2">2</td>
+                            </tr>
+                            <tr>
+                                <td class="border border-gray-300 px-4 py-2 bg-gray-100">C</td>
+                                <td class="border border-gray-300 px-4 py-2">1</td>
+                                <td class="border border-gray-300 px-4 py-2">1</td>
+                                <td class="border border-gray-300 px-4 py-2">2</td>
+                                <td class="border border-gray-300 px-4 py-2">2</td>
+                                <td class="border border-gray-300 px-4 py-2">2</td>
+                                <td class="border border-gray-300 px-4 py-2">2</td>
+                            </tr>
+                            <tr>
+                                <td class="border border-gray-300 px-4 py-2 bg-gray-100">B</td>
+                                <td class="border border-gray-300 px-4 py-2">1</td>
+                                <td class="border border-gray-300 px-4 py-2">1</td>
+                                <td class="border border-gray-300 px-4 py-2">2</td>
+                                <td class="border border-gray-300 px-4 py-2">2</td>
+                                <td class="border border-gray-300 px-4 py-2">3</td>
+                                <td class="border border-gray-300 px-4 py-2">3</td>
+                            </tr>
+                            <tr>
+                                <td class="border border-gray-300 px-4 py-2 bg-gray-100">D</td>
+                                <td class="border border-gray-300 px-4 py-2">1</td>
+                                <td class="border border-gray-300 px-4 py-2">2</td>
+                                <td class="border border-gray-300 px-4 py-2">2</td>
+                                <td class="border border-gray-300 px-4 py-2">2</td>
+                                <td class="border border-gray-300 px-4 py-2">3</td>
+                                <td class="border border-gray-300 px-4 py-2">3</td>
+                            </tr>
+                            <tr>
+                                <td class="border border-gray-300 px-4 py-2 bg-gray-100">A</td>
+                                <td class="border border-gray-300 px-4 py-2">1</td>
+                                <td class="border border-gray-300 px-4 py-2">2</td>
+                                <td class="border border-gray-300 px-4 py-2">2</td>
+                                <td class="border border-gray-300 px-4 py-2">3</td>
+                                <td class="border border-gray-300 px-4 py-2">3</td>
+                                <td class="border border-gray-300 px-4 py-2">4</td>
+                            </tr>
+                            <tr>
+                                <td class="border border-gray-300 px-4 py-2 bg-gray-100">B</td>
+                                <td class="border border-gray-300 px-4 py-2">1</td>
+                                <td class="border border-gray-300 px-4 py-2">2</td>
+                                <td class="border border-gray-300 px-4 py-2">2</td>
+                                <td class="border border-gray-300 px-4 py-2">3</td>
+                                <td class="border border-gray-300 px-4 py-2">4</td>
+                                <td class="border border-gray-300 px-4 py-2">4</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+                
+                <div class="card-hover p-5 bg-gray-50 rounded-xl">
+                    <div class="flex items-center mb-3">
+                        <i class="fas fa-info-circle text-secondary mr-2"></i>
+                        <h4 class="font-semibold">结果分析</h4>
+                    </div>
+                    <p class="text-gray-700">
+                        通过填充DP表格，我们可以得出以下结论:
+                    </p>
+                    <ul class="list-disc pl-5 space-y-1 mt-2 text-gray-700">
+                        <li>最终得到LCS长度为4（表格右下角的值）</li>
+                        <li>一个可能的LCS是"BCBA"</li>
+                        <li>从右下角回溯可以找到具体的LCS序列</li>
+                    </ul>
+                </div>
+                
+                <!-- Interactive LCS Calculator -->
+                <div class="mt-8">
+                    <h3 class="text-xl font-semibold text-gray-800 mb-4">交互式LCS计算器</h3>
+                    <p class="text-gray-700 mb-4">输入两个字符串，实时计算它们的最长公共子序列。</p>
+                    
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
+                        <div>
+                            <label for="string1" class="block text-sm font-medium text-gray-700 mb-1">字符串1:</label>
+                            <input type="text" id="string1" class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-primary" value="ABCBDAB">
+                        </div>
+                        <div>
+                            <label for="string2" class="block text-sm font-medium text-gray-700 mb-1">字符串2:</label>
+                            <input type="text" id="string2" class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-primary" value="BDCABA">
+                        </div>
+                    </div>
+                    
+                    <button id="calculateBtn" class="bg-primary hover:bg-primary-dark text-white font-medium py-2 px-4 rounded transition-colors mb-4">
+                        计算LCS
+                    </button>
+                    
+                    <div id="resultContainer" class="hidden">
+                        <div class="bg-gray-50 p-4 rounded-md mb-4">
+                            <p class="font-medium mb-2">结果:</p>
+                            <p>最长公共子序列: <span id="lcsResult" class="font-mono bg-blue-100 px-2 py-1 rounded"></span></p>
+                            <p>长度: <span id="lcsLength" class="font-mono bg-blue-100 px-2 py-1 rounded"></span></p>
+                        </div>
+                        
+                        <div id="dpTableContainer" class="overflow-x-auto mb-4">
+                            <p class="font-medium mb-2">动态规划表格:</p>
+                            <table id="dpTable" class="min-w-full border-collapse border border-gray-300 text-center"></table>
+                        </div>
+                    </div>
+                </div>
+                
+                <script>
+                    document.getElementById('calculateBtn').addEventListener('click', function() {
+                        const string1 = document.getElementById('string1').value;
+                        const string2 = document.getElementById('string2').value;
+                        
+                        if (!string1 || !string2) {
+                            alert('请输入两个字符串');
+                            return;
+                        }
+                        
+                        const result = calculateLCS(string1, string2);
+                        document.getElementById('lcsResult').textContent = result.lcs;
+                        document.getElementById('lcsLength').textContent = result.length;
+                        
+                        renderDPTable(result.dpTable, string1, string2);
+                        document.getElementById('resultContainer').classList.remove('hidden');
+                    });
+                    
+                    function calculateLCS(text1, text2) {
+                        const m = text1.length;
+                        const n = text2.length;
+                        const dp = Array(m + 1).fill().map(() => Array(n + 1).fill(0));
+                        
+                        // 填充DP表
+                        for (let i = 1; i <= m; i++) {
+                            for (let j = 1; j <= n; j++) {
+                                if (text1[i-1] === text2[j-1]) {
+                                    dp[i][j] = dp[i-1][j-1] + 1;
+                                } else {
+                                    dp[i][j] = Math.max(dp[i-1][j], dp[i][j-1]);
+                                }
+                            }
+                        }
+                        
+                        // 回溯找出LCS
+                        let lcs = "";
+                        let i = m, j = n;
+                        while (i > 0 && j > 0) {
+                            if (text1[i-1] === text2[j-1]) {
+                                lcs = text1[i-1] + lcs;
+                                i--; j--;
+                            } else if (dp[i-1][j] > dp[i][j-1]) {
+                                i--;
+                            } else {
+                                j--;
+                            }
+                        }
+                        
+                        return {
+                            lcs: lcs,
+                            length: dp[m][n],
+                            dpTable: dp
+                        };
+                    }
+                    
+                    function renderDPTable(dp, text1, text2) {
+                        const table = document.getElementById('dpTable');
+                        table.innerHTML = '';
+                        
+                        const headerRow = document.createElement('tr');
+                        headerRow.className = 'bg-gray-100';
+                        
+                        // 左上角空单元格
+                        const cornerCell = document.createElement('th');
+                        cornerCell.className = 'border border-gray-300 px-4 py-2';
+                        cornerCell.textContent = 'DP表';
+                        headerRow.appendChild(cornerCell);
+                        
+                        // 列标题空格
+                        const emptyHeader = document.createElement('th');
+                        emptyHeader.className = 'border border-gray-300 px-4 py-2';
+                        headerRow.appendChild(emptyHeader);
+                        
+                        // 列标题 (text2的字符)
+                        for (let j = 0; j < text2.length; j++) {
+                            const th = document.createElement('th');
+                            th.className = 'border border-gray-300 px-4 py-2';
+                            th.textContent = text2[j];
+                            headerRow.appendChild(th);
+                        }
+                        
+                        table.appendChild(headerRow);
+                        
+                        // 表格内容
+                        for (let i = 0; i <= text1.length; i++) {
+                            const row = document.createElement('tr');
+                            
+                            // 行标题
+                            const rowHeader = document.createElement('td');
+                            rowHeader.className = 'border border-gray-300 px-4 py-2 bg-gray-100';
+                            rowHeader.textContent = i === 0 ? '' : text1[i-1];
+                            row.appendChild(rowHeader);
+                            
+                            for (let j = 0; j <= text2.length; j++) {
+                                const cell = document.createElement('td');
+                                cell.className = 'border border-gray-300 px-4 py-2';
+                                
+                                // 高亮显示构成LCS的单元格
+                                if (i > 0 && j > 0 && text1[i-1] === text2[j-1] && 
+                                    dp[i][j] === dp[i-1][j-1] + 1) {
+                                    cell.className += ' bg-blue-100';
+                                }
+                                
+                                cell.textContent = dp[i][j];
+                                row.appendChild(cell);
+                            }
+                            
+                            table.appendChild(row);
+                        }
+                    }
+                </script>
+            </section>
+
+            <!-- Classic Examples -->
+            <section class="mb-12 bg-white rounded-2xl shadow-md p-8">
+                <div class="flex items-center mb-6">
+                    <i class="fas fa-tasks text-primary text-xl mr-3"></i>
+                    <h2 class="text-2xl font-bold text-gray-800">经典例题</h2>
+                </div>
+                
+                <div class="mb-8">
+                    <div class="card-hover p-6 bg-gray-50 rounded-xl">
+                        <h3 class="text-xl font-medium text-gray-800 mb-3">例题1: LeetCode 1143. 最长公共子序列</h3>
+                        <div class="mb-4">
+                            <p class="mb-2"><strong>题目描述:</strong> 给定两个字符串 text1 和 text2，返回这两个字符串的最长公共子序列的长度。</p>
+                            <div class="bg-white p-3 rounded-md border border-gray-200 mb-2">
+                                <p><strong>输入:</strong> text1 = "abcde", text2 = "ace"</p>
+                                <p><strong>输出:</strong> 3</p>
+                                <p><strong>解释:</strong> 最长公共子序列是 "ace"，它的长度为 3。</p>
+                            </div>
+                        </div>
+                        <div class="mb-3">
+                            <h4 class="font-medium mb-2">解题思路:</h4>
+                            <p class="mb-2">标准的LCS问题。关键在于理解如何构建动态规划表格及其状态转移。对于本例："abcde"和"ace"：</p>
+                            <ol class="list-decimal pl-5 mb-3 space-y-1">
+                                <li>初始化dp表格，大小为(m+1)×(n+1)，表示text1的前i个字符和text2的前j个字符的LCS长度</li>
+                                <li>按行按列填充dp表格，每次比较text1[i-1]和text2[j-1]</li>
+                                <li>若相等，则dp[i][j] = dp[i-1][j-1] + 1（对角线值+1）</li>
+                                <li>若不等，则dp[i][j] = max(dp[i-1][j], dp[i][j-1])（上方和左方的较大值）</li>
+                                <li>最终dp[m][n]即为所求</li>
+                            </ol>
+                            <p class="text-sm text-gray-600">在解决字符串类动态规划问题时，设置基本情况（空字符串）是关键，这也是dp表格要设置为(m+1)×(n+1)的原因。</p>
+                        </div>
+                        <div class="p-3 bg-primary-light bg-opacity-10 rounded-md">
+                            <p><strong>复杂度分析:</strong> 时间复杂度: O(m*n)，空间复杂度: O(m*n)。</p>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="mb-8">
+                    <div class="card-hover p-6 bg-gray-50 rounded-xl">
+                        <h3 class="text-xl font-medium text-gray-800 mb-3">例题2: 最长公共子串</h3>
+                        <div class="mb-4">
+                            <p class="mb-2"><strong>题目描述:</strong> 与LCS不同，子串要求连续。给定两个字符串，求最长公共子串的长度。</p>
+                            <div class="bg-white p-3 rounded-md border border-gray-200 mb-2">
+                                <p><strong>输入:</strong> str1 = "ABCD", str2 = "CBCE"</p>
+                                <p><strong>输出:</strong> 2</p>
+                                <p><strong>解释:</strong> 最长公共子串是 "BC"，长度为 2。</p>
+                            </div>
+                        </div>
+                        <div class="mb-3">
+                            <h4 class="font-medium mb-2">解题思路:</h4>
+                            <p class="mb-2">虽然与LCS问题相似，但由于要求连续，状态转移方程需要修改：</p>
+                            <div class="bg-white p-4 rounded-md border border-gray-200 mb-3">
+                                <p class="font-mono">当 chars[i-1] == chars[j-1] 时:</p>
+                                <p class="font-mono pl-4">dp[i][j] = dp[i-1][j-1] + 1</p>
+                                <p class="font-mono mt-2">否则:</p>
+                                <p class="font-mono pl-4">dp[i][j] = 0  (重置连续计数)</p>
+                            </div>
+                            <p class="mb-2">与LCS不同，最长公共子串的长度不一定存储在dp[m][n]中，而是dp数组中的最大值。另一种处理方式是引入一个额外变量maxLength来记录遇到的最大长度。</p>
+                        </div>
+                        <div class="code-block overflow-x-auto bg-codeBlock rounded-lg p-4 mb-3">
+                            <pre class="text-gray-100 font-mono text-sm"><code>int longestCommonSubstring(string text1, string text2) {
+    int m = text1.length();
+    int n = text2.length();
+    vector&lt;vector&lt;int&gt;&gt; dp(m + 1, vector&lt;int&gt;(n + 1, 0));
+    int maxLength = 0;
+    
+    for (int i = 1; i <= m; i++) {
+        for (int j = 1; j <= n; j++) {
+            if (text1[i-1] == text2[j-1]) {
+                dp[i][j] = dp[i-1][j-1] + 1;
+                maxLength = max(maxLength, dp[i][j]);
+            } else {
+                dp[i][j] = 0;
+            }
+        }
+    }
+    
+    return maxLength;
+}</code></pre>
+                        </div>
+                        <p class="text-sm text-gray-600">这个例子很好地说明了如何修改DP状态转移方程以解决变体问题。</p>
+                    </div>
+                </div>
+                
+                <div>
+                    <div class="card-hover p-6 bg-gray-50 rounded-xl">
+                        <h3 class="text-xl font-medium text-gray-800 mb-3">例题3: 编辑距离</h3>
+                        <div class="mb-4">
+                            <p class="mb-2"><strong>题目描述:</strong> 给定两个单词word1和word2，计算将word1转换成word2所需的最少操作数。可以对一个单词进行三种操作：插入、删除、替换。</p>
+                            <div class="bg-white p-3 rounded-md border border-gray-200 mb-2">
+                                <p><strong>输入:</strong> word1 = "horse", word2 = "ros"</p>
+                                <p><strong>输出:</strong> 3</p>
+                                <p><strong>解释:</strong></p>
+                                <ul class="list-disc pl-5 text-sm text-gray-600">
+                                    <li>horse -> rorse (将'h'替换为'r')</li>
+                                    <li>rorse -> rose (删除'r')</li>
+                                    <li>rose -> ros (删除'e')</li>
+                                </ul>
+                            </div>
+                        </div>
+                        <div class="mb-3">
+                            <h4 class="font-medium mb-2">解题思路:</h4>
+                            <p class="mb-2">这是LCS问题的一个重要变形。定义dp[i][j]为将word1的前i个字符转换为word2的前j个字符所需的最少操作数。状态转移方程为：</p>
+                            <div class="bg-white p-4 rounded-md border border-gray-200 mb-3">
+                                <p class="font-mono">如果 word1[i-1] == word2[j-1]:</p>
+                                <p class="font-mono pl-4">dp[i][j] = dp[i-1][j-1]（无需操作）</p>
+                                <p class="font-mono mt-2">否则:</p>
+                                <p class="font-mono pl-4">dp[i][j] = min(dp[i-1][j-1], dp[i-1][j], dp[i][j-1]) + 1</p>
+                                <ul class="list-disc pl-8 mt-2 text-sm text-gray-600">
+                                    <li>dp[i-1][j-1] + 1: 替换操作</li>
+                                    <li>dp[i-1][j] + 1: 删除操作</li>
+                                    <li>dp[i][j-1] + 1: 插入操作</li>
+                                </ul>
+                            </div>
+                        </div>
+                        <div class="p-3 bg-primary-light bg-opacity-10 rounded-md">
+                            <p>通过求解编辑距离，可以加深对动态规划和字符串操作类问题的理解。编辑距离还广泛应用于拼写纠错、DNA序列比对、机器翻译等实际问题中。</p>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Applications -->
+            <section class="mb-12 bg-white rounded-2xl shadow-md p-8">
+                <div class="flex items-center mb-6">
+                    <i class="fas fa-laptop-code text-primary text-xl mr-3"></i>
+                    <h2 class="text-2xl font-bold text-gray-800">应用场景</h2>
+                </div>
+                
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
+                    <div class="card-hover p-5 bg-gray-50 rounded-xl">
+                        <div class="flex items-center mb-3">
+                            <i class="fas fa-dna text-primary-dark mr-2"></i>
+                            <h4 class="font-semibold">DNA序列比对</h4>
+                        </div>
+                        <p class="text-gray-700">
+                            在生物信息学中用于识别DNA链中的相似片段，帮助研究基因变异、进化关系和功能区域识别。
+                        </p>
+                    </div>
+                    <div class="card-hover p-5 bg-gray-50 rounded-xl">
+                        <div class="flex items-center mb-3">
+                            <i class="fas fa-code-branch text-primary-dark mr-2"></i>
+                            <h4 class="font-semibold">文件差异比较</h4>
+                        </div>
+                        <p class="text-gray-700">
+                            版本控制系统（如Git）中的diff命令使用LCS的变体来识别文件之间的变化，帮助开发者跟踪代码修改。
+                        </p>
+                    </div>
+                    <div class="card-hover p-5 bg-gray-50 rounded-xl">
+                        <div class="flex items-center mb-3">
+                            <i class="fas fa-spell-check text-primary-dark mr-2"></i>
+                            <h4 class="font-semibold">拼写检查与文本相似度分析</h4>
+                        </div>
+                        <p class="text-gray-700">
+                            用于评估文本相似度、抄袭检测、单词建议系统和自动纠错功能，通过计算文本间的编辑距离。
+                        </p>
+                    </div>
+                    <div class="card-hover p-5 bg-gray-50 rounded-xl">
+                        <div class="flex items-center mb-3">
+                            <i class="fas fa-chart-line text-primary-dark mr-2"></i>
+                            <h4 class="font-semibold">序列模式识别</h4>
+                        </div>
+                        <p class="text-gray-700">
+                            用于时间序列分析、股票价格模式识别和行为序列比较，帮助发现数据中的潜在规律。
+                        </p>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Optimizations and Variations -->
+            <section class="mb-12 bg-white rounded-2xl shadow-md p-8">
+                <div class="flex items-center mb-6">
+                    <i class="fas fa-rocket text-primary text-xl mr-3"></i>
+                    <h2 class="text-2xl font-bold text-gray-800">优化与变形</h2>
+                </div>
+                
+                <!-- Space Optimization -->
+                <div class="mb-8">
+                    <h3 class="text-xl font-semibold text-gray-800 mb-4">空间优化</h3>
+                    <p class="text-gray-700 mb-4">观察状态转移方程可知，计算dp[i][j]只需要三个值：dp[i-1][j-1]、dp[i-1][j]和dp[i][j-1]。这意味着在计算当前行时，我们只需要前一行的信息，可以将空间复杂度从O(m*n)优化到O(min(m,n))。</p>
+                    
+                    <div class="bg-blue-50 p-4 rounded-md mb-4">
+                        <div class="flex items-center mb-2">
+                            <i class="fas fa-exclamation-circle text-primary-dark mr-2"></i>
+                            <h4 class="font-medium">空间优化的关键难点</h4>
+                        </div>
+                        <p class="text-gray-700">使用一维数组时，如何保存dp[i-1][j-1]（对角线元素）的值是关键。当我们从左到右扫描时，dp[j]会被更新，导致原始的dp[i-1][j-1]丢失。解决方案是使用临时变量保存这个对角线元素。</p>
+                    </div>
+                    
+                    <div class="code-block overflow-x-auto bg-codeBlock rounded-lg p-4 mb-6">
+                        <pre class="text-gray-100 font-mono text-sm"><code>int longestCommonSubsequence(string text1, string text2) {
+    // 确保text1是较短的字符串，优化空间
+    if (text1.length() > text2.length()) {
+        swap(text1, text2);
+    }
+    
+    int m = text1.length();
+    int n = text2.length();
+    vector&lt;int&gt; dp(m + 1, 0);
+    
+    for (int j = 1; j <= n; j++) {
+        int prev = 0;  // 相当于dp[i-1][j-1]
+        for (int i = 1; i <= m; i++) {
+            int temp = dp[i];  // 保存dp[i]的旧值，用于下一次迭代的prev
+            if (text1[i-1] == text2[j-1]) {
+                dp[i] = prev + 1;
+            } else {
+                dp[i] = max(dp[i], dp[i-1]);
+            }
+            prev = temp;
+        }
+    }
+    
+    return dp[m];
+}</code></pre>
+                    </div>
+                </div>
+                
+                <!-- LCS Reconstruction -->
+                <div class="mb-8">
+                    <h3 class="text-xl font-semibold text-gray-800 mb-4">LCS还原</h3>
+                    <p class="text-gray-700 mb-4">除了计算LCS的长度，有时我们需要获取实际的LCS字符串。可以在填充dp表的同时，使用额外的表格记录每个位置的选择方向，然后从dp[m][n]回溯到dp[0][0]，构建出LCS。</p>
+                    
+                    <div class="code-block overflow-x-auto bg-codeBlock rounded-lg p-4 mb-6">
+                        <pre class="text-gray-100 font-mono text-sm"><code>string getLCS(string text1, string text2) {
+    int m = text1.length();
+    int n = text2.length();
+    vector&lt;vector&lt;int&gt;&gt; dp(m + 1, vector&lt;int&gt;(n + 1, 0));
+    
+    // 填充dp表
+    for (int i = 1; i <= m; i++) {
+        for (int j = 1; j <= n; j++) {
+            if (text1[i-1] == text2[j-1]) {
+                dp[i][j] = dp[i-1][j-1] + 1;
+            } else {
+                dp[i][j] = max(dp[i-1][j], dp[i][j-1]);
+            }
+        }
+    }
+    
+    // 回溯构建LCS
+    string lcs = "";
+    int i = m, j = n;
+    while (i > 0 && j > 0) {
+        if (text1[i-1] == text2[j-1]) {
+            lcs = text1[i-1] + lcs;
+            i--; j--;
+        } else if (dp[i-1][j] > dp[i][j-1]) {
+            i--;
+        } else {
+            j--;
+        }
+    }
+    
+    return lcs;
+}</code></pre>
+                    </div>
+                </div>
+                
+                <!-- Problem Variations -->
+                <div>
+                    <h3 class="text-xl font-semibold text-gray-800 mb-4">变形问题与其特征</h3>
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-4">
+                        <div class="card-hover p-5 bg-white rounded-xl border border-gray-200">
+                            <h4 class="font-semibold mb-2 text-primary-dark">最长递增子序列（LIS）</h4>
+                            <p class="text-gray-700 mb-2">可以将LIS问题转化为LCS问题：将原序列和排序后的序列进行LCS。但直接解LIS可以实现O(nlogn)的时间复杂度，而LCS需要O(n²)。</p>
+                            <p class="text-sm text-blue-600">特点：只处理单个序列，关注元素间的大小关系</p>
+                        </div>
+                        <div class="card-hover p-5 bg-white rounded-xl border border-gray-200">
+                            <h4 class="font-semibold mb-2 text-primary-dark">最长回文子序列</h4>
+                            <p class="text-gray-700 mb-2">将原序列和其逆序进行LCS，结果就是最长回文子序列。这个转化揭示了DP问题间的关联性。</p>
+                            <p class="text-sm text-blue-600">特点：考虑序列的对称性，巧妙利用LCS解决</p>
+                        </div>
+                        <div class="card-hover p-5 bg-white rounded-xl border border-gray-200">
+                            <h4 class="font-semibold mb-2 text-primary-dark">字符串编辑距离</h4>
+                            <p class="text-gray-700 mb-2">与LCS密切相关，但考虑三种操作（插入、删除、替换）。LCS长度可以帮助计算编辑距离：编辑距离 = m + n - 2*LCS长度（仅考虑插入和删除时）。</p>
+                            <p class="text-sm text-blue-600">特点：考虑多种操作类型，权重可以不同</p>
+                        </div>
+                        <div class="card-hover p-5 bg-white rounded-xl border border-gray-200">
+                            <h4 class="font-semibold mb-2 text-primary-dark">序列对齐问题</h4>
+                            <p class="text-gray-700 mb-2">生物信息学中的序列比对可视为带权重的LCS问题，不同的匹配/不匹配有不同的分数。</p>
+                            <p class="text-sm text-blue-600">特点：引入评分系统，优化全局对齐效果</p>
+                        </div>
+                    </div>
+                    
+                    <div class="p-5 bg-gray-50 rounded-xl">
+                        <h4 class="font-medium text-gray-800 mb-3 flex items-center">
+                            <i class="fas fa-lightbulb text-yellow-500 mr-2"></i>
+                            动态规划问题之间的联系
+                        </h4>
+                        <p class="text-gray-700">
+                            许多动态规划问题可以相互转化，或者借鉴彼此的解题思路。LCS问题作为动态规划中的经典问题，其核心思想被应用到许多其他问题中。理解了LCS的本质，可以帮助我们更好地解决其他动态规划问题，如背包问题、编辑距离、最长递增子序列等。关键在于识别问题的最优子结构和状态转移方式。
+                        </p>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Case Studies -->
+            <section class="mb-12 bg-white rounded-2xl shadow-md p-8">
+                <div class="flex items-center mb-6">
+                    <i class="fas fa-briefcase text-primary text-xl mr-3"></i>
+                    <h2 class="text-2xl font-bold text-gray-800">实际应用案例分析</h2>
+                </div>
+                
+                <!-- DNA Sequence Alignment -->
+                <div class="mb-10">
+                    <h3 class="text-xl font-semibold text-gray-800 mb-4">基因序列比对分析</h3>
+                    <p class="text-gray-700 mb-4">在生物信息学中，比对DNA、RNA或蛋白质序列是一项基础性工作。LCS算法是序列比对的核心技术之一。</p>
+                    
+                    <div class="card-hover bg-gray-50 p-5 rounded-xl mb-6">
+                        <h4 class="font-medium mb-3 text-primary-dark">案例：新冠病毒变异株比较</h4>
+                        <p class="mb-3">研究人员利用LCS算法比较不同变异株的基因组序列，找出保守区域和变异区域：</p>
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mt-3">
+                            <div>
+                                <p class="font-medium text-sm">原始株片段:</p>
+                                <p class="font-mono bg-gray-100 text-xs p-2 rounded">ATGTTTGTTT<span class="bg-yellow-200">CCTGGTTTCC</span>AACAAA</p>
+                            </div>
+                            <div>
+                                <p class="font-medium text-sm">变异株片段:</p>
+                                <p class="font-mono bg-gray-100 text-xs p-2 rounded">ACGTAT<span class="bg-yellow-200">CCTGGTTTCC</span>TTGGCA</p>
+                            </div>
+                        </div>
+                        <p class="mt-3 text-sm text-gray-600">通过LCS分析，研究人员确定了黄色高亮的保守区域，这有助于设计能够检测多种变异株的通用引物，或者开发针对保守区域的药物。</p>
+                    </div>
+                    
+                    <div class="p-4 bg-blue-50 rounded-lg">
+                        <div class="flex items-start">
+                            <i class="fas fa-info-circle text-blue-500 mt-1 mr-3"></i>
+                            <p class="text-gray-700">
+                                在实际应用中，基因序列比对通常使用更复杂的得分矩阵，不同匹配和不匹配有不同的权重，例如BLOSUM或PAM矩阵。LCS是这类问题的基础算法模型。高效的生物序列比对算法如Smith-Waterman和Needleman-Wunsch都是基于动态规划原理的扩展。
+                            </p>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Version Control System -->
+                <div class="mb-10">
+                    <h3 class="text-xl font-semibold text-gray-800 mb-4">版本控制系统中的差异比较</h3>
+                    <p class="text-gray-700 mb-4">Git等版本控制系统使用LCS的变体来实现文件差异比较（diff）和合并（merge）功能。</p>
+                    
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
+                        <div class="card-hover bg-gray-50 p-4 rounded-xl">
+                            <h4 class="font-medium mb-3 text-primary-dark">原始文件 (version1.txt)</h4>
+<pre class="bg-white p-2 rounded text-sm border">
+function calculateSum(a, b) {
+    return a + b;
+}
+
+function main() {
+    const x = 5;
+    const y = 10;
+    console.log(calculateSum(x, y));
+}
+
+main();</pre>
+                        </div>
+                        <div class="card-hover bg-gray-50 p-4 rounded-xl">
+                            <h4 class="font-medium mb-3 text-primary-dark">修改后文件 (version2.txt)</h4>
+<pre class="bg-white p-2 rounded text-sm border">
+function calculateSum(a, b) {
+    // 添加参数验证
+    if (typeof a !== 'number' || typeof b !== 'number') {
+        throw new Error('参数必须是数字');
+    }
+    return a + b;
+}
+
+function main() {
+    const x = 5;
+    const y = 10;
+    const result = calculateSum(x, y);
+    console.log(`Sum: ${result}`);
+}
+
+main();</pre>
+                        </div>
+                    </div>
+                    
+                    <p class="text-gray-700 mb-3">版本控制系统使用LCS的变体查找两个文件版本间的共同行，然后标识出新增、删除或修改的行。通过这种方式，系统可以：</p>
+                    <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-4">
+                        <div class="p-4 bg-white border border-gray-200 rounded-lg">
+                            <div class="flex items-center mb-2">
+                                <i class="fas fa-search text-primary-dark mr-2"></i>
+                                <h5 class="font-medium">显示有意义的差异</h5>
+                            </div>
+                            <p class="text-sm text-gray-600">只显示实际变化，而不是整个文件，使开发者能够快速理解修改内容</p>
+                        </div>
+                        <div class="p-4 bg-white border border-gray-200 rounded-lg">
+                            <div class="flex items-center mb-2">
+                                <i class="fas fa-compress-arrows-alt text-primary-dark mr-2"></i>
+                                <h5 class="font-medium">最小化冲突区域</h5>
+                            </div>
+                            <p class="text-sm text-gray-600">在合并时仅标记实际冲突的部分，减少开发者需要手动解决的冲突</p>
+                        </div>
+                        <div class="p-4 bg-white border border-gray-200 rounded-lg">
+                            <div class="flex items-center mb-2">
+                                <i class="fas fa-random text-primary-dark mr-2"></i>
+                                <h5 class="font-medium">智能合并</h5>
+                            </div>
+                            <p class="text-sm text-gray-600">自动合并非冲突部分，使团队协作更加流畅和高效</p>
+                        </div>
+                    </div>
+                    
+                    <div class="p-4 bg-yellow-50 rounded-lg">
+                        <div class="flex items-start">
+                            <i class="fas fa-lightbulb text-yellow-500 mt-1 mr-3"></i>
+                            <p class="text-gray-700">
+                                实际的diff算法经过了许多优化，包括Myers差分算法，它在理论上可以找到最少的编辑操作来转换一个文件到另一个文件。这些算法都建立在LCS问题的基础上，但进行了效率优化，使其能够处理大型文件和代码库。
+                            </p>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- NLP Application -->
+                <div>
+                    <h3 class="text-xl font-semibold text-gray-800 mb-4">自然语言处理中的文本相似度分析</h3>
+                    <p class="text-gray-700 mb-4">在NLP中，LCS可用于计算文本相似度、抄袭检测和文本摘要等任务。</p>
+                    
+                    <div class="card-hover bg-gray-50 p-5 rounded-xl mb-6">
+                        <h4 class="font-medium mb-3 text-primary-dark">例：抄袭检测</h4>
+                        <p class="mb-3">考虑以下两篇短文：</p>
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                            <div class="bg-white p-3 rounded border mb-2">
+                                <p class="text-sm"><strong>文章1:</strong> 动态规划是解决优化问题的强大技术。它通过将复杂问题分解为简单子问题来工作。这种方法适用于具有重叠子问题和最优子结构的问题。</p>
+                            </div>
+                            <div class="bg-white p-3 rounded border mb-2">
+                                <p class="text-sm"><strong>文章2:</strong> 动态规划是一种解决复杂优化问题的技术。它的工作原理是将大问题分解为子问题，然后解决这些子问题。当问题具有重叠子问题特性时，这种方法特别有效。</p>
+                            </div>
+                        </div>
+                        <div class="mt-4 p-3 bg-white rounded border">
+                            <p class="text-sm mb-2"><strong>相似度计算方法：</strong></p>
+                            <ol class="list-decimal pl-5 text-sm text-gray-600 space-y-1">
+                                <li>对文章进行分词，得到词序列</li>
+                                <li>计算两个词序列的LCS长度</li>
+                                <li>相似度 = LCS长度 / max(文章1长度, 文章2长度)</li>
+                                <li>设定阈值（如0.7）判断是否为抄袭</li>
+                            </ol>
+                        </div>
+                    </div>
+                    
+                    <div class="p-4 bg-blue-50 rounded-lg">
+                        <div class="flex items-start">
+                            <i class="fas fa-info-circle text-blue-500 mt-1 mr-3"></i>
+                            <div>
+                                <p class="text-gray-700 mb-2">
+                                    LCS在文本相似度分析中的应用通常需要进行一些预处理，如分词、去除停用词、词干化等，以提高比较的语义相关性。此外，为了处理大规模文本，还需要采用更高效的算法变体和启发式优化。
+                                </p>
+                                <p class="text-gray-700">
+                                    在现代NLP系统中，LCS常与其他技术（如词向量、语义分析）结合使用，以获得更准确的相似度评估。这种组合方法可以更好地捕捉文本的语义相似性，而不仅仅是表面文字的相似性。
+                                </p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+        </main>
+
+        <!-- Footer -->
+        <footer class="py-12 text-center border-t border-gray-200 mt-20">
+            <div class="container mx-auto">
+                <div class="flex flex-col md:flex-row justify-center space-y-4 md:space-y-0 md:space-x-8 text-primary">
+                    <a href="动态规划.html" class="hover:text-primary-dark transition-colors duration-300">
+                        <i class="fas fa-arrow-left mr-2"></i>返回动态规划
+                    </a>
+                    <a href="最长上升子序列.html" class="hover:text-primary-dark transition-colors duration-300">
+                        <i class="fas fa-forward mr-2"></i>最长上升子序列
+                    </a>
+                    <a href="最长回文子序列.html" class="hover:text-primary-dark transition-colors duration-300">
+                        <i class="fas fa-forward mr-2"></i>最长回文子序列
+                    </a>
+                </div>
+                <div class="mt-6 text-gray-500">
+                    <p>© 2023 算法学习笔记 | All Rights Reserved</p>
+                </div>
+            </div>
+        </footer>
+    </div>
+
+    <!-- Simple ScrollReveal effect -->
+    <script src="https://unpkg.com/scrollreveal"></script>
+    <script>
+        // ScrollReveal animations
+        const sr = ScrollReveal({
+            origin: 'bottom',
+            distance: '50px',
+            duration: 1000,
+            delay: 200,
+            reset: false
+        });
+
+        sr.reveal('section', { interval: 200 });
+
+        // Back to top button functionality
+        const backToTopButton = document.getElementById('backToTop');
+        
+        window.addEventListener('scroll', () => {
+            if (window.scrollY > 300) {
+                backToTopButton.classList.remove('opacity-0', 'invisible');
+                backToTopButton.classList.add('opacity-100', 'visible');
+            } else {
+                backToTopButton.classList.add('opacity-0', 'invisible');
+                backToTopButton.classList.remove('opacity-100', 'visible');
+            }
+        });
+        
+        backToTopButton.addEventListener('click', () => {
+            window.scrollTo({
+                top: 0,
+                behavior: 'smooth'
+            });
+        });
+    </script>
+</body>
+</html> 

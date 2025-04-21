@@ -1,0 +1,819 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>C++ 函数</title>
+    <!-- TailwindCSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&family=Roboto+Mono&display=swap" rel="stylesheet">
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        primary: {
+                            light: '#a5f3fc',
+                            DEFAULT: '#06b6d4',
+                            dark: '#0891b2',
+                        },
+                        secondary: {
+                            light: '#c7d2fe',
+                            DEFAULT: '#818cf8',
+                            dark: '#6366f1',
+                        },
+                        codeBlock: '#1e293b',
+                    },
+                    fontFamily: {
+                        sans: ['Poppins', 'sans-serif'],
+                        mono: ['Roboto Mono', 'monospace'],
+                    },
+                }
+            }
+        }
+    </script>
+    <style>
+        .card-hover {
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+        }
+        .card-hover:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 25px -5px rgba(6, 182, 212, 0.1), 0 10px 10px -5px rgba(6, 182, 212, 0.04);
+        }
+        .code-block::-webkit-scrollbar {
+            height: 8px;
+        }
+        .code-block::-webkit-scrollbar-thumb {
+            background-color: #06b6d4;
+            border-radius: 4px;
+        }
+        .code-block::-webkit-scrollbar-track {
+            background-color: #e2e8f0;
+            border-radius: 4px;
+        }
+    </style>
+</head>
+<body class="bg-gray-50 font-sans">
+    <div class="min-h-screen max-w-6xl mx-auto px-8 py-10">
+        <!-- Header -->
+        <header class="mb-12 text-center">
+            <div class="inline-block px-3 py-1 bg-primary-light text-primary-dark rounded-full text-sm font-medium mb-4">
+                C++ 编程入门
+            </div>
+            <h1 class="text-4xl font-bold text-gray-800 mb-4">C++ 函数</h1>
+            <p class="text-lg text-gray-600 max-w-3xl mx-auto">掌握 C++ 函数的定义、调用和应用，提高代码的模块化和重用性</p>
+        </header>
+
+        <!-- Main Content -->
+        <main>
+            <!-- 函数基础 Section -->
+            <section class="mb-12 bg-white rounded-2xl shadow-md p-8">
+                <div class="flex items-center mb-6">
+                    <i class="fas fa-cube text-primary text-xl mr-3"></i>
+                    <h2 class="text-2xl font-bold text-gray-800">函数基础</h2>
+                </div>
+                <div class="space-y-4 text-gray-700">
+                    <p>函数是 C++ 程序的基本构建块，它是一段完成特定任务的独立代码块。函数可以接收参数，执行操作，并返回结果。</p>
+                    
+                    <div class="overflow-x-auto bg-codeBlock rounded-lg p-4 mb-4">
+                        <pre class="text-gray-100 font-mono text-sm"><code>// 函数的基本语法
+返回类型 函数名(参数列表) {
+    // 函数体
+    return 返回值;  // 如果返回类型不是void
+}
+
+// 示例：计算两个整数的和
+int sum(int a, int b) {
+    return a + b;
+}
+
+// 函数调用
+int result = sum(5, 3);  // result = 8</code></pre>
+                    </div>
+                    
+                    <div class="p-5 bg-primary-light bg-opacity-10 rounded-lg">
+                        <h3 class="text-lg font-semibold text-gray-800 mb-2">函数的组成部分：</h3>
+                        <ul class="list-disc pl-5 space-y-1">
+                            <li><strong>返回类型</strong>：函数返回值的数据类型（如 int, string, void 等）</li>
+                            <li><strong>函数名</strong>：用于调用函数的标识符</li>
+                            <li><strong>参数列表</strong>：函数接收的输入数据，可以为空</li>
+                            <li><strong>函数体</strong>：函数执行的代码块</li>
+                            <li><strong>return 语句</strong>：将值返回给调用者（如果返回类型为 void，可以省略）</li>
+                        </ul>
+                    </div>
+                </div>
+            </section>
+            
+            <!-- 函数声明与定义 Section -->
+            <section class="mb-12 bg-white rounded-2xl shadow-md p-8">
+                <div class="flex items-center mb-6">
+                    <i class="fas fa-file-code text-primary text-xl mr-3"></i>
+                    <h2 class="text-2xl font-bold text-gray-800">函数声明与定义</h2>
+                </div>
+                <div class="space-y-4 text-gray-700">
+                    <p>在 C++ 中，函数必须先声明后使用。函数声明告诉编译器函数的名称、返回类型和参数类型，而函数定义则包含了实现函数功能的代码。</p>
+                    
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
+                        <div class="card-hover p-6 bg-gray-50 rounded-xl">
+                            <h3 class="text-lg font-semibold text-gray-800 mb-4">
+                                <i class="fas fa-bullhorn text-primary-dark mr-2"></i>
+                                函数声明（原型）
+                            </h3>
+                            <div class="overflow-x-auto bg-codeBlock rounded-lg p-3">
+                                <pre class="text-gray-100 font-mono text-sm"><code>// 函数声明
+int max(int a, int b);
+double calculateArea(double radius);
+void printMessage(std::string msg);
+
+// 参数名称可以省略
+int min(int, int);</code></pre>
+                            </div>
+                        </div>
+                        
+                        <div class="card-hover p-6 bg-gray-50 rounded-xl">
+                            <h3 class="text-lg font-semibold text-gray-800 mb-4">
+                                <i class="fas fa-code text-primary-dark mr-2"></i>
+                                函数定义
+                            </h3>
+                            <div class="overflow-x-auto bg-codeBlock rounded-lg p-3">
+                                <pre class="text-gray-100 font-mono text-sm"><code>// 函数定义
+int max(int a, int b) {
+    return (a > b) ? a : b;
+}
+
+double calculateArea(double radius) {
+    return 3.14159 * radius * radius;
+}
+
+void printMessage(std::string msg) {
+    std::cout << msg << std::endl;
+}</code></pre>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="p-5 bg-blue-50 rounded-xl border-l-4 border-blue-400">
+                        <div class="flex items-start">
+                            <i class="fas fa-info-circle text-blue-500 mt-1 mr-3"></i>
+                            <div>
+                                <h3 class="text-lg font-semibold text-gray-800 mb-2">为什么需要函数声明？</h3>
+                                <p class="text-gray-700">
+                                    函数声明使得编译器可以在函数定义之前就了解函数的特征，这在以下情况下特别有用：
+                                </p>
+                                <ul class="list-disc pl-5 mt-2">
+                                    <li>当函数定义在调用它的代码之后</li>
+                                    <li>当函数定义在另一个文件中</li>
+                                    <li>在团队开发中，函数声明通常放在头文件中，便于共享</li>
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+            
+            <!-- 参数传递 Section -->
+            <section class="mb-12 bg-white rounded-2xl shadow-md p-8">
+                <div class="flex items-center mb-6">
+                    <i class="fas fa-exchange-alt text-primary text-xl mr-3"></i>
+                    <h2 class="text-2xl font-bold text-gray-800">参数传递</h2>
+                </div>
+                <div class="space-y-4 text-gray-700">
+                    <p>C++ 提供了多种向函数传递参数的方式，每种方式有其特定的用途和优缺点。</p>
+                    
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
+                        <div class="card-hover p-6 bg-gray-50 rounded-xl">
+                            <h3 class="text-lg font-semibold text-gray-800 mb-4">
+                                <i class="fas fa-copy text-primary-dark mr-2"></i>
+                                传值（Pass by Value）
+                            </h3>
+                            <p class="mb-3">传值方式会创建参数的副本，原始值不会被修改。</p>
+                            <div class="overflow-x-auto bg-codeBlock rounded-lg p-3">
+                                <pre class="text-gray-100 font-mono text-sm"><code>void increment(int x) {
+    x++; // 只修改了副本，不影响原值
+}
+
+int main() {
+    int num = 5;
+    increment(num);
+    cout << num; // 仍然输出 5
+    return 0;
+}</code></pre>
+                            </div>
+                        </div>
+                        
+                        <div class="card-hover p-6 bg-gray-50 rounded-xl">
+                            <h3 class="text-lg font-semibold text-gray-800 mb-4">
+                                <i class="fas fa-link text-primary-dark mr-2"></i>
+                                传引用（Pass by Reference）
+                            </h3>
+                            <p class="mb-3">传引用方式会传递变量的引用，允许函数修改原始值。</p>
+                            <div class="overflow-x-auto bg-codeBlock rounded-lg p-3">
+                                <pre class="text-gray-100 font-mono text-sm"><code>void increment(int& x) {
+    x++; // 修改原始值
+}
+
+int main() {
+    int num = 5;
+    increment(num);
+    cout << num; // 输出 6
+    return 0;
+}</code></pre>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="card-hover p-6 bg-gray-50 rounded-xl mb-6">
+                        <h3 class="text-lg font-semibold text-gray-800 mb-4">
+                            <i class="fas fa-asterisk text-primary-dark mr-2"></i>
+                            传指针（Pass by Pointer）
+                        </h3>
+                        <p class="mb-3">传指针方式会传递变量的内存地址，通过解引用可以修改原始值。</p>
+                        <div class="overflow-x-auto bg-codeBlock rounded-lg p-3">
+                            <pre class="text-gray-100 font-mono text-sm"><code>void increment(int* x) {
+    (*x)++; // 通过解引用修改原始值
+}
+
+int main() {
+    int num = 5;
+    increment(&num); // 传递num的地址
+    cout << num; // 输出 6
+    return 0;
+}</code></pre>
+                        </div>
+                    </div>
+                    
+                    <div class="p-5 bg-yellow-50 rounded-lg border-l-4 border-yellow-400">
+                        <div class="flex items-start">
+                            <i class="fas fa-exclamation-triangle text-yellow-500 mt-1 mr-3"></i>
+                            <div>
+                                <h3 class="text-lg font-semibold text-gray-800 mb-2">何时使用各种参数传递方式？</h3>
+                                <ul class="list-disc pl-5 space-y-1">
+                                    <li><strong>传值</strong>：当不需要修改参数且参数大小较小时（如基本类型）</li>
+                                    <li><strong>传常量引用</strong>：当不需要修改参数但参数大小较大时（如大型对象、容器）</li>
+                                    <li><strong>传引用</strong>：当需要修改参数时，或为了避免复制大型对象</li>
+                                    <li><strong>传指针</strong>：当需要明确表示可能修改参数，或参数可能为空（nullptr）时</li>
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+            
+            <!-- 函数重载 Section -->
+            <section class="mb-12 bg-white rounded-2xl shadow-md p-8">
+                <div class="flex items-center mb-6">
+                    <i class="fas fa-layer-group text-primary text-xl mr-3"></i>
+                    <h2 class="text-2xl font-bold text-gray-800">函数重载</h2>
+                </div>
+                <div class="space-y-4 text-gray-700">
+                    <p>函数重载允许我们定义多个同名函数，只要它们的参数列表不同。编译器会根据调用时提供的参数类型和数量来决定调用哪个函数。</p>
+                    
+                    <div class="overflow-x-auto bg-codeBlock rounded-lg p-4 mb-4">
+                        <pre class="text-gray-100 font-mono text-sm"><code>// 函数重载示例
+int add(int a, int b) {
+    return a + b;
+}
+
+double add(double a, double b) {
+    return a + b;
+}
+
+string add(string a, string b) {
+    return a + b;
+}
+
+int main() {
+    cout << add(5, 3) << endl;         // 调用 int 版本
+    cout << add(3.5, 2.7) << endl;     // 调用 double 版本
+    cout << add("Hello, ", "World!") << endl; // 调用 string 版本
+    return 0;
+}</code></pre>
+                    </div>
+                    
+                    <div class="p-5 bg-green-50 rounded-xl border-l-4 border-green-400">
+                        <div class="flex items-start">
+                            <i class="fas fa-check-circle text-green-500 mt-1 mr-3"></i>
+                            <div>
+                                <h3 class="text-lg font-semibold text-gray-800 mb-2">函数重载的规则</h3>
+                                <p class="text-gray-700 mb-2">
+                                    重载函数必须有不同的参数列表，可以通过以下方式区分：
+                                </p>
+                                <ul class="list-disc pl-5 space-y-1">
+                                    <li>参数类型不同</li>
+                                    <li>参数数量不同</li>
+                                    <li>参数顺序不同（不推荐，可能导致混淆）</li>
+                                </ul>
+                                <p class="mt-2 text-gray-700">
+                                    <strong>注意</strong>：仅返回类型不同是不足以构成函数重载的。
+                                </p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+            
+            <!-- 默认参数 Section -->
+            <section class="mb-12 bg-white rounded-2xl shadow-md p-8">
+                <div class="flex items-center mb-6">
+                    <i class="fas fa-sliders-h text-primary text-xl mr-3"></i>
+                    <h2 class="text-2xl font-bold text-gray-800">默认参数</h2>
+                </div>
+                <div class="space-y-4 text-gray-700">
+                    <p>C++ 允许在函数声明中为参数指定默认值。如果调用函数时没有提供这些参数，将使用默认值。</p>
+                    
+                    <div class="overflow-x-auto bg-codeBlock rounded-lg p-4 mb-4">
+                        <pre class="text-gray-100 font-mono text-sm"><code>// 带默认参数的函数
+void printInfo(string name, int age = 20, string country = "中国") {
+    cout << "姓名: " << name << ", 年龄: " << age << ", 国家: " << country << endl;
+}
+
+int main() {
+    printInfo("张三");                  // 使用所有默认值
+    printInfo("李四", 25);              // 仅使用country的默认值
+    printInfo("王五", 30, "美国");       // 不使用默认值
+    return 0;
+}</code></pre>
+                    </div>
+                    
+                    <div class="p-5 bg-red-50 rounded-xl border-l-4 border-red-400">
+                        <div class="flex items-start">
+                            <i class="fas fa-exclamation-circle text-red-500 mt-1 mr-3"></i>
+                            <div>
+                                <h3 class="text-lg font-semibold text-gray-800 mb-2">注意事项</h3>
+                                <ul class="list-disc pl-5 space-y-1">
+                                    <li>默认参数必须从右到左指定，不能跳过参数</li>
+                                    <li>一旦在参数列表中使用了默认值，其右侧的所有参数也必须有默认值</li>
+                                    <li>默认参数通常在函数声明中指定，而不是在函数定义中</li>
+                                    <li>调用函数时，参数按从左到右的顺序提供，不能省略中间参数</li>
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+            
+            <!-- 内联函数 Section -->
+            <section class="mb-12 bg-white rounded-2xl shadow-md p-8">
+                <div class="flex items-center mb-6">
+                    <i class="fas fa-bolt text-primary text-xl mr-3"></i>
+                    <h2 class="text-2xl font-bold text-gray-800">内联函数</h2>
+                </div>
+                <div class="space-y-4 text-gray-700">
+                    <p>内联函数是一种优化技术，它建议编译器在调用点将函数体直接展开，而不是通过常规的函数调用机制。这可以减少函数调用的开销，但会增加代码体积。</p>
+                    
+                    <div class="overflow-x-auto bg-codeBlock rounded-lg p-4 mb-4">
+                        <pre class="text-gray-100 font-mono text-sm"><code>// 内联函数示例
+inline int max(int a, int b) {
+    return (a > b) ? a : b;
+}
+
+int main() {
+    int x = 5, y = 7;
+    int result = max(x, y);  // 在这里可能被展开为: int result = (x > y) ? x : y;
+    return 0;
+}</code></pre>
+                    </div>
+                    
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
+                        <div class="card-hover p-6 bg-gray-50 rounded-xl">
+                            <h3 class="text-lg font-semibold text-gray-800 mb-3">优点</h3>
+                            <ul class="list-disc pl-5 space-y-1">
+                                <li>减少函数调用开销</li>
+                                <li>可能提高缓存命中率</li>
+                                <li>使短小函数更高效</li>
+                            </ul>
+                        </div>
+                        
+                        <div class="card-hover p-6 bg-gray-50 rounded-xl">
+                            <h3 class="text-lg font-semibold text-gray-800 mb-3">缺点</h3>
+                            <ul class="list-disc pl-5 space-y-1">
+                                <li>增加可执行文件大小</li>
+                                <li>可能降低指令缓存效率</li>
+                                <li>inline 只是对编译器的建议，不保证一定内联</li>
+                            </ul>
+                        </div>
+                    </div>
+                    
+                    <div class="p-5 bg-blue-50 rounded-xl border-l-4 border-blue-400">
+                        <div class="flex items-start">
+                            <i class="fas fa-info-circle text-blue-500 mt-1 mr-3"></i>
+                            <div>
+                                <h3 class="text-lg font-semibold text-gray-800 mb-2">何时使用内联函数？</h3>
+                                <p class="text-gray-700">
+                                    内联函数最适合于：
+                                </p>
+                                <ul class="list-disc pl-5 mt-2">
+                                    <li>短小、频繁调用的函数</li>
+                                    <li>简单的访问器和修改器函数</li>
+                                    <li>对性能要求很高的代码段</li>
+                                </ul>
+                                <p class="mt-2 text-gray-700">
+                                    复杂的函数、包含循环或递归的函数通常不适合内联。
+                                </p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+            
+            <!-- 递归函数 Section -->
+            <section class="mb-12 bg-white rounded-2xl shadow-md p-8">
+                <div class="flex items-center mb-6">
+                    <i class="fas fa-sync-alt text-primary text-xl mr-3"></i>
+                    <h2 class="text-2xl font-bold text-gray-800">递归函数</h2>
+                </div>
+                <div class="space-y-4 text-gray-700">
+                    <p>递归函数是调用自身的函数。它通常将大问题分解为相同类型的小问题，直到达到可以直接解决的基本情况。</p>
+                    
+                    <div class="overflow-x-auto bg-codeBlock rounded-lg p-4 mb-4">
+                        <pre class="text-gray-100 font-mono text-sm"><code>// 递归计算阶乘
+int factorial(int n) {
+    // 基本情况
+    if (n <= 1) {
+        return 1;
+    }
+    // 递归情况
+    return n * factorial(n - 1);
+}
+
+// 递归计算斐波那契数列
+int fibonacci(int n) {
+    if (n <= 1) {
+        return n;
+    }
+    return fibonacci(n - 1) + fibonacci(n - 2);
+}</code></pre>
+                    </div>
+                    
+                    <div class="p-5 bg-yellow-50 rounded-xl border-l-4 border-yellow-400">
+                        <div class="flex items-start">
+                            <i class="fas fa-exclamation-triangle text-yellow-500 mt-1 mr-3"></i>
+                            <div>
+                                <h3 class="text-lg font-semibold text-gray-800 mb-2">递归的注意事项</h3>
+                                <ul class="list-disc pl-5 space-y-1">
+                                    <li>必须有基本情况（终止条件）以避免无限递归</li>
+                                    <li>每次递归调用应该向基本情况靠近</li>
+                                    <li>递归可能导致栈溢出，如果递归深度太大</li>
+                                    <li>递归通常不如迭代效率高，但代码可能更简洁、易懂</li>
+                                    <li>复杂的递归可以通过记忆化或动态规划优化</li>
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- 函数调用 Section -->
+            <section class="mb-12 bg-white rounded-2xl shadow-md p-8">
+                <div class="flex items-center mb-6">
+                    <i class="fas fa-phone-alt text-primary text-xl mr-3"></i>
+                    <h2 class="text-2xl font-bold text-gray-800">函数调用</h2>
+                </div>
+                <div class="space-y-4 text-gray-700">
+                    <p>和变量一样，函数需要先被声明，才能使用。使用函数的行为，叫做「调用（call）」。我们可以在任何函数内部调用其他函数，包括这个函数自身（递归）。</p>
+                    
+                    <div class="overflow-x-auto bg-codeBlock rounded-lg p-4 mb-4">
+                        <pre class="text-gray-100 font-mono text-sm"><code>// 函数调用示例
+int add(int a, int b) {
+    return a + b;
+}
+
+int multiply(int a, int b) {
+    return a * b;
+}
+
+int main() {
+    int x = 5, y = 3;
+    
+    // 调用 add 函数
+    int sum = add(x, y);  // sum = 8
+    
+    // 调用 multiply 函数
+    int product = multiply(x, y);  // product = 15
+    
+    // 函数调用可以嵌套
+    int result = add(multiply(x, 2), y);  // result = 13
+    
+    // 函数可以在条件语句中调用
+    if (add(x, y) > 7) {
+        cout << "和大于7" << endl;
+    }
+    
+    return 0;
+}</code></pre>
+                    </div>
+                    
+                    <p>在调用函数时，调用处传入的参数会初始化函数内部对应的参数变量。函数参数的值传递和引用传递行为不同：</p>
+                    
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
+                        <div class="card-hover p-6 bg-gray-50 rounded-xl">
+                            <h3 class="text-lg font-semibold text-gray-800 mb-4">
+                                <i class="fas fa-copy text-primary-dark mr-2"></i>
+                                传值调用
+                            </h3>
+                            <div class="overflow-x-auto bg-codeBlock rounded-lg p-3">
+                                <pre class="text-gray-100 font-mono text-sm"><code>void foo(int x, int y) {
+    x = x * 2;
+    y = y + 3;
+}
+
+int main() {
+    int a = 1, b = 1;
+    // 调用前：a = 1, b = 1
+    foo(a, b);
+    // 调用后：a = 1, b = 1（未改变）
+    return 0;
+}</code></pre>
+                            </div>
+                        </div>
+                        
+                        <div class="card-hover p-6 bg-gray-50 rounded-xl">
+                            <h3 class="text-lg font-semibold text-gray-800 mb-4">
+                                <i class="fas fa-link text-primary-dark mr-2"></i>
+                                传引用调用
+                            </h3>
+                            <div class="overflow-x-auto bg-codeBlock rounded-lg p-3">
+                                <pre class="text-gray-100 font-mono text-sm"><code>void foo(int& x, int& y) {
+    x = x * 2;
+    y = y + 3;
+}
+
+int main() {
+    int a = 1, b = 1;
+    // 调用前：a = 1, b = 1
+    foo(a, b);
+    // 调用后：a = 2, b = 4（值被修改）
+    return 0;
+}</code></pre>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="p-5 bg-blue-50 rounded-xl border-l-4 border-blue-400">
+                        <div class="flex items-start">
+                            <i class="fas fa-info-circle text-blue-500 mt-1 mr-3"></i>
+                            <div>
+                                <h3 class="text-lg font-semibold text-gray-800 mb-2">函数调用本质</h3>
+                                <p class="text-gray-700">
+                                    函数调用是一个表达式，其值就是函数的返回值。在传值调用中，函数参数相当于用调用处的实参初始化的局部变量，而在传引用调用中，函数参数相当于调用处变量的"别名"，对参数的修改就是对调用处变量的修改。
+                                </p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+            
+            <!-- main 函数 Section -->
+            <section class="mb-12 bg-white rounded-2xl shadow-md p-8">
+                <div class="flex items-center mb-6">
+                    <i class="fas fa-play-circle text-primary text-xl mr-3"></i>
+                    <h2 class="text-2xl font-bold text-gray-800">main 函数</h2>
+                </div>
+                <div class="space-y-4 text-gray-700">
+                    <p>每个 C++ 程序都需要有一个名为 <code>main</code> 的函数。程序的执行始于 <code>main</code> 函数，结束于 <code>main</code> 函数的结束或返回语句。</p>
+                    
+                    <div class="overflow-x-auto bg-codeBlock rounded-lg p-4 mb-4">
+                        <pre class="text-gray-100 font-mono text-sm"><code>// 基本的 main 函数
+int main() {
+    // 程序代码从这里开始执行
+    cout << "Hello, World!" << endl;
+    return 0;  // 返回0表示程序正常结束
+}</code></pre>
+                    </div>
+                    
+                    <p>main 函数也可以有参数，这些参数称为命令行参数，允许程序接收来自命令行的输入：</p>
+                    
+                    <div class="overflow-x-auto bg-codeBlock rounded-lg p-4 mb-4">
+                        <pre class="text-gray-100 font-mono text-sm"><code>// 带命令行参数的 main 函数
+int main(int argc, char* argv[]) {
+    // argc: 参数计数（argument count），包括程序名
+    // argv: 参数向量（argument vector），存储各个参数的字符串
+
+    cout << "程序名: " << argv[0] << endl;
+    
+    cout << "参数数量: " << argc - 1 << endl;
+    
+    for (int i = 1; i < argc; i++) {
+        cout << "参数 " << i << ": " << argv[i] << endl;
+    }
+    
+    return 0;
+}</code></pre>
+                    </div>
+                    
+                    <div class="card-hover p-6 bg-gray-50 rounded-xl">
+                        <h3 class="text-lg font-semibold text-gray-800 mb-3">调用其他函数的例子</h3>
+                        <div class="overflow-x-auto bg-codeBlock rounded-lg p-3">
+                            <pre class="text-gray-100 font-mono text-sm"><code>// hello_subroutine.cpp
+#include <iostream>
+
+void say_hello() {
+    std::cout << "hello!\n";
+    std::cout << "hello!\n";
+    std::cout << "hello!\n";
+}
+
+int main() {
+    // 调用 say_hello 函数两次
+    say_hello();
+    say_hello();
+    
+    return 0;
+}</code></pre>
+                        </div>
+                    </div>
+                    
+                    <div class="p-5 bg-green-50 rounded-xl border-l-4 border-green-400">
+                        <div class="flex items-start">
+                            <i class="fas fa-lightbulb text-green-500 mt-1 mr-3"></i>
+                            <div>
+                                <h3 class="text-lg font-semibold text-gray-800 mb-2">main 函数的返回值</h3>
+                                <p class="text-gray-700 mb-2">
+                                    main 函数的返回值通常用来表示程序的退出状态：
+                                </p>
+                                <ul class="list-disc pl-5 space-y-1">
+                                    <li>返回 <code>0</code> 表示程序正常结束（成功）</li>
+                                    <li>返回非零值表示程序异常结束（错误）</li>
+                                    <li>在一些系统中，不同的非零值表示不同类型的错误</li>
+                                </ul>
+                                <p class="mt-2 text-gray-700">
+                                    C++标准规定，如果 main 函数没有显式的 return 语句，编译器会自动添加 <code>return 0;</code>
+                                </p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+            
+            <!-- 函数实例和应用 Section -->
+            <section class="mb-12 bg-white rounded-2xl shadow-md p-8">
+                <div class="flex items-center mb-6">
+                    <i class="fas fa-tasks text-primary text-xl mr-3"></i>
+                    <h2 class="text-2xl font-bold text-gray-800">函数实例和应用</h2>
+                </div>
+                <div class="space-y-4 text-gray-700">
+                    <p>函数在实际编程中有广泛的应用，下面是一些常见场景的函数示例：</p>
+                    
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
+                        <div class="card-hover p-6 bg-gray-50 rounded-xl">
+                            <h3 class="text-lg font-semibold text-gray-800 mb-4">
+                                <i class="fas fa-calculator text-primary-dark mr-2"></i>
+                                数学计算
+                            </h3>
+                            <div class="overflow-x-auto bg-codeBlock rounded-lg p-3">
+                                <pre class="text-gray-100 font-mono text-sm"><code>// 计算阶乘
+int factorial(int n) {
+    if (n <= 1) return 1;
+    return n * factorial(n - 1);
+}
+
+// 计算最大公约数（欧几里得算法）
+int gcd(int a, int b) {
+    return b == 0 ? a : gcd(b, a % b);
+}
+
+// 判断是否为素数
+bool isPrime(int n) {
+    if (n <= 1) return false;
+    for (int i = 2; i * i <= n; i++) {
+        if (n % i == 0) return false;
+    }
+    return true;
+}</code></pre>
+                            </div>
+                        </div>
+                        
+                        <div class="card-hover p-6 bg-gray-50 rounded-xl">
+                            <h3 class="text-lg font-semibold text-gray-800 mb-4">
+                                <i class="fas fa-sort text-primary-dark mr-2"></i>
+                                数组处理
+                            </h3>
+                            <div class="overflow-x-auto bg-codeBlock rounded-lg p-3">
+                                <pre class="text-gray-100 font-mono text-sm"><code>// 查找数组最大值
+int findMax(int arr[], int size) {
+    int max = arr[0];
+    for (int i = 1; i < size; i++) {
+        if (arr[i] > max) max = arr[i];
+    }
+    return max;
+}
+
+// 数组求和
+int arraySum(const int arr[], int size) {
+    int sum = 0;
+    for (int i = 0; i < size; i++) {
+        sum += arr[i];
+    }
+    return sum;
+}
+
+// 冒泡排序
+void bubbleSort(int arr[], int size) {
+    for (int i = 0; i < size - 1; i++) {
+        for (int j = 0; j < size - i - 1; j++) {
+            if (arr[j] > arr[j+1]) {
+                swap(arr[j], arr[j+1]);
+            }
+        }
+    }
+}</code></pre>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="card-hover p-6 bg-gray-50 rounded-xl">
+                        <h3 class="text-lg font-semibold text-gray-800 mb-3">字符串处理</h3>
+                        <div class="overflow-x-auto bg-codeBlock rounded-lg p-3">
+                            <pre class="text-gray-100 font-mono text-sm"><code>// 判断字符串是否为回文
+bool isPalindrome(const string& str) {
+    int left = 0;
+    int right = str.length() - 1;
+    
+    while (left < right) {
+        if (str[left] != str[right])
+            return false;
+        left++;
+        right--;
+    }
+    
+    return true;
+}
+
+// 反转字符串
+string reverseString(string str) {
+    int n = str.length();
+    for (int i = 0; i < n / 2; i++) {
+        swap(str[i], str[n - i - 1]);
+    }
+    return str;
+}
+
+// 计算字符串中的单词数
+int countWords(const string& str) {
+    int count = 0;
+    bool inWord = false;
+    
+    for (char c : str) {
+        if (isspace(c)) {
+            inWord = false;
+        } else if (!inWord) {
+            inWord = true;
+            count++;
+        }
+    }
+    
+    return count;
+}</code></pre>
+                        </div>
+                    </div>
+                    
+                    <div class="p-5 bg-yellow-50 rounded-xl border-l-4 border-yellow-400 mt-6">
+                        <div class="flex items-start">
+                            <i class="fas fa-exclamation-triangle text-yellow-500 mt-1 mr-3"></i>
+                            <div>
+                                <h3 class="text-lg font-semibold text-gray-800 mb-2">函数设计最佳实践</h3>
+                                <ul class="list-disc pl-5 space-y-1">
+                                    <li>遵循单一职责原则：一个函数应该只做一件事，并且做好</li>
+                                    <li>保持函数简短：通常一个函数不应超过 20-30 行代码</li>
+                                    <li>使用有意义的函数名：函数名应该清晰地表明其功能</li>
+                                    <li>参数数量应尽量少：通常不超过 3-4 个参数</li>
+                                    <li>对大型对象使用引用参数：避免不必要的复制</li>
+                                    <li>使用 const 引用参数：防止意外修改不应修改的参数</li>
+                                    <li>为每个函数添加适当的注释和文档</li>
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+        </main>
+
+        <!-- Footer -->
+        <footer class="mt-16 text-center text-gray-500 text-sm">            
+            <div class="flex justify-center mt-6 space-x-4">
+                <a href="结构体.html" class="text-primary hover:text-primary-dark transition-colors duration-300">
+                    <i class="fas fa-arrow-left mr-1"></i>结构体
+                </a>
+                <a href="类.html" class="text-primary hover:text-primary-dark transition-colors duration-300">
+                    类<i class="fas fa-arrow-right ml-1"></i>
+                </a>
+            </div>
+        </footer>
+    </div>
+
+    <!-- Simple ScrollReveal effect -->
+    <script src="https://unpkg.com/scrollreveal"></script>
+    <script>
+        ScrollReveal().reveal('section', { 
+            delay: 200,
+            distance: '20px',
+            origin: 'bottom',
+            duration: 800,
+            easing: 'ease-in-out'
+        });
+    </script>
+</body>
+</html>

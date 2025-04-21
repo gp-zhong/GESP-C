@@ -1,0 +1,637 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>信息学素养GESP学习笔记</title>
+    <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css" rel="stylesheet">
+    <style>
+        /* 基础样式 */
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        html, body {
+            height: 100%;
+            margin: 0;
+            padding: 0;
+            font-family: 'Inter', sans-serif;
+            background-color: #f8f9fa;
+            overflow: hidden; /* 防止整个页面出现滚动条 */
+        }
+        .page-container {
+            display: flex;
+            flex-direction: column;
+            min-height: 80vh; /* 使用min-height而不是固定高度 */
+            height: 95vh; /* 确保容器填满整个视口高度 */
+            overflow: hidden; /* 防止page-container出现滚动条 */
+        }
+        .nav-container {
+            flex: 0 0 auto;
+            position: sticky; /* 使导航栏固定在顶部 */
+            top: 0;
+            z-index: 100;
+            background-color: white;
+        }
+        .content-container {
+            flex: 1 1 auto;
+            padding: 1rem;
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+            height: calc(100vh - 64px - 2.5rem); /* 增加高度计算空间 */
+            min-height: 0;
+        }
+        .nav-item {
+            position: relative;
+        }
+        .nav-item:hover .dropdown-menu {
+            display: block;
+        }
+        .dropdown-menu {
+            display: none;
+            position: absolute;
+            top: 100%;
+            left: 0;
+            z-index: 10;
+            min-width: 165px;
+            background-color: white;
+            border-radius: 4px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        .dropdown-item {
+            padding: 8px 12px;
+            display: block;
+            color: #4a5568;
+            transition: background-color 0.2s;
+        }
+        .dropdown-item:hover {
+            background-color: #f7fafc;
+            color: #4338ca;
+        }
+        .main-content {
+            background-color: white;
+            border-radius: 0.5rem;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+            overflow-y: auto; /* 允许垂直滚动 */
+            overflow-x: hidden;
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            min-height: 0;
+            height: 100%; /* 确保占满可用空间 */
+        }
+        #content-container {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            min-height: 0; /* 确保flex子元素可以正确滚动 */
+            overflow: hidden; /* 禁止content-container的滚动条 */
+        }
+        iframe {
+            border: none;
+            width: 100%;
+            flex: 1 1 auto;
+            min-height: 0;
+            height: 100%; /* 使用100%高度填充父容器 */
+            display: block;
+            overflow-y: auto; /* 允许iframe内容垂直滚动 */
+        }
+        .welcome-screen {
+            height: 100%;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            padding: 1rem;
+        }
+        /* 添加二级子菜单样式 */
+        .sub-dropdown-menu {
+            display: none;
+            position: absolute;
+            left: 100%;
+            top: 0;
+            min-width: 160px;
+            background-color: white;
+            border-radius: 4px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        .has-submenu {
+            position: relative;
+        }
+        .has-submenu:hover .sub-dropdown-menu {
+            display: block;
+        }
+        .has-submenu > .dropdown-item::after {
+            content: '\f054';
+            font-family: 'Font Awesome 6 Free';
+            font-weight: 900;
+            float: right;
+            font-size: 0.7em;
+            margin-top: 4px;
+        }
+        
+        /* 轮播容器 */
+        .carousel-container {
+            position: relative;
+            max-width: 1000px;
+            margin: 1rem auto;
+            overflow-y: auto; /* 添加垂直滚动 */
+            overflow-x: hidden; /* 保持水平溢出隐藏 */
+            border-radius: 10px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.2);
+            max-height: 85vh; /* 限制轮播图高度为视口高度的85% */
+            height: auto; /* 自动高度而不是固定高度 */
+        }
+
+        /* 图片滑动区域 */
+        .carousel-slides {
+            display: flex;
+            transition: transform 0.5s ease-in-out;
+            height: auto; /* 自动高度 */
+            min-height: 100%; /* 保证至少填满容器 */
+        }
+
+        .carousel-slide {
+            min-width: 100%;
+            height: auto; /* 自动高度而不是固定高度 */
+            max-height: none; /* 移除最大高度限制 */
+            object-fit: contain; /* 保持原始比例 */
+        }
+
+        /* 控制按钮 */
+        .carousel-btn {
+            position: absolute;
+            top: 50%;
+            transform: translateY(-50%);
+            background: rgba(189, 179, 179, 0);
+            border: none;
+            padding: 1rem;
+            cursor: pointer;
+            font-size: 1.5rem;
+            transition: 0.3s;
+        }
+
+        .carousel-btn:hover {
+            background: rgb(144, 119, 253);
+        }
+
+        .prev-btn { left: 0; border-radius: 0 5px 5px 0; }
+        .next-btn { right: 0; border-radius: 5px 0 0 5px; }
+
+        /* 指示点 */
+        .indicators {
+            position: absolute;
+            bottom: 1rem;
+            left: 50%;
+            transform: translateX(-50%);
+            display: flex;
+            gap: 0.5rem;
+        }
+
+        .indicator {
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+            background: rgba(95, 45, 233, 0.452);
+            cursor: pointer;
+            transition: 0.3s;
+        }
+
+        .indicator.active {
+            background: rgb(145, 22, 22);
+            transform: scale(1.2);
+        }
+
+        /* 响应式设计 */
+        @media (max-width: 768px) {
+            .carousel-slide {
+                height: 300px;
+            }
+            
+            .carousel-btn {
+                padding: 0.8rem;
+                font-size: 1.2rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="page-container">
+        <!-- 导航栏 -->
+        <div class="nav-container bg-white border-b border-gray-200">
+            <div class="container mx-auto px-4">
+                <div class="flex justify-between items-center h-16">
+                    <!-- Logo和标题 -->
+                    <div class="flex items-center">
+                        <a href="#" class="flex items-center text-xl font-bold text-gray-800">
+                            <i class="fas fa-graduation-cap mr-2"></i>
+                            信息学素养GESP学习笔记
+                        </a>
+                    </div>
+
+                    <!-- 导航菜单 -->
+                    <div class="hidden md:flex space-x-6">
+                        <div class="nav-item">
+                            <a href="#" class="text-gray-600 hover:text-indigo-700 px-2 py-1" onclick="loadContent('简介.html')">简介</a>
+                        </div>
+                        <div class="nav-item">
+                            <a href="#" class="text-gray-600 hover:text-indigo-700 px-2 py-1">C++基础</a>
+                            <div class="dropdown-menu">
+                                <a href="#" class="dropdown-item" onclick="loadContent('./C-Basics/语法基础.html')">C++ 语法基础</a>
+                                <a href="#" class="dropdown-item" onclick="loadContent('./C-Basics/变量.html')">变量与常量</a>
+                                <a href="#" class="dropdown-item" onclick="loadContent('./C-Basics/运算符.html')">运算符</a>
+                                <div class="has-submenu">
+                                    <a href="#" class="dropdown-item">数据类型</a>
+                                    <div class="sub-dropdown-menu">
+                                        <a href="#" class="dropdown-item" onclick="loadContent('./C-Basics/基本数据类型.html')">基本数据类型</a>
+                                        <a href="#" class="dropdown-item" onclick="loadContent('./C-Basics/数组.html')">数组</a>
+                                        <a href="#" class="dropdown-item" onclick="loadContent('./C-Basics/字符串.html')">字符串</a>
+                                        <a href="#" class="dropdown-item" onclick="loadContent('./C-Basics/引用.html')">引用</a>
+                                        <a href="#" class="dropdown-item" onclick="loadContent('./C-Basics/指针.html')">指针</a>
+                                        <a href="#" class="dropdown-item" onclick="loadContent('./C-Basics/结构体.html')">结构体</a>
+                                        <a href="#" class="dropdown-item" onclick="loadContent('./C-Basics/联合体.html')">联合体</a>
+                                        <a href="#" class="dropdown-item" onclick="loadContent('./C-Basics/枚举.html')">枚举</a>
+                                    </div>
+                                </div>
+                                <div class="has-submenu">
+                                    <a href="#" class="dropdown-item">流程控制</a>
+                                    <div class="sub-dropdown-menu">
+                                        <a href="#" class="dropdown-item" onclick="loadContent('./C-Basics/分支流程控制.html')">分支流程控制</a>
+                                        <a href="#" class="dropdown-item" onclick="loadContent('./C-Basics/循环流程控制.html')">循环流程控制</a>
+                                    </div>
+                                </div>
+                                <a href="#" class="dropdown-item" onclick="loadContent('./C-Basics/函数.html')">函数</a>
+                                <a href="#" class="dropdown-item" onclick="loadContent('./C-Basics/类.html')">类</a>
+                                <a href="#" class="dropdown-item" onclick="loadContent('./C-Basics/文件操作.html')">文件操作</a>
+                                <a href="#" class="dropdown-item" onclick="loadContent('./C-Basics/预处理.html')">预处理</a>
+                                <a href="#" class="dropdown-item" onclick="loadContent('./C-Basics/异常处理.html')">异常处理</a>
+                            </div>
+                        </div>
+                        <div class="nav-item">
+                            <a href="#" class="text-gray-600 hover:text-indigo-700 px-2 py-1">算法基础</a>
+                            <div class="dropdown-menu">
+                                <a href="#" class="dropdown-item" onclick="loadContent('./Algorithms/复杂度分析.html')">时间和空间复杂度</a>
+                                <a href="#" class="dropdown-item" onclick="loadContent('./Algorithms/均摊复杂度.html')">均摊复杂度</a>
+                                <div class="has-submenu">
+                                    <a href="#" class="dropdown-item">排序算法</a>
+                                    <div class="sub-dropdown-menu">
+                                        <a href="#" class="dropdown-item" onclick="loadContent('./Algorithms/选择排序.html')">选择排序</a>
+                                        <a href="#" class="dropdown-item" onclick="loadContent('./Algorithms/冒泡排序.html')">冒泡排序</a>
+                                        <a href="#" class="dropdown-item" onclick="loadContent('./Algorithms/插入排序.html')">插入排序</a>
+                                        <a href="#" class="dropdown-item" onclick="loadContent('./Algorithms/快速排序.html')">快速排序</a>
+                                        <a href="#" class="dropdown-item" onclick="loadContent('./Algorithms/归并排序.html')">归并排序</a>
+                                        <a href="#" class="dropdown-item" onclick="loadContent('./Algorithms/堆排序.html')">堆排序</a>
+                                        <a href="#" class="dropdown-item" onclick="loadContent('./Algorithms/计数排序.html')">计数排序</a>
+                                        <a href="#" class="dropdown-item" onclick="loadContent('./Algorithms/基数排序.html')">基数排序</a>
+                                        <a href="#" class="dropdown-item" onclick="loadContent('./Algorithms/桶排序.html')">桶排序</a>
+                                        <a href="#" class="dropdown-item" onclick="loadContent('./Algorithms/希尔排序.html')">希尔排序</a>
+                                        <a href="#" class="dropdown-item" onclick="loadContent('./Algorithms/锦标赛排序.html')">锦标赛排序</a>
+                                        <a href="#" class="dropdown-item" onclick="loadContent('./Algorithms/Tim 排序.html')">Tim 排序</a>
+                                        <!-- <a href="#" class="dropdown-item" onclick="loadContent('./Algorithms/排序应用.html')">排序应用</a> -->
+                                    </div>
+                                </div>                                        
+                                <div class="has-submenu">
+                                    <a href="#" class="dropdown-item">搜索算法</a>
+                                    <div class="sub-dropdown-menu">                                        
+                                        <a href="#" class="dropdown-item" onclick="loadContent('./Search/深度优先搜索.html')">深度优先搜索DFS</a>
+                                        <a href="#" class="dropdown-item" onclick="loadContent('./Search/广度优先搜索.html')">广度优先搜索BFS</a>
+                                        <a href="#" class="dropdown-item" onclick="loadContent('./Search/双向搜索.html')">双向搜索</a>
+                                        <a href="#" class="dropdown-item" onclick="loadContent('./Search/Astar算法.html')">A*算法</a>
+                                        <a href="#" class="dropdown-item" onclick="loadContent('./Search/IDA算法.html')">IDA*算法</a>
+                                        <a href="#" class="dropdown-item" onclick="loadContent('./Search/启发式搜索.html')">启发式搜索</a>
+                                        <a href="#" class="dropdown-item" onclick="loadContent('./Search/迭代加深搜索.html')">迭代加深搜索</a>
+                                        <a href="#" class="dropdown-item" onclick="loadContent('./Search/回溯法.html')">回溯法</a>
+                                        <a href="#" class="dropdown-item" onclick="loadContent('./Search/搜索优化.html')">搜索优化</a>
+                                    </div>
+                                </div>
+                                <a href="#" class="dropdown-item" onclick="loadContent('./Algorithms/模拟算法.html')">模拟算法</a>
+                                <a href="#" class="dropdown-item" onclick="loadContent('./Algorithms/递归.html')">递归与分治</a>
+                                <a href="#" class="dropdown-item" onclick="loadContent('./Algorithms/贪心.html')">贪心算法</a>
+                                <a href="#" class="dropdown-item" onclick="loadContent('./Algorithms/二分查找.html')">二分查找</a>
+                                <a href="#" class="dropdown-item" onclick="loadContent('./Algorithms/倍增法.html')">倍增法</a>
+                                <a href="#" class="dropdown-item" onclick="loadContent('./Algorithms/构造题.html')">构造题</a>
+                                <a href="#" class="dropdown-item" onclick="loadContent('./Algorithms/前缀和-差分.html')">前缀和&差分</a>
+                            </div>
+                        </div>
+                        <div class="nav-item">
+                            <a href="#" class="text-gray-600 hover:text-indigo-700 px-2 py-1">数据结构</a>
+                            <div class="dropdown-menu">
+                                <a href="#" class="dropdown-item">链表</a>
+                                <a href="#" class="dropdown-item">树</a>
+                                <a href="#" class="dropdown-item">图</a>
+                                <a href="#" class="dropdown-item">堆</a>
+                            </div>
+                        </div>
+                        <div class="nav-item">
+                            <a href="#" class="text-gray-600 hover:text-indigo-700 px-2 py-1">动态规划</a>
+                            <div class="dropdown-menu ">
+                                <a href="#" class="dropdown-item" onclick="loadContent('./Programming/0-1背包问题.html')">0-1背包问题</a>
+                                <a href="#" class="dropdown-item" onclick="loadContent('./Programming/完全背包问题.html')">完全背包问题</a>
+                                <a href="#" class="dropdown-item" onclick="loadContent('./Programming/多重背包问题.html')">多重背包问题</a>
+                                <a href="#" class="dropdown-item" onclick="loadContent('./Programming/零钱兑换问题.html')">零钱兑换问题</a>
+                                <a href="#" class="dropdown-item" onclick="loadContent('./Programming/最长公共子序列.html')">最长公共子序列LCS</a>
+                                <a href="#" class="dropdown-item" onclick="loadContent('./Programming/最长上升子序列.html')">最长上升子序列LIS</a>
+                                <a href="#" class="dropdown-item" onclick="loadContent('./Programming/最长回文子序列.html')">最长回文子序列</a>
+                                <a href="#" class="dropdown-item" onclick="loadContent('./Programming/记忆化搜索.html')">记忆化搜索</a>
+                                <a href="#" class="dropdown-item" onclick="loadContent('./Programming/二维 DP 进阶.html')">二维 DP 进阶</a>
+                            </div>
+                        </div>
+                        <div class="nav-item">
+                            <a href="#" class="text-gray-600 hover:text-indigo-700 px-2 py-1">图论</a>
+                            <div class="dropdown-menu">
+                                <a href="#" class="dropdown-item" onclick="loadContent('图论简介.html')">图论简介</a>
+                                <a href="#" class="dropdown-item" onclick="loadContent('最短路径.html')">最短路径</a>
+                                <a href="#" class="dropdown-item" onclick="loadContent('最小生成树.html')">最小生成树</a>
+                                <a href="#" class="dropdown-item" onclick="loadContent('拓扑排序.html')">拓扑排序</a>
+                                <a href="#" class="dropdown-item" onclick="loadContent('二分图.html')">二分图</a>
+                                <a href="#" class="dropdown-item" onclick="loadContent('欧拉回路.html')">欧拉回路</a>
+                                <a href="#" class="dropdown-item" onclick="loadContent('哈密顿回路.html')">哈密顿回路</a>
+                                <a href="#" class="dropdown-item" onclick="loadContent('网络流.html')">网络流</a>
+                            </div>
+                        </div>
+                        <div class="nav-item">
+                            <a href="#" class="text-gray-600 hover:text-indigo-700 px-2 py-1">数论</a>
+                            <div class="dropdown-menu">
+                                <a href="#" class="dropdown-item" onclick="loadContent('数论简介.html')">数论简介</a>
+                                <a href="#" class="dropdown-item" onclick="loadContent('质数.html')">质数</a>
+                                <a href="#" class="dropdown-item" onclick="loadContent('同余.html')">同余</a>
+                                <a href="#" class="dropdown-item" onclick="loadContent('快速幂.html')">快速幂</a>
+                                <a href="#" class="dropdown-item" onclick="loadContent('数论进阶.html')">数论进阶</a>
+                                <a href="#" class="dropdown-item" onclick="loadContent('数论杂项.html')">数论杂项</a>                                
+                            </div>
+                        </div>
+                        <div class="nav-item">
+                            <a href="#" class="text-gray-600 hover:text-indigo-700 px-2 py-1">杂项</a>
+                            <div class="dropdown-menu">
+                                <a href="#" class="dropdown-item" onclick="loadContent('./Miscellaneous/数值进制转换.html')">进制转换</a>
+                                <a href="#" class="dropdown-item" onclick="loadContent('./Miscellaneous/字符串处理.html')">字符串处理</a>
+                                <a href="#" class="dropdown-item" onclick="loadContent('./Miscellaneous/多线程.html')">多线程</a>
+                                <a href="#" class="dropdown-item" onclick="loadContent('./Miscellaneous/网络编程.html')">网络编程</a>                                
+                                <a href="#" class="dropdown-item" onclick="loadContent('./Miscellaneous/操作系统.html')">操作系统</a>
+                                <a href="#" class="dropdown-item" onclick="loadContent('./Miscellaneous/计算机网络.html')">计算机网络</a>
+                                <a href="#" class="dropdown-item" onclick="loadContent('./Miscellaneous/数据库.html')">数据库</a>
+                                <a href="#" class="dropdown-item" onclick="loadContent('./Miscellaneous/人工智能.html')">人工智能</a>
+                                <a href="#" class="dropdown-item" onclick="loadContent('./Miscellaneous/自然语言处理.html')">自然语言处理</a>
+                                <a href="#" class="dropdown-item" onclick="loadContent('./Miscellaneous/计算机视觉.html')">计算机视觉</a>
+                                <a href="#" class="dropdown-item" onclick="loadContent('./Miscellaneous/机器学习.html')">机器学习</a>
+                                <a href="#" class="dropdown-item" onclick="loadContent('./Miscellaneous/深度学习.html')">深度学习</a>
+                                <a href="#" class="dropdown-item" onclick="loadContent('./Miscellaneous/计算机视觉.html')">计算机视觉</a>
+                                <a href="#" class="dropdown-item" onclick="loadContent('./Miscellaneous/STL.html')">STL</a>
+                            </div>
+                        </div>
+                        <div class="nav-item">
+                            <a href="#" class="text-gray-600 hover:text-indigo-700 px-2 py-1">题解</a>
+                            <div class="dropdown-menu">
+                                <div class="has-submenu">
+                                    <a href="#" class="dropdown-item">一级</a>
+                                    <div class="sub-dropdown-menu">                                        
+                                        <a href="#" class="dropdown-item" onclick="loadContent('./Problemsolving/查找算法.html')">2020年</a>
+                                        <a href="#" class="dropdown-item" onclick="loadContent('./Problemsolving/查找算法.html')">2021年</a>
+                                        <a href="#" class="dropdown-item" onclick="loadContent('./Problemsolving/查找算法.html')">2022年</a>
+                                        <a href="#" class="dropdown-item" onclick="loadContent('./Problemsolving/查找算法.html')">2023年</a>
+                                        <a href="#" class="dropdown-item" onclick="loadContent('./Problemsolving/查找算法.html')">2024年</a>
+                                    </div>
+                                </div>                                    
+                                <div class="has-submenu">
+                                    <a href="#" class="dropdown-item">二级</a>
+                                    <div class="sub-dropdown-menu">                                        
+                                        <a href="#" class="dropdown-item" onclick="loadContent('./Problemsolving/查找算法.html')">2020年</a>
+                                        <a href="#" class="dropdown-item" onclick="loadContent('./Problemsolving/查找算法.html')">2021年</a>
+                                        <a href="#" class="dropdown-item" onclick="loadContent('./Problemsolving/查找算法.html')">2022年</a>
+                                        <a href="#" class="dropdown-item" onclick="loadContent('./Problemsolving/查找算法.html')">2023年</a>
+                                        <a href="#" class="dropdown-item" onclick="loadContent('./Problemsolving/查找算法.html')">2024年</a>
+                                    </div>
+                                </div>                                    
+                                <div class="has-submenu">
+                                    <a href="#" class="dropdown-item">三级</a>
+                                    <div class="sub-dropdown-menu">                                        
+                                        <a href="#" class="dropdown-item" onclick="loadContent('./Problemsolving/查找算法.html')">2020年</a>
+                                        <a href="#" class="dropdown-item" onclick="loadContent('./Problemsolving/查找算法.html')">2021年</a>
+                                        <a href="#" class="dropdown-item" onclick="loadContent('./Problemsolving/查找算法.html')">2022年</a>
+                                        <a href="#" class="dropdown-item" onclick="loadContent('./Problemsolving/查找算法.html')">2023年</a>
+                                        <a href="#" class="dropdown-item" onclick="loadContent('./Problemsolving/查找算法.html')">2024年</a>
+                                    </div>
+                                </div>                                    
+                                <div class="has-submenu">
+                                    <a href="#" class="dropdown-item">四级</a>
+                                    <div class="sub-dropdown-menu">                                        
+                                        <a href="#" class="dropdown-item" onclick="loadContent('./Problemsolving/查找算法.html')">2020年</a>
+                                        <a href="#" class="dropdown-item" onclick="loadContent('./Problemsolving/查找算法.html')">2021年</a>
+                                        <a href="#" class="dropdown-item" onclick="loadContent('./Problemsolving/查找算法.html')">2022年</a>
+                                        <a href="#" class="dropdown-item" onclick="loadContent('./Problemsolving/查找算法.html')">2023年</a>
+                                        <a href="#" class="dropdown-item" onclick="loadContent('./Problemsolving/查找算法.html')">2024年</a>
+                                    </div>
+                                </div>                                    
+                                <div class="has-submenu">
+                                    <a href="#" class="dropdown-item">五级</a>
+                                    <div class="sub-dropdown-menu">                                        
+                                        <a href="#" class="dropdown-item" onclick="loadContent('./Problemsolving/查找算法.html')">2020年</a>
+                                        <a href="#" class="dropdown-item" onclick="loadContent('./Problemsolving/查找算法.html')">2021年</a>
+                                        <a href="#" class="dropdown-item" onclick="loadContent('./Problemsolving/查找算法.html')">2022年</a>
+                                        <a href="#" class="dropdown-item" onclick="loadContent('./Problemsolving/查找算法.html')">2023年</a>
+                                        <a href="#" class="dropdown-item" onclick="loadContent('./Problemsolving/查找算法.html')">2024年</a>
+                                    </div>
+                                </div>                                    
+                                <div class="has-submenu">
+                                    <a href="#" class="dropdown-item">六级</a>
+                                    <div class="sub-dropdown-menu">                                        
+                                        <a href="#" class="dropdown-item" onclick="loadContent('./Problemsolving/查找算法.html')">2020年</a>
+                                        <a href="#" class="dropdown-item" onclick="loadContent('./Problemsolving/查找算法.html')">2021年</a>
+                                        <a href="#" class="dropdown-item" onclick="loadContent('./Problemsolving/查找算法.html')">2022年</a>
+                                        <a href="#" class="dropdown-item" onclick="loadContent('./Problemsolving/查找算法.html')">2023年</a>
+                                        <a href="#" class="dropdown-item" onclick="loadContent('./Problemsolving/查找算法.html')">2024年</a>
+                                    </div>
+                                </div>                                    
+                                <div class="has-submenu">
+                                    <a href="#" class="dropdown-item">七级</a>
+                                    <div class="sub-dropdown-menu">                                        
+                                        <a href="#" class="dropdown-item" onclick="loadContent('./Problemsolving/查找算法.html')">2020年</a>
+                                        <a href="#" class="dropdown-item" onclick="loadContent('./Problemsolving/查找算法.html')">2021年</a>
+                                        <a href="#" class="dropdown-item" onclick="loadContent('./Problemsolving/查找算法.html')">2022年</a>
+                                        <a href="#" class="dropdown-item" onclick="loadContent('./Problemsolving/查找算法.html')">2023年</a>
+                                        <a href="#" class="dropdown-item" onclick="loadContent('./Problemsolving/查找算法.html')">2024年</a>
+                                    </div>
+                                </div>                                    
+                                <div class="has-submenu">
+                                    <a href="#" class="dropdown-item">八级</a>
+                                    <div class="sub-dropdown-menu">                                        
+                                        <a href="#" class="dropdown-item" onclick="loadContent('./Problemsolving/查找算法.html')">2020年</a>
+                                        <a href="#" class="dropdown-item" onclick="loadContent('./Problemsolving/查找算法.html')">2021年</a>
+                                        <a href="#" class="dropdown-item" onclick="loadContent('./Problemsolving/查找算法.html')">2022年</a>
+                                        <a href="#" class="dropdown-item" onclick="loadContent('./Problemsolving/查找算法.html')">2023年</a>
+                                        <a href="#" class="dropdown-item" onclick="loadContent('./Problemsolving/查找算法.html')">2024年</a>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- 右侧功能按钮 -->
+                    <div class="flex items-center">
+                        <button class="p-1 rounded-full text-gray-500 hover:text-indigo-500 focus:outline-none">
+                            <i class="fas fa-search"></i>
+                        </button>
+                        <button class="ml-4 p-1 rounded-full text-gray-500 hover:text-indigo-500 focus:outline-none">
+                            <i class="fas fa-cog"></i>
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- 主内容区域 -->
+        <div class="content-container">
+            <div class="main-content">
+                <div id="content-container">
+                    <!-- 轮播图和其他内容 -->
+                    <div class="carousel-container">
+                        <div class="carousel-slides">
+                            <img src="./images/图片1.jpg" class="carousel-slide" alt="图片1">
+                            <img src="./images/图片2.jpg" class="carousel-slide" alt="图片2">
+                            <img src="./images/图片3.jpg" class="carousel-slide" alt="图片3">
+                            <img src="./images/图片4.jpg" class="carousel-slide" alt="图片4">
+                        </div>
+                
+                        <button class="carousel-btn prev-btn">❮</button>
+                        <button class="carousel-btn next-btn">❯</button>
+                        
+                        <div class="indicators"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Footer -->
+        <footer class="mt-4 text-center text-gray-500 text-sm">
+            <div class="flex justify-center mt-1 space-x-4">
+            <p>© 2025 信息学素养GESP学习笔记 </p>
+            </div>
+        </footer>
+    </div>
+
+    <script>
+        function loadContent(htmlFile) {
+            const contentContainer = document.getElementById('content-container');
+            
+            // 使用iframe加载内容
+            contentContainer.innerHTML = '<iframe src="' + htmlFile + '" title="Content" style="width:100%;border:none;"></iframe>';
+            
+            // 监听iframe加载完成事件，调整iframe高度
+            const iframe = contentContainer.querySelector('iframe');
+            iframe.onload = function() {
+                try {
+                    // 调整iframe高度以匹配内容
+                    iframe.style.height = '100%';
+                    
+                    // 检查内容高度并调整iframe高度
+                    const adjustHeight = () => {
+                        try {
+                            const iframeDoc = iframe.contentDocument || iframe.contentWindow.document;
+                            const height = iframeDoc.body.scrollHeight;
+                    iframe.style.height = height + 'px';
+                        } catch (e) {
+                            console.log('无法访问iframe内容，可能是跨域限制');
+                        }
+                    };
+                    
+                    // 初次调整高度
+                    adjustHeight();
+                    
+                    // 添加定时检查，处理动态内容加载
+                    setTimeout(adjustHeight, 500);
+                    
+                    // 滚动到顶部
+                    contentContainer.scrollTop = 0;
+                    
+                    // 处理iframe内容的滚动
+                    try {
+                        const iframeDoc = iframe.contentDocument || iframe.contentWindow.document;
+                        iframeDoc.body.style.overflow = 'auto'; // 确保iframe内容可以滚动
+                    } catch (e) {
+                        console.log('无法访问iframe内容，可能是跨域限制');
+                    }
+                } catch(e) {
+                    console.error('无法调整iframe高度:', e);
+                }
+            };
+        }
+        class Carousel {
+            constructor(container) {
+                this.container = container;
+                this.slides = container.querySelector('.carousel-slides');
+                this.images = Array.from(container.querySelectorAll('.carousel-slide'));
+                this.currentIndex = 0;
+                this.autoPlayInterval = null;
+                this.init();
+            }
+
+            init() {
+                // 创建指示点
+                this.indicators = this.container.querySelector('.indicators');
+                this.images.forEach((_, index) => {
+                    const dot = document.createElement('div');
+                    dot.classList.add('indicator');
+                    dot.addEventListener('click', () => this.goToSlide(index));
+                    this.indicators.appendChild(dot);
+                });
+
+                // 设置初始状态
+                this.updateIndicators();
+                this.startAutoPlay();
+
+                // 按钮事件
+                this.container.querySelector('.prev-btn').addEventListener('click', () => this.prevSlide());
+                this.container.querySelector('.next-btn').addEventListener('click', () => this.nextSlide());
+
+                // 悬停暂停
+                this.container.addEventListener('mouseenter', () => this.stopAutoPlay());
+                this.container.addEventListener('mouseleave', () => this.startAutoPlay());
+            }
+
+            updateIndicators() {
+                this.indicators.querySelectorAll('.indicator').forEach((dot, index) => {
+                    dot.classList.toggle('active', index === this.currentIndex);
+                });
+            }
+
+            goToSlide(index) {
+                if (index < 0) index = this.images.length - 1;
+                if (index >= this.images.length) index = 0;
+                
+                this.currentIndex = index;
+                this.slides.style.transform = 'translateX(' + (-index * 100) + '%)';
+                this.updateIndicators();
+            }
+
+            nextSlide() {
+                this.goToSlide(this.currentIndex + 1);
+            }
+
+            prevSlide() {
+                this.goToSlide(this.currentIndex - 1);
+            }
+
+            startAutoPlay() {
+                if (!this.autoPlayInterval) {
+                    this.autoPlayInterval = setInterval(() => this.nextSlide(), 5000);
+                }
+            }
+
+            stopAutoPlay() {
+                clearInterval(this.autoPlayInterval);
+                this.autoPlayInterval = null;
+            }
+        }
+
+        // 初始化轮播
+        const carouselContainer = document.querySelector('.carousel-container');
+        if (carouselContainer) {
+            const carousel = new Carousel(carouselContainer);
+        }
+    </script>
+</body>
+</html> 

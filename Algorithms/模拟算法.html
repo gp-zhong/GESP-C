@@ -1,0 +1,461 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>模拟算法</title>
+    <!-- TailwindCSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&family=Roboto+Mono&display=swap" rel="stylesheet">
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        primary: {
+                            light: '#a5f3fc',
+                            DEFAULT: '#06b6d4',
+                            dark: '#0891b2',
+                        },
+                        secondary: {
+                            light: '#c7d2fe',
+                            DEFAULT: '#818cf8',
+                            dark: '#6366f1',
+                        },
+                        codeBlock: '#1e293b',
+                    },
+                    fontFamily: {
+                        sans: ['Poppins', 'sans-serif'],
+                        mono: ['Roboto Mono', 'monospace'],
+                    },
+                }
+            }
+        }
+    </script>
+    <style>
+        .card-hover {
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+        }
+        .card-hover:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 25px -5px rgba(6, 182, 212, 0.1), 0 10px 10px -5px rgba(6, 182, 212, 0.04);
+        }
+        .code-block::-webkit-scrollbar {
+            height: 8px;
+        }
+        .code-block::-webkit-scrollbar-thumb {
+            background-color: #06b6d4;
+            border-radius: 4px;
+        }
+        .code-block::-webkit-scrollbar-track {
+            background-color: #e2e8f0;
+            border-radius: 4px;
+        }
+    </style>
+</head>
+<body class="bg-gray-50 font-sans">
+    <div class="min-h-screen max-w-6xl mx-auto px-8 py-10">
+        <!-- Header -->
+        <header class="mb-12 text-center">
+            <div class="inline-block px-3 py-1 bg-primary-light text-primary-dark rounded-full text-sm font-medium mb-4">
+                算法基础
+            </div>
+            <h1 class="text-4xl font-bold text-gray-800 mb-4">模拟算法</h1>
+            <p class="text-lg text-gray-600 max-w-3xl mx-auto">掌握按照逻辑或数学规则直接模拟问题求解过程的编程方法</p>
+        </header>
+
+        <!-- Main Content -->
+        <main>
+            <!-- 模拟算法概览 Section -->
+            <section class="mb-12 bg-white rounded-2xl shadow-md p-8">
+                <div class="flex items-center mb-6">
+                    <i class="fas fa-laptop-code text-primary text-xl mr-3"></i>
+                    <h2 class="text-2xl font-bold text-gray-800">模拟算法概述</h2>
+                </div>
+                <div class="space-y-4 text-gray-700">
+                    <p>模拟算法（Simulation Algorithm）是按照题目要求，直接模拟操作过程的一种编程方法。这类算法不需要复杂的数学推导或特定算法技巧，而是通过直接翻译问题描述为代码来解决问题。</p>
+                    
+                    <div class="p-5 bg-primary-light bg-opacity-10 rounded-lg">
+                        <p>模拟算法看似简单，但常常需要仔细处理问题中的各种细节和边界情况，并注意代码实现的清晰性和正确性。在竞赛中，这类问题能够有效考察选手的代码实现能力和对问题的理解能力。</p>
+                    </div>
+
+                    <h3 class="text-xl font-semibold text-gray-800 mt-6 mb-3">模拟算法的特点</h3>
+                    <ul class="list-disc list-inside space-y-2 pl-4">
+                        <li>直接根据题目描述编写代码</li>
+                        <li>逐步执行问题中的操作流程</li>
+                        <li>不依赖于特殊的算法结构或数学技巧</li>
+                        <li>代码通常较长且需要处理各种细节</li>
+                        <li>容易出错，需要仔细调试</li>
+                    </ul>
+                </div>
+            </section>
+            
+            <!-- 模拟算法类型 Section -->
+            <section class="mb-12 bg-white rounded-2xl shadow-md p-8">
+                <div class="flex items-center mb-6">
+                    <i class="fas fa-sitemap text-primary text-xl mr-3"></i>
+                    <h2 class="text-2xl font-bold text-gray-800">模拟算法的类型</h2>
+                </div>
+                <div class="space-y-4 text-gray-700">
+                    <p>根据具体的问题特点，模拟算法可以分为多种类型：</p>
+                    
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-4">
+                        <div class="card-hover p-6 bg-gray-50 rounded-xl">
+                            <h3 class="text-lg font-semibold text-gray-800 mb-3">直接模拟</h3>
+                            <p>按照题目的要求，直接模拟整个过程，不需要任何优化或特殊技巧。</p>
+                            <ul class="list-disc list-inside space-y-1 mt-2 pl-4 text-sm">
+                                <li>按照游戏规则执行</li>
+                                <li>数学计算过程模拟</li>
+                                <li>流程控制模拟</li>
+                            </ul>
+                        </div>
+                        
+                        <div class="card-hover p-6 bg-gray-50 rounded-xl">
+                            <h3 class="text-lg font-semibold text-gray-800 mb-3">几何模拟</h3>
+                            <p>处理与图形、坐标和空间相关的问题。</p>
+                            <ul class="list-disc list-inside space-y-1 mt-2 pl-4 text-sm">
+                                <li>坐标变换</li>
+                                <li>图形旋转、平移、缩放</li>
+                                <li>几何图形判断</li>
+                            </ul>
+                        </div>
+                        
+                        <div class="card-hover p-6 bg-gray-50 rounded-xl">
+                            <h3 class="text-lg font-semibold text-gray-800 mb-3">状态模拟</h3>
+                            <p>维护系统的状态，按照规则进行状态转移。</p>
+                            <ul class="list-disc list-inside space-y-1 mt-2 pl-4 text-sm">
+                                <li>格子游戏状态转移</li>
+                                <li>人工生命模拟</li>
+                                <li>系统状态管理</li>
+                            </ul>
+                        </div>
+                        
+                        <div class="card-hover p-6 bg-gray-50 rounded-xl">
+                            <h3 class="text-lg font-semibold text-gray-800 mb-3">高精度计算</h3>
+                            <p>处理超出语言基本数据类型范围的大数计算。</p>
+                            <ul class="list-disc list-inside space-y-1 mt-2 pl-4 text-sm">
+                                <li>大整数加、减、乘、除</li>
+                                <li>高精度浮点数计算</li>
+                                <li>特殊数值表示</li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+            </section>
+            
+            <!-- 模拟算法示例 Section -->
+            <section class="mb-12 bg-white rounded-2xl shadow-md p-8">
+                <div class="flex items-center mb-6">
+                    <i class="fas fa-code text-primary text-xl mr-3"></i>
+                    <h2 class="text-2xl font-bold text-gray-800">模拟算法示例</h2>
+                </div>
+                <div class="space-y-4 text-gray-700">
+                    <h3 class="text-xl font-semibold text-gray-800 mb-3">示例1：日期计算</h3>
+                    <p>给定一个日期，计算它是这一年的第几天。</p>
+                    
+                    <div class="overflow-x-auto bg-codeBlock rounded-lg p-4 mb-4">
+                        <pre class="text-gray-100 font-mono text-sm"><code>#include &lt;iostream&gt;
+using namespace std;
+
+// 判断是否为闰年
+bool isLeapYear(int year) {
+    return (year % 4 == 0 && year % 100 != 0) || (year % 400 == 0);
+}
+
+// 计算给定日期是该年的第几天
+int dayOfYear(int year, int month, int day) {
+    // 每个月的天数（非闰年）
+    int daysInMonth[] = {0, 31, 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31};
+    
+    // 闰年二月有29天
+    if (isLeapYear(year)) {
+        daysInMonth[2] = 29;
+    }
+    
+    int dayCount = 0;
+    // 加上前面几个月的天数
+    for (int i = 1; i < month; i++) {
+        dayCount += daysInMonth[i];
+    }
+    
+    // 加上当月的天数
+    dayCount += day;
+    
+    return dayCount;
+}
+
+int main() {
+    int year, month, day;
+    cout << "请输入年月日（例如：2023 4 15）：";
+    cin >> year >> month >> day;
+    
+    int result = dayOfYear(year, month, day);
+    cout << year << "年" << month << "月" << day << "日是" 
+         << year << "年的第" << result << "天" << endl;
+    
+    return 0;
+}</code></pre>
+                    </div>
+
+                    <h3 class="text-xl font-semibold text-gray-800 mt-6 mb-3">示例2：模拟生命游戏</h3>
+                    <p>生命游戏（Conway's Game of Life）是一个经典的状态模拟问题。</p>
+                    
+                    <div class="overflow-x-auto bg-codeBlock rounded-lg p-4 mb-4">
+                        <pre class="text-gray-100 font-mono text-sm"><code>#include &lt;iostream&gt;
+#include &lt;vector&gt;
+using namespace std;
+
+// 计算下一代细胞状态
+vector&lt;vector&lt;int&gt;&gt; nextGeneration(vector&lt;vector&lt;int&gt;&gt; grid) {
+    int rows = grid.size();
+    int cols = grid[0].size();
+    vector&lt;vector&lt;int&gt;&gt; next(rows, vector&lt;int&gt;(cols, 0));
+    
+    // 遍历每个细胞
+    for (int i = 0; i < rows; i++) {
+        for (int j = 0; j < cols; j++) {
+            // 计算周围活细胞数量
+            int liveNeighbors = 0;
+            
+            for (int di = -1; di <= 1; di++) {
+                for (int dj = -1; dj <= 1; dj++) {
+                    if (di == 0 && dj == 0) continue; // 跳过自身
+                    
+                    int ni = i + di;
+                    int nj = j + dj;
+                    
+                    // 检查边界
+                    if (ni >= 0 && ni < rows && nj >= 0 && nj < cols) {
+                        liveNeighbors += grid[ni][nj];
+                    }
+                }
+            }
+            
+            // 应用生命游戏规则
+            if (grid[i][j] == 1) { // 当前细胞存活
+                if (liveNeighbors < 2 || liveNeighbors > 3) {
+                    next[i][j] = 0; // 死亡：孤独或拥挤
+                } else {
+                    next[i][j] = 1; // 继续存活
+                }
+            } else { // 当前细胞死亡
+                if (liveNeighbors == 3) {
+                    next[i][j] = 1; // 繁殖
+                }
+            }
+        }
+    }
+    
+    return next;
+}
+
+// 打印网格
+void printGrid(const vector&lt;vector&lt;int&gt;&gt;& grid) {
+    for (const auto& row : grid) {
+        for (int cell : row) {
+            cout << (cell ? "■ " : "□ ");
+        }
+        cout << endl;
+    }
+    cout << endl;
+}
+
+int main() {
+    // 初始状态 (滑翔机图案)
+    vector&lt;vector&lt;int&gt;&gt; grid = {
+        {0, 0, 0, 0, 0, 0, 0, 0, 0, 0},
+        {0, 0, 1, 0, 0, 0, 0, 0, 0, 0},
+        {0, 0, 0, 1, 0, 0, 0, 0, 0, 0},
+        {0, 1, 1, 1, 0, 0, 0, 0, 0, 0},
+        {0, 0, 0, 0, 0, 0, 0, 0, 0, 0},
+        {0, 0, 0, 0, 0, 0, 0, 0, 0, 0},
+        {0, 0, 0, 0, 0, 0, 0, 0, 0, 0},
+        {0, 0, 0, 0, 0, 0, 0, 0, 0, 0},
+        {0, 0, 0, 0, 0, 0, 0, 0, 0, 0},
+        {0, 0, 0, 0, 0, 0, 0, 0, 0, 0}
+    };
+    
+    cout << "初始状态：" << endl;
+    printGrid(grid);
+    
+    // 模拟5代
+    for (int gen = 1; gen <= 5; gen++) {
+        grid = nextGeneration(grid);
+        cout << "第 " << gen << " 代：" << endl;
+        printGrid(grid);
+    }
+    
+    return 0;
+}</code></pre>
+                    </div>
+                </div>
+            </section>
+            
+            <!-- 复杂模拟专题 Section -->
+            <section class="mb-12 bg-white rounded-2xl shadow-md p-8">
+                <div class="flex items-center mb-6">
+                    <i class="fas fa-cogs text-primary text-xl mr-3"></i>
+                    <h2 class="text-2xl font-bold text-gray-800">复杂模拟技巧</h2>
+                </div>
+                <div class="space-y-4 text-gray-700">
+                    <p>对于复杂的模拟问题，以下技巧可以帮助降低难度：</p>
+                    
+                    <div class="card-hover p-6 bg-gray-50 rounded-xl mb-4">
+                        <h3 class="text-lg font-semibold text-gray-800 mb-3">状态表示与转移</h3>
+                        <p>清晰地定义系统状态，并建立状态间的转移关系。</p>
+                        <div class="mt-3 pl-4">
+                            <p><strong>例如：</strong>在棋盘游戏中，可以用一个二维数组表示棋盘状态，然后定义移动、吃子等操作作为状态转移。</p>
+                        </div>
+                    </div>
+                    
+                    <div class="card-hover p-6 bg-gray-50 rounded-xl mb-4">
+                        <h3 class="text-lg font-semibold text-gray-800 mb-3">拆分问题</h3>
+                        <p>将复杂的问题拆分为多个简单的子任务，单独实现并测试。</p>
+                        <div class="mt-3 pl-4">
+                            <p><strong>例如：</strong>文本编辑器模拟可以拆分为：插入文本、删除文本、撤销操作、查询光标位置等子任务。</p>
+                        </div>
+                    </div>
+                    
+                    <div class="card-hover p-6 bg-gray-50 rounded-xl mb-4">
+                        <h3 class="text-lg font-semibold text-gray-800 mb-3">抽象与封装</h3>
+                        <p>设计合适的数据结构和函数，将相关逻辑封装起来，提高代码可读性。</p>
+                        <div class="mt-3 pl-4">
+                            <p><strong>例如：</strong>设计一个 <code>Robot</code> 类封装机器人的状态和行为，通过函数如 <code>move()</code>, <code>turnLeft()</code> 等控制机器人。</p>
+                        </div>
+                    </div>
+                    
+                    <div class="card-hover p-6 bg-gray-50 rounded-xl mb-4">
+                        <h3 class="text-lg font-semibold text-gray-800 mb-3">使用辅助数据结构</h3>
+                        <p>选择合适的数据结构可以简化模拟过程。</p>
+                        <div class="mt-3 pl-4">
+                            <p><strong>例如：</strong>使用队列模拟排队过程，使用栈模拟撤销操作，使用映射表（map/hash）存储对象属性等。</p>
+                        </div>
+                    </div>
+                    
+                    <div class="bg-yellow-50 border-l-4 border-yellow-400 p-4 rounded-r mt-6">
+                        <div class="flex items-start">
+                            <i class="fas fa-exclamation-triangle text-yellow-500 mt-1 mr-3"></i>
+                            <div>
+                                <h4 class="font-semibold text-gray-800 mb-2">调试技巧</h4>
+                                <ul class="list-disc pl-5 space-y-1 text-gray-700">
+                                    <li>添加详细的日志输出，输出中间状态</li>
+                                    <li>使用小规模的例子手动跟踪执行过程</li>
+                                    <li>对于复杂逻辑，绘制状态转移图或流程图</li>
+                                    <li>将代码分段测试，确保每个部分正确运行</li>
+                                    <li>编写单元测试验证每个函数的行为</li>
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+            
+            <!-- 模拟算法常见错误 Section -->
+            <section class="bg-white rounded-2xl shadow-md p-8">
+                <div class="flex items-center mb-6">
+                    <i class="fas fa-bug text-primary text-xl mr-3"></i>
+                    <h2 class="text-2xl font-bold text-gray-800">常见错误与避免方法</h2>
+                </div>
+                <div class="space-y-4 text-gray-700">
+                    <p>模拟算法容易出现以下问题：</p>
+                    
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-4">
+                        <div class="bg-red-50 p-5 rounded-lg">
+                            <h3 class="text-lg font-semibold text-red-800 mb-3">常见错误</h3>
+                            <ul class="list-disc list-inside space-y-2 text-gray-700">
+                                <li>边界情况未考虑（如数组越界）</li>
+                                <li>初始状态设置不正确</li>
+                                <li>更新顺序错误</li>
+                                <li>状态转移逻辑有误</li>
+                                <li>数据结构选择不当</li>
+                                <li>忽略特殊情况处理</li>
+                            </ul>
+                        </div>
+                        
+                        <div class="bg-green-50 p-5 rounded-lg">
+                            <h3 class="text-lg font-semibold text-green-800 mb-3">避免方法</h3>
+                            <ul class="list-disc list-inside space-y-2 text-gray-700">
+                                <li>仔细阅读题目，列出所有边界条件</li>
+                                <li>使用步骤分解法，将问题分解为小步骤</li>
+                                <li>对每一步骤单独测试</li>
+                                <li>建立验证机制，确保每次状态转移正确</li>
+                                <li>使用小规模测例手动验证</li>
+                                <li>编写清晰的代码并添加注释</li>
+                            </ul>
+                        </div>
+                    </div>
+                    
+                    <div class="p-5 bg-blue-50 rounded-lg mt-4">
+                        <h3 class="text-lg font-semibold text-blue-800 mb-3">模拟算法实践建议</h3>
+                        <ol class="list-decimal list-inside space-y-2 text-gray-700">
+                            <li>先手动模拟小规模实例，理解流程</li>
+                            <li>设计合适的数据结构表示状态</li>
+                            <li>将复杂流程分解为简单步骤</li>
+                            <li>每实现一个功能就测试一次</li>
+                            <li>保持代码的清晰和模块化</li>
+                            <li>预留调试输出，便于跟踪状态变化</li>
+                            <li>考虑极限情况和边界条件</li>
+                        </ol>
+                    </div>
+                </div>
+            </section>
+        </main>
+
+        <!-- Footer -->
+        <footer class="mt-16 text-center text-gray-500 text-sm">
+            <div class="flex justify-center mt-6 space-x-4">
+                <a href="简介.html" class="text-primary hover:text-primary-dark transition-colors duration-300">
+                    <i class="fas fa-home mr-1"></i>首页
+                </a>
+                <a href="均摊复杂度.html" class="text-primary hover:text-primary-dark transition-colors duration-300">
+                    <i class="fas fa-arrow-left ml-1"></i>均摊复杂度
+                </a>
+                <a href="递归.html" class="text-primary hover:text-primary-dark transition-colors duration-300">
+                    递归与分治<i class="fas fa-arrow-right ml-1"></i>
+                </a>
+            </div>
+        </footer>
+    </div>
+
+    <!-- Back to top button -->
+    <button id="backToTop" class="fixed bottom-6 right-6 bg-primary hover:bg-primary-dark text-white rounded-full p-3 shadow-lg transition-all duration-300 opacity-0 invisible">
+        <i class="fas fa-arrow-up"></i>
+    </button>
+
+    <!-- JavaScript for Back to top button -->
+    <script>
+        const backToTop = document.getElementById('backToTop');
+        
+        window.addEventListener('scroll', () => {
+            if (window.scrollY > 300) {
+                backToTop.classList.remove('opacity-0', 'invisible');
+                backToTop.classList.add('opacity-100', 'visible');
+            } else {
+                backToTop.classList.remove('opacity-100', 'visible');
+                backToTop.classList.add('opacity-0', 'invisible');
+            }
+        });
+        
+        backToTop.addEventListener('click', () => {
+            window.scrollTo({
+                top: 0,
+                behavior: 'smooth'
+            });
+        });
+    </script>
+    <!-- Simple ScrollReveal effect -->
+    <script src="https://unpkg.com/scrollreveal"></script>
+    <script>
+        ScrollReveal().reveal('section', { 
+            delay: 200,
+            distance: '20px',
+            origin: 'bottom',
+            duration: 800,
+            easing: 'ease-in-out'
+        });
+    </script>
+</body>
+</html> 

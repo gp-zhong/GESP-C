@@ -1,0 +1,524 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>递归与分治</title>
+    <!-- TailwindCSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&family=Roboto+Mono&display=swap" rel="stylesheet">
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        primary: {
+                            light: '#a5f3fc',
+                            DEFAULT: '#06b6d4',
+                            dark: '#0891b2',
+                        },
+                        secondary: {
+                            light: '#c7d2fe',
+                            DEFAULT: '#818cf8',
+                            dark: '#6366f1',
+                        },
+                        codeBlock: '#1e293b',
+                    },
+                    fontFamily: {
+                        sans: ['Poppins', 'sans-serif'],
+                        mono: ['Roboto Mono', 'monospace'],
+                    },
+                }
+            }
+        }
+    </script>
+    <style>
+        .card-hover {
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+        }
+        .card-hover:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 25px -5px rgba(6, 182, 212, 0.1), 0 10px 10px -5px rgba(6, 182, 212, 0.04);
+        }
+        .code-block::-webkit-scrollbar {
+            height: 8px;
+        }
+        .code-block::-webkit-scrollbar-thumb {
+            background-color: #06b6d4;
+            border-radius: 4px;
+        }
+        .code-block::-webkit-scrollbar-track {
+            background-color: #e2e8f0;
+            border-radius: 4px;
+        }
+    </style>
+</head>
+<body class="bg-gray-50 font-sans">
+    <div class="min-h-screen max-w-6xl mx-auto px-8 py-10">
+        <!-- Header -->
+        <header class="mb-12 text-center">
+            <div class="inline-block px-3 py-1 bg-primary-light text-primary-dark rounded-full text-sm font-medium mb-4">
+                算法基础
+            </div>
+            <h1 class="text-4xl font-bold text-gray-800 mb-4">递归与分治</h1>
+            <p class="text-lg text-gray-600 max-w-3xl mx-auto">掌握递归设计思想与分治算法技巧，解决复杂问题</p>
+        </header>
+
+        <!-- Main Content -->
+        <main>
+            <!-- 递归基础 Section -->
+            <section class="mb-12 bg-white rounded-2xl shadow-md p-8">
+                <div class="flex items-center mb-6">
+                    <i class="fas fa-redo-alt text-primary text-xl mr-3"></i>
+                    <h2 class="text-2xl font-bold text-gray-800">递归基础</h2>
+                </div>
+                <div class="space-y-4 text-gray-700">
+                    <p>递归（Recursion）是一种算法设计技术，在函数的定义中使用函数自身。递归算法通常包含两个关键部分：</p>
+                    
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-4">
+                        <div class="card-hover p-6 bg-gray-50 rounded-xl">
+                            <h3 class="text-lg font-semibold text-gray-800 mb-3">
+                                <i class="fas fa-stop-circle text-primary-dark mr-2"></i>
+                                基本情况（Base Case）
+                            </h3>
+                            <p>递归的终止条件，当满足这些条件时，函数将直接返回结果，不再继续递归调用。</p>
+                        </div>
+                        
+                        <div class="card-hover p-6 bg-gray-50 rounded-xl">
+                            <h3 class="text-lg font-semibold text-gray-800 mb-3">
+                                <i class="fas fa-cog text-primary-dark mr-2"></i>
+                                递归情况（Recursive Case）
+                            </h3>
+                            <p>问题被分解为更小规模的相同问题，通过调用函数自身来解决这些子问题。</p>
+                        </div>
+                    </div>
+                    
+                    <div class="p-5 bg-primary-light bg-opacity-10 rounded-lg">
+                        <p>递归的核心思想是：将一个复杂问题分解为一个或多个规模更小的子问题，这些子问题与原问题形式相同，只是规模更小。通过解决这些子问题，最终解决原问题。</p>
+                    </div>
+
+                    <h3 class="text-xl font-semibold text-gray-800 mt-6 mb-3">递归设计步骤</h3>
+                    <ol class="list-decimal list-inside space-y-2 pl-4">
+                        <li>识别并定义基本情况（问题的最小实例）</li>
+                        <li>确定如何将原问题分解为更小的子问题</li>
+                        <li>确保递归过程会不断接近基本情况</li>
+                        <li>合并子问题的解，得到原问题的解</li>
+                    </ol>
+                </div>
+            </section>
+            
+            <!-- 经典递归示例 Section -->
+            <section class="mb-12 bg-white rounded-2xl shadow-md p-8">
+                <div class="flex items-center mb-6">
+                    <i class="fas fa-code text-primary text-xl mr-3"></i>
+                    <h2 class="text-2xl font-bold text-gray-800">经典递归示例</h2>
+                </div>
+                <div class="space-y-4 text-gray-700">
+                    <p>以下是几个经典的递归算法示例：</p>
+                    
+                    <h3 class="text-xl font-semibold text-gray-800 mt-6 mb-3">1. 阶乘计算</h3>
+                    <div class="overflow-x-auto bg-codeBlock rounded-lg p-4 mb-4">
+                        <pre class="text-gray-100 font-mono text-sm"><code>// 计算 n! = n × (n-1) × ... × 2 × 1
+int factorial(int n) {
+    // 基本情况
+    if (n == 0 || n == 1) {
+        return 1;
+    }
+    
+    // 递归情况
+    return n * factorial(n - 1);
+}</code></pre>
+                    </div>
+                    <p>递归过程：factorial(4) = 4 × factorial(3) = 4 × 3 × factorial(2) = 4 × 3 × 2 × factorial(1) = 4 × 3 × 2 × 1 = 24</p>
+                    
+                    <h3 class="text-xl font-semibold text-gray-800 mt-6 mb-3">2. 斐波那契数列</h3>
+                    <div class="overflow-x-auto bg-codeBlock rounded-lg p-4 mb-4">
+                        <pre class="text-gray-100 font-mono text-sm"><code>// 计算斐波那契数列第 n 项
+// F(0) = 0, F(1) = 1, F(n) = F(n-1) + F(n-2) (n > 1)
+int fibonacci(int n) {
+    // 基本情况
+    if (n == 0) return 0;
+    if (n == 1) return 1;
+    
+    // 递归情况
+    return fibonacci(n - 1) + fibonacci(n - 2);
+}</code></pre>
+                    </div>
+                    <div class="bg-yellow-50 border-l-4 border-yellow-400 p-4 rounded-r mb-4">
+                        <div class="flex items-start">
+                            <i class="fas fa-exclamation-triangle text-yellow-500 mt-1 mr-3"></i>
+                            <p class="text-gray-700">
+                                <strong>注意</strong>：上述斐波那契数列的递归实现效率很低，因为存在大量重复计算。在实际应用中，应该使用动态规划或迭代方法来优化。
+                            </p>
+                        </div>
+                    </div>
+                    
+                    <h3 class="text-xl font-semibold text-gray-800 mt-6 mb-3">3. 汉诺塔问题</h3>
+                    <p>将 n 个盘子从源柱（A）移动到目标柱（C），借助辅助柱（B），且在移动过程中保持较大的盘子始终在较小的盘子下方。</p>
+                    <div class="overflow-x-auto bg-codeBlock rounded-lg p-4 mb-4">
+                        <pre class="text-gray-100 font-mono text-sm"><code>// 汉诺塔问题
+void hanoi(int n, char source, char auxiliary, char target) {
+    // 基本情况：只有一个盘子时，直接从源柱移动到目标柱
+    if (n == 1) {
+        cout << "将盘子 1 从 " << source << " 移动到 " << target << endl;
+        return;
+    }
+    
+    // 递归情况：
+    // 1. 将 n-1 个盘子从源柱移动到辅助柱
+    hanoi(n - 1, source, target, auxiliary);
+    
+    // 2. 将第 n 个盘子从源柱移动到目标柱
+    cout << "将盘子 " << n << " 从 " << source << " 移动到 " << target << endl;
+    
+    // 3. 将 n-1 个盘子从辅助柱移动到目标柱
+    hanoi(n - 1, auxiliary, source, target);
+}</code></pre>
+                    </div>
+                </div>
+            </section>
+            
+            <!-- 分治法 Section -->
+            <section class="mb-12 bg-white rounded-2xl shadow-md p-8">
+                <div class="flex items-center mb-6">
+                    <i class="fas fa-project-diagram text-primary text-xl mr-3"></i>
+                    <h2 class="text-2xl font-bold text-gray-800">分治法</h2>
+                </div>
+                <div class="space-y-4 text-gray-700">
+                    <p>分治法（Divide and Conquer）是一种基于递归的算法设计策略，它将问题分解为若干个规模更小但类型相同的子问题，递归地解决这些子问题，然后合并子问题的解以得到原问题的解。</p>
+                    
+                    <h3 class="text-xl font-semibold text-gray-800 mt-6 mb-3">分治法的步骤</h3>
+                    <div class="p-5 bg-gray-50 rounded-xl">
+                        <ol class="list-decimal list-inside space-y-3 pl-4">
+                            <li><strong>分解（Divide）</strong>：将原问题分解为若干个规模较小、相互独立、与原问题形式相同的子问题</li>
+                            <li><strong>解决（Conquer）</strong>：递归地求解各个子问题。若子问题规模足够小，则直接求解</li>
+                            <li><strong>合并（Combine）</strong>：将子问题的解组合成原问题的解</li>
+                        </ol>
+                    </div>
+
+                    <h3 class="text-xl font-semibold text-gray-800 mt-6 mb-3">分治法与普通递归的区别</h3>
+                    <table class="min-w-full bg-white border border-gray-200 mb-4">
+                        <thead>
+                            <tr class="bg-gray-100">
+                                <th class="py-3 px-4 border-b text-left">分治法</th>
+                                <th class="py-3 px-4 border-b text-left">普通递归</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td class="py-3 px-4 border-b">问题被分解为多个相互独立的子问题</td>
+                                <td class="py-3 px-4 border-b">子问题可能有依赖关系或重叠</td>
+                            </tr>
+                            <tr>
+                                <td class="py-3 px-4 border-b">子问题通常规模相近</td>
+                                <td class="py-3 px-4 border-b">子问题规模可能差别较大</td>
+                            </tr>
+                            <tr>
+                                <td class="py-3 px-4 border-b">需要合并子问题解的过程</td>
+                                <td class="py-3 px-4 border-b">可能不需要显式合并步骤</td>
+                            </tr>
+                            <tr>
+                                <td class="py-3 px-4 border-b">更强调问题的拆分与合并</td>
+                                <td class="py-3 px-4 border-b">更强调计算的递推关系</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </section>
+            
+            <!-- 分治算法示例 Section -->
+            <section class="mb-12 bg-white rounded-2xl shadow-md p-8">
+                <div class="flex items-center mb-6">
+                    <i class="fas fa-puzzle-piece text-primary text-xl mr-3"></i>
+                    <h2 class="text-2xl font-bold text-gray-800">分治算法示例</h2>
+                </div>
+                <div class="space-y-4 text-gray-700">
+                    <h3 class="text-xl font-semibold text-gray-800 mb-3">1. 归并排序</h3>
+                    <p>归并排序是分治法的典型应用，它将待排序数组分成两半，递归地排序两个子数组，然后合并这两个有序子数组。</p>
+                    
+                    <div class="overflow-x-auto bg-codeBlock rounded-lg p-4 mb-4">
+                        <pre class="text-gray-100 font-mono text-sm"><code>// 合并两个有序数组
+void merge(vector&lt;int&gt;& arr, int left, int mid, int right) {
+    int n1 = mid - left + 1;
+    int n2 = right - mid;
+    
+    // 创建临时数组
+    vector&lt;int&gt; L(n1), R(n2);
+    
+    // 将数据复制到临时数组
+    for (int i = 0; i < n1; i++)
+        L[i] = arr[left + i];
+    for (int j = 0; j < n2; j++)
+        R[j] = arr[mid + 1 + j];
+    
+    // 合并临时数组
+    int i = 0, j = 0, k = left;
+    while (i < n1 && j < n2) {
+        if (L[i] <= R[j]) {
+            arr[k] = L[i];
+            i++;
+        } else {
+            arr[k] = R[j];
+            j++;
+        }
+        k++;
+    }
+    
+    // 复制剩余元素
+    while (i < n1) {
+        arr[k] = L[i];
+        i++;
+        k++;
+    }
+    while (j < n2) {
+        arr[k] = R[j];
+        j++;
+        k++;
+    }
+}
+
+// 归并排序
+void mergeSort(vector&lt;int&gt;& arr, int left, int right) {
+    if (left < right) {
+        // 找到中点
+        int mid = left + (right - left) / 2;
+        
+        // 分解：递归排序左右两半
+        mergeSort(arr, left, mid);
+        mergeSort(arr, mid + 1, right);
+        
+        // 合并：合并排序好的两半
+        merge(arr, left, mid, right);
+    }
+}</code></pre>
+                    </div>
+                    
+                    <h3 class="text-xl font-semibold text-gray-800 mt-6 mb-3">2. 快速排序</h3>
+                    <p>快速排序也是一种分治算法，它选择一个"基准"元素，将数组分成两部分，一部分小于基准，另一部分大于基准，然后递归地对两个子数组进行排序。</p>
+                    
+                    <div class="overflow-x-auto bg-codeBlock rounded-lg p-4 mb-4">
+                        <pre class="text-gray-100 font-mono text-sm"><code>// 划分函数，返回基准元素的位置
+int partition(vector&lt;int&gt;& arr, int low, int high) {
+    int pivot = arr[high];  // 选择最后一个元素作为基准
+    int i = low - 1;  // 小于基准元素的区域指针
+    
+    for (int j = low; j < high; j++) {
+        // 如果当前元素小于等于基准元素
+        if (arr[j] <= pivot) {
+            i++;  // 扩展小于基准元素的区域
+            swap(arr[i], arr[j]);  // 将当前元素放入该区域
+        }
+    }
+    
+    swap(arr[i + 1], arr[high]);  // 将基准元素放在正确的位置
+    return i + 1;  // 返回基准元素的位置
+}
+
+// 快速排序
+void quickSort(vector&lt;int&gt;& arr, int low, int high) {
+    if (low < high) {
+        // 分解：以基准元素分割数组
+        int pivotIndex = partition(arr, low, high);
+        
+        // 递归排序两个子数组
+        quickSort(arr, low, pivotIndex - 1);
+        quickSort(arr, pivotIndex + 1, high);
+    }
+}</code></pre>
+                    </div>
+                    
+                    <h3 class="text-xl font-semibold text-gray-800 mt-6 mb-3">3. 二分搜索</h3>
+                    <p>二分搜索也利用了分治思想，通过反复将搜索区间一分为二，缩小目标元素的可能位置范围。</p>
+                    
+                    <div class="overflow-x-auto bg-codeBlock rounded-lg p-4 mb-4">
+                        <pre class="text-gray-100 font-mono text-sm"><code>// 二分搜索，在已排序数组中查找目标值
+int binarySearch(vector&lt;int&gt;& arr, int target, int left, int right) {
+    if (left <= right) {
+        int mid = left + (right - left) / 2;
+        
+        // 找到目标
+        if (arr[mid] == target)
+            return mid;
+        
+        // 目标在左半部分
+        if (arr[mid] > target)
+            return binarySearch(arr, target, left, mid - 1);
+        
+        // 目标在右半部分
+        return binarySearch(arr, target, mid + 1, right);
+    }
+    
+    // 目标不存在
+    return -1;
+}</code></pre>
+                    </div>
+                </div>
+            </section>
+            
+            <!-- 递归与分治的优化 Section -->
+            <section class="bg-white rounded-2xl shadow-md p-8">
+                <div class="flex items-center mb-6">
+                    <i class="fas fa-tachometer-alt text-primary text-xl mr-3"></i>
+                    <h2 class="text-2xl font-bold text-gray-800">递归与分治的优化</h2>
+                </div>
+                <div class="space-y-4 text-gray-700">
+                    <p>递归算法虽然简洁优雅，但可能存在效率问题，以下是一些常见的优化技术：</p>
+                    
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-4">
+                        <div class="card-hover p-6 bg-gray-50 rounded-xl">
+                            <h3 class="text-lg font-semibold text-gray-800 mb-3">记忆化搜索</h3>
+                            <p>为递归函数添加一个缓存，存储已计算过的结果，避免重复计算。</p>
+                            <div class="mt-3">
+                                <p class="text-sm">例如，优化斐波那契计算：</p>
+                                <div class="overflow-x-auto bg-codeBlock rounded-lg p-3 mt-2">
+                                    <pre class="text-gray-100 font-mono text-xs"><code>// 带记忆化的斐波那契
+int fibMemo(int n, vector&lt;int&gt;& memo) {
+    if (memo[n] != -1)
+        return memo[n];
+    
+    if (n <= 1)
+        memo[n] = n;
+    else
+        memo[n] = fibMemo(n-1, memo) + fibMemo(n-2, memo);
+    
+    return memo[n];
+}</code></pre>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="card-hover p-6 bg-gray-50 rounded-xl">
+                            <h3 class="text-lg font-semibold text-gray-800 mb-3">尾递归优化</h3>
+                            <p>将递归调用作为函数的最后一个操作，这样编译器可以优化递归调用，避免栈溢出。</p>
+                            <div class="mt-3">
+                                <p class="text-sm">例如，优化阶乘计算：</p>
+                                <div class="overflow-x-auto bg-codeBlock rounded-lg p-3 mt-2">
+                                    <pre class="text-gray-100 font-mono text-xs"><code>// 尾递归版阶乘
+int factorialTail(int n, int acc = 1) {
+    if (n <= 1)
+        return acc;
+    
+    return factorialTail(n - 1, n * acc);
+}</code></pre>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-4">
+                        <div class="card-hover p-6 bg-gray-50 rounded-xl">
+                            <h3 class="text-lg font-semibold text-gray-800 mb-3">迭代替代递归</h3>
+                            <p>将递归算法转换为迭代形式，避免函数调用开销和栈溢出风险。</p>
+                            <div class="mt-3">
+                                <p class="text-sm">例如，迭代版斐波那契：</p>
+                                <div class="overflow-x-auto bg-codeBlock rounded-lg p-3 mt-2">
+                                    <pre class="text-gray-100 font-mono text-xs"><code>// 迭代版斐波那契
+int fibIterative(int n) {
+    if (n <= 1) return n;
+    
+    int a = 0, b = 1, c;
+    for (int i = 2; i <= n; i++) {
+        c = a + b;
+        a = b;
+        b = c;
+    }
+    return b;
+}</code></pre>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="card-hover p-6 bg-gray-50 rounded-xl">
+                            <h3 class="text-lg font-semibold text-gray-800 mb-3">分治优化</h3>
+                            <p>对分治算法的改进，包括更智能的划分策略、预处理等。</p>
+                            <div class="mt-3">
+                                <p class="text-sm">例如，随机化快速排序：</p>
+                                <div class="overflow-x-auto bg-codeBlock rounded-lg p-3 mt-2">
+                                    <pre class="text-gray-100 font-mono text-xs"><code>// 随机选择基准元素
+int randomPartition(vector&lt;int&gt;& arr, int low, int high) {
+    int random = low + rand() % (high - low + 1);
+    swap(arr[random], arr[high]);
+    return partition(arr, low, high);
+}</code></pre>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="bg-yellow-50 border-l-4 border-yellow-400 p-4 rounded-r mt-6">
+                        <div class="flex items-start">
+                            <i class="fas fa-exclamation-triangle text-yellow-500 mt-1 mr-3"></i>
+                            <div>
+                                <h4 class="font-semibold text-gray-800 mb-2">避免递归陷阱</h4>
+                                <ul class="list-disc pl-5 space-y-1 text-gray-700">
+                                    <li>确保递归有正确的终止条件，避免无限递归</li>
+                                    <li>注意递归深度，防止栈溢出</li>
+                                    <li>尽量减少递归调用次数，特别是避免重复计算</li>
+                                    <li>对输入规模较大的问题，考虑使用迭代而非递归</li>
+                                    <li>使用数学公式简化递归，如可能的话使用闭式解</li>
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+        </main>
+
+        <!-- Footer -->
+        <footer class="mt-16 text-center text-gray-500 text-sm">
+            <div class="flex justify-center mt-6 space-x-4">
+                <a href="简介.html" class="text-primary hover:text-primary-dark transition-colors duration-300">
+                    <i class="fas fa-home mr-1"></i>首页
+                </a>
+                <a href="模拟算法.html" class="text-primary hover:text-primary-dark transition-colors duration-300">
+                    <i class="fas fa-arrow-left ml-1"></i>模拟算法
+                </a>
+                <a href="贪心.html" class="text-primary hover:text-primary-dark transition-colors duration-300">
+                    贪心<i class="fas fa-arrow-right ml-1"></i>
+                </a>
+            </div>
+        </footer>
+    </div>
+
+    <!-- Back to top button -->
+    <button id="backToTop" class="fixed bottom-6 right-6 bg-primary hover:bg-primary-dark text-white rounded-full p-3 shadow-lg transition-all duration-300 opacity-0 invisible">
+        <i class="fas fa-arrow-up"></i>
+    </button>
+
+    <!-- JavaScript for Back to top button -->
+    <script>
+        const backToTop = document.getElementById('backToTop');
+        
+        window.addEventListener('scroll', () => {
+            if (window.scrollY > 300) {
+                backToTop.classList.remove('opacity-0', 'invisible');
+                backToTop.classList.add('opacity-100', 'visible');
+            } else {
+                backToTop.classList.remove('opacity-100', 'visible');
+                backToTop.classList.add('opacity-0', 'invisible');
+            }
+        });
+        
+        backToTop.addEventListener('click', () => {
+            window.scrollTo({
+                top: 0,
+                behavior: 'smooth'
+            });
+        });
+    </script>
+    <!-- Simple ScrollReveal effect -->
+    <script src="https://unpkg.com/scrollreveal"></script>
+    <script>
+        ScrollReveal().reveal('section', { 
+            delay: 200,
+            distance: '20px',
+            origin: 'bottom',
+            duration: 800,
+            easing: 'ease-in-out'
+        });
+    </script>
+</body>
+</html> 

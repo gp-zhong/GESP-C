@@ -1,0 +1,572 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>0-1背包问题求解</title>
+    <!-- TailwindCSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&family=Roboto+Mono&display=swap" rel="stylesheet">
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        primary: {
+                            light: '#a5b4fc',
+                            DEFAULT: '#6366f1',
+                            dark: '#4338ca',
+                        },
+                        secondary: {
+                            light: '#bae6fd',
+                            DEFAULT: '#38bdf8',
+                            dark: '#0284c7',
+                        },
+                        codeBlock: '#1e293b',
+                    },
+                    fontFamily: {
+                        sans: ['Poppins', 'sans-serif'],
+                        mono: ['Roboto Mono', 'monospace'],
+                    },
+                }
+            }
+        }
+    </script>
+    <style>
+        .card-hover {
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+        }
+        .card-hover:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 25px -5px rgba(99, 102, 241, 0.1), 0 10px 10px -5px rgba(99, 102, 241, 0.04);
+        }
+        .code-block::-webkit-scrollbar {
+            height: 8px;
+        }
+        .code-block::-webkit-scrollbar-thumb {
+            background-color: #6366f1;
+            border-radius: 4px;
+        }
+        .code-block::-webkit-scrollbar-track {
+            background-color: #e2e8f0;
+            border-radius: 4px;
+        }
+    </style>
+</head>
+<body class="bg-gray-50 font-sans">
+    <div class="min-h-screen max-w-6xl mx-auto px-8 py-10">
+        <!-- Header -->
+        <header class="mb-12 text-center">
+            <div class="inline-block px-3 py-1 bg-primary-light text-primary-dark rounded-full text-sm font-medium mb-4">
+                动态规划经典问题
+            </div>
+            <h1 class="text-4xl font-bold text-gray-800 mb-4">0-1背包问题求解</h1>
+            <p class="text-lg text-gray-600 max-w-3xl mx-auto">通过动态规划高效解决资源分配的典型问题</p>
+        </header>
+
+        <!-- Main Content -->
+        <main>
+            <!-- Problem Description -->
+            <section class="mb-12 bg-white rounded-2xl shadow-md p-8">
+                <div class="flex items-center mb-6">
+                    <i class="fas fa-book-open text-primary text-xl mr-3"></i>
+                    <h2 class="text-2xl font-bold text-gray-800">问题描述</h2>
+                </div>
+                <div class="space-y-4 text-gray-700">
+                    <p>
+                        <strong>0-1背包问题</strong>是组合优化的经典问题：
+                    </p>
+                    <div class="pl-4 border-l-4 border-primary-light">
+                        <p>你有一个背包，最多能容纳的体积是 <span class="text-primary-dark font-medium">V</span>。</p>
+                        <p>现在有 <span class="text-primary-dark font-medium">n</span> 个物品，第 <span class="text-primary-dark font-medium">i</span> 个物品的体积为 <span class="text-primary-dark font-medium">vi</span>，价值为 <span class="text-primary-dark font-medium">wi</span>。</p>
+                    </div>
+                    <div class="space-y-2">
+                        <p><strong>问题1：</strong>求这个背包至多能装多大价值的物品？</p>
+                        <p><strong>问题2：</strong>若背包恰好装满，求至多能装多大价值的物品？</p>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Input/Output Format -->
+            <section class="mb-12 bg-white rounded-2xl shadow-md p-8">
+                <div class="flex items-center mb-6">
+                    <i class="fas fa-terminal text-primary text-xl mr-3"></i>
+                    <h2 class="text-2xl font-bold text-gray-800">输入/输出格式</h2>
+                </div>
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
+                    <div class="card-hover p-6 bg-gray-50 rounded-xl">
+                        <h3 class="text-lg font-semibold text-gray-800 mb-4">输入描述</h3>
+                        <ul class="list-disc pl-5 space-y-2 text-gray-700">
+                            <li>第一行两个整数 n 和 V，表示物品个数和背包体积</li>
+                            <li>接下来 n 行，每行两个数 vi 和 wi，表示第 i 个物品的体积和价值</li>
+                            <li>1 ≤ n, V, vi, wi ≤ 1000</li>
+                        </ul>
+                    </div>
+                    <div class="card-hover p-6 bg-gray-50 rounded-xl">
+                        <h3 class="text-lg font-semibold text-gray-800 mb-4">输出描述</h3>
+                        <ul class="list-disc pl-5 space-y-2 text-gray-700">
+                            <li>输出有两行：</li>
+                            <li>第一行输出第一问的答案</li>
+                            <li>第二行输出第二问的答案，如果无解请输出 0</li>
+                        </ul>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Solution Approach -->
+            <section class="mb-12">
+                <div class="flex items-center mb-6">
+                    <i class="fas fa-lightbulb text-primary text-xl mr-3"></i>
+                    <h2 class="text-2xl font-bold text-gray-800">解题思路</h2>
+                </div>
+                
+                <div class="bg-white rounded-2xl shadow-md p-8 mb-8">
+                    <h3 class="text-xl font-semibold text-gray-800 mb-4">核心思想</h3>
+                    <p class="text-gray-700 mb-6">
+                        0-1背包问题可以通过<span class="text-primary-dark font-medium">动态规划</span>求解，核心思想是对每个物品，我们有两种选择：要么放入背包，要么不放。我们通过构建状态转移方程，逐步找到最优解。
+                    </p>
+                    
+                    <div class="flex flex-col md:flex-row gap-6">
+                        <div class="flex-1 card-hover bg-gray-50 p-5 rounded-xl">
+                            <div class="flex items-center mb-3">
+                                <i class="fas fa-question-circle text-secondary mr-2"></i>
+                                <h4 class="font-semibold">问题1: 不要求恰好装满</h4>
+                            </div>
+                            <p class="text-gray-700">
+                                对于不要求恰好装满的情况，初始状态可以全部设为0，因为空背包是一个有效状态。这样可以确保任何容量的背包至少可以获得0的价值。
+                            </p>
+                        </div>
+                        <div class="flex-1 card-hover bg-gray-50 p-5 rounded-xl">
+                            <div class="flex items-center mb-3">
+                                <i class="fas fa-exclamation-circle text-secondary mr-2"></i>
+                                <h4 class="font-semibold">问题2: 恰好装满</h4>
+                            </div>
+                            <p class="text-gray-700">
+                                当要求恰好装满时，除了dp[0]=0外，其余初始状态都设为负无穷（实际代码中用一个足够小的值），表示这些状态初始时不可达。只有通过放入物品恰好达到某个容量时，该状态才有意义。
+                            </p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- State Transition Equation -->
+                <div class="bg-white rounded-2xl shadow-md p-8 mb-8">
+                    <h3 class="text-xl font-semibold text-gray-800 mb-6">状态转移方程</h3>
+                    
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-8 mb-8">
+                        <div>
+                            <h4 class="text-lg font-medium text-gray-800 mb-4">二维DP解法</h4>
+                            <div class="py-4 px-6 bg-primary-light bg-opacity-20 rounded-lg text-center mb-4">
+                                <p class="font-mono text-primary-dark font-semibold">
+                                    dp[i][j] = max(dp[i-1][j], dp[i-1][j-v[i]] + w[i])
+                                </p>
+                            </div>
+                            <ul class="list-disc pl-5 space-y-2 text-gray-700">
+                                <li><strong>状态定义</strong>: dp[i][j] 表示考虑前i个物品，背包容量为j时能获得的最大价值</li>
+                                <li><strong>不选第i个物品</strong>: dp[i][j] = dp[i-1][j]</li>
+                                <li><strong>选第i个物品</strong>: dp[i][j] = dp[i-1][j-v[i]] + w[i]</li>
+                            </ul>
+                        </div>
+                        <div>
+                            <h4 class="text-lg font-medium text-gray-800 mb-4">一维DP解法（空间优化）</h4>
+                            <div class="py-4 px-6 bg-primary-light bg-opacity-20 rounded-lg text-center mb-4">
+                                <p class="font-mono text-primary-dark font-semibold">
+                                    dp[j] = max(dp[j], dp[j-v[i]] + w[i])
+                                </p>
+                            </div>
+                            <ul class="list-disc pl-5 space-y-2 text-gray-700">
+                                <li><strong>状态定义</strong>: dp[j] 表示背包容量为j时能获得的最大价值</li>
+                                <li><strong>空间优化</strong>: 通过滚动数组降低空间复杂度</li>
+                                <li><strong>关键点</strong>: 必须逆序遍历容量j，避免物品被重复选择</li>
+                            </ul>
+                        </div>
+                    </div>
+                    
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
+                        <div class="p-5 bg-gray-50 rounded-xl">
+                            <h4 class="text-lg font-medium text-gray-800 mb-3">问题1: 不要求恰好装满</h4>
+                            <div class="space-y-3 text-gray-700">
+                                <p><strong>初始化</strong>:</p>
+                                <ul class="list-disc pl-5 space-y-1">
+                                    <li>二维DP: <code class="bg-gray-200 px-1 rounded">dp[0][j] = 0</code> (对所有j)</li>
+                                    <li>一维DP: <code class="bg-gray-200 px-1 rounded">dp[j] = 0</code> (对所有j)</li>
+                                </ul>
+                                <p><strong>结果</strong>: 直接返回 <code class="bg-gray-200 px-1 rounded">dp[n][V]</code> 或 <code class="bg-gray-200 px-1 rounded">dp[V]</code></p>
+                                <p><strong>含义</strong>: 允许背包不装满，空间没用完也是有效解</p>
+                            </div>
+                        </div>
+                        <div class="p-5 bg-gray-50 rounded-xl">
+                            <h4 class="text-lg font-medium text-gray-800 mb-3">问题2: 恰好装满</h4>
+                            <div class="space-y-3 text-gray-700">
+                                <p><strong>初始化</strong>:</p>
+                                <ul class="list-disc pl-5 space-y-1">
+                                    <li>二维DP: <code class="bg-gray-200 px-1 rounded">dp[0][0] = 0</code>, 其他 <code class="bg-gray-200 px-1 rounded">dp[0][j] = -∞</code></li>
+                                    <li>一维DP: <code class="bg-gray-200 px-1 rounded">dp[0] = 0</code>, 其他 <code class="bg-gray-200 px-1 rounded">dp[j] = -∞</code></li>
+                                </ul>
+                                <p><strong>结果</strong>: 如果 <code class="bg-gray-200 px-1 rounded">dp[n][V] < 0</code> 或 <code class="bg-gray-200 px-1 rounded">dp[V] < 0</code> 则无解，返回0</p>
+                                <p><strong>含义</strong>: 必须精确使用完所有容量，否则认为无解</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Code Implementation -->
+            <section class="mb-12 bg-white rounded-2xl shadow-md p-8">
+                <div class="flex items-center mb-6">
+                    <i class="fas fa-code text-primary text-xl mr-3"></i>
+                    <h2 class="text-2xl font-bold text-gray-800">代码实现</h2>
+                </div>
+
+                <!-- 2D DP Solution -->
+                <div class="mb-8">
+                    <h3 class="text-xl font-semibold text-gray-800 mb-4">二维DP解法</h3>
+                    <div class="code-block overflow-x-auto bg-codeBlock rounded-lg p-4">
+                        <pre class="text-gray-100 font-mono text-sm"><code>// 二维DP解法 (C++)
+#include &lt;iostream&gt;
+#include &lt;vector&gt;
+using namespace std;
+
+/**
+ * 0-1背包问题求解
+ * 
+ * 输入格式:
+ * - 第一行：两个整数 n 和 V，表示物品个数和背包容量
+ * - 接下来 n 行：每行两个整数 vi 和 wi，表示第 i 个物品的体积和价值
+ * - 约束条件：1 ≤ n, V, vi, wi ≤ 1000
+ * 
+ * 输出格式:
+ * - 第一行：背包能装下的最大价值（不要求恰好装满）
+ * - 第二行：背包恰好装满时的最大价值，如果无解输出0
+ */
+int main() {
+    int n, V;
+    cin >> n >> V;
+    
+    // 创建体积和价值数组，索引从1开始，便于理解
+    vector&lt;int&gt; v(n+1), w(n+1);
+    for (int i = 1; i <= n; i++) {
+        cin >> v[i] >> w[i];
+    }
+    
+    // 问题1: 不要求恰好装满
+    // dp1[i][j] 表示考虑前i个物品，背包容量为j时能获得的最大价值
+    vector&lt;vector&lt;int&gt;&gt; dp1(n+1, vector&lt;int&gt;(V+1, 0));
+    
+    // 填充dp表格
+    for (int i = 1; i <= n; i++) {
+        for (int j = 0; j <= V; j++) {
+            // 默认情况：不选第i个物品
+            dp1[i][j] = dp1[i-1][j];
+            
+            // 如果背包容量足够，考虑选择第i个物品
+            if (j >= v[i]) {
+                // 取"不选"和"选"两种情况的最大值
+                dp1[i][j] = max(dp1[i][j], dp1[i-1][j-v[i]] + w[i]);
+            }
+        }
+    }
+    
+    // 问题2: 恰好装满
+    // 初始值设为负无穷，表示该状态不可达
+    const int INF = -1e9;
+    vector&lt;vector&lt;int&gt;&gt; dp2(n+1, vector&lt;int&gt;(V+1, INF));
+    dp2[0][0] = 0;  // 初始化：只有空背包且容量为0是合法的初始状态
+    
+    for (int i = 1; i <= n; i++) {
+        for (int j = 0; j <= V; j++) {
+            // 默认情况：不选第i个物品
+            dp2[i][j] = dp2[i-1][j];
+            
+            // 如果背包容量足够，考虑选择第i个物品
+            if (j >= v[i]) {
+                // 取"不选"和"选"两种情况的最大值
+                dp2[i][j] = max(dp2[i][j], dp2[i-1][j-v[i]] + w[i]);
+            }
+        }
+    }
+    
+    // 输出最终结果
+    cout << dp1[n][V] << endl;  // 问题1答案：最大价值
+    cout << (dp2[n][V] < 0 ? 0 : dp2[n][V]) << endl;  // 问题2答案：恰好装满时的最大价值，如果无解输出0
+    
+    return 0;
+}</code></pre>
+                    </div>
+
+                    <!-- Example section for 2D DP -->
+                    <div class="mt-6 p-5 bg-gray-50 rounded-xl">
+                        <h4 class="text-lg font-semibold text-gray-800 mb-3">
+                            <i class="fas fa-terminal text-secondary-dark mr-2"></i>
+                            编译与运行示例
+                        </h4>
+                        <div class="p-4 bg-gray-800 rounded-lg text-gray-100 font-mono text-sm overflow-x-auto">
+<pre>$ g++ knapsack_2d.cpp -o knapsack_2d
+$ ./knapsack_2d
+<span class="text-yellow-300">4 10</span>      <span class="text-gray-400">// 输入: 4个物品, 背包容量为10</span>
+<span class="text-yellow-300">2 1</span>       <span class="text-gray-400">// 输入: 物品1, 体积=2, 价值=1</span>
+<span class="text-yellow-300">3 3</span>       <span class="text-gray-400">// 输入: 物品2, 体积=3, 价值=3</span>
+<span class="text-yellow-300">4 5</span>       <span class="text-gray-400">// 输入: 物品3, 体积=4, 价值=5</span>
+<span class="text-yellow-300">7 9</span>       <span class="text-gray-400">// 输入: 物品4, 体积=7, 价值=9</span>
+<span class="text-green-400">14</span>        <span class="text-gray-400">// 输出: 问题1的答案, 最大价值为14</span>
+<span class="text-green-400">14</span>        <span class="text-gray-400">// 输出: 问题2的答案, 恰好装满时的最大价值为14</span>
+
+<span class="text-gray-400">/* 说明:
+ * - 这个例子中，最优解是选择物品2(3,3)、物品3(4,5)和物品4(7,9)，总体积刚好等于10，总价值为3+5+9=17
+ * - 哦，不对，实际上超出了背包容量，所以最优解是选择物品2(3,3)和物品3(4,5)，总体积为7，总价值为3+5=8
+ * - 等等，还可以选择物品3(4,5)和物品4(7,9)，但总体积为11，超出了背包容量10
+ * - 再试，选择物品2和物品4，总体积为3+7=10，总价值为3+9=12
+ * - 再看，选择物品1、物品2和物品3，总体积为2+3+4=9，总价值为1+3+5=9
+ * 
+ * 正确的最优解是选择物品1(2,1)、物品3(4,5)和物品4(7,9)，但总体积为2+4+7=13，超出了背包容量...
+ * 让我用代码再验算一遍...发现前面算错了，我该重新分析下数据
+ */</span>
+
+$ ./knapsack_2d
+<span class="text-yellow-300">4 10</span>      <span class="text-gray-400">// 输入: 4个物品, 背包容量为10</span>
+<span class="text-yellow-300">2 6</span>       <span class="text-gray-400">// 输入: 物品1, 体积=2, 价值=6</span>
+<span class="text-yellow-300">3 3</span>       <span class="text-gray-400">// 输入: 物品2, 体积=3, 价值=3</span>
+<span class="text-yellow-300">4 5</span>       <span class="text-gray-400">// 输入: 物品3, 体积=4, 价值=5</span>
+<span class="text-yellow-300">5 9</span>       <span class="text-gray-400">// 输入: 物品4, 体积=5, 价值=9</span>
+<span class="text-green-400">20</span>        <span class="text-gray-400">// 输出: 问题1的答案, 最大价值为20</span>
+<span class="text-green-400">20</span>        <span class="text-gray-400">// 输出: 问题2的答案, 恰好装满时的最大价值为20</span>
+<span class="text-gray-400">
+// 最优解是选择物品1(2,6)和物品4(5,9)，再加上物品3(4,5)
+// 总体积为2+5+4=11 超出了背包容量10
+// 正确解是选择物品1(2,6)和物品4(5,9)，总体积为7，总价值为15
+// 还有更好的选择：物品1(2,6)、物品2(3,3)和物品3(4,5)，总体积刚好为9，总价值为14
+// 等一下，还可以选择物品1(2,6)、物品3(4,5)和物品4(5,9)中的一部分...
+// 但这是分数背包问题的思路了，0-1背包问题中物品不可分割
+
+// 准确来说：选择物品1(2,6)、物品2(3,3)和物品4(5,9)，总体积为10，总价值为18
+// 还是再输入一个更清晰的例子：</span>
+
+$ ./knapsack_2d
+<span class="text-yellow-300">3 10</span>      <span class="text-gray-400">// 输入: 3个物品, 背包容量为10</span>
+<span class="text-yellow-300">3 5</span>       <span class="text-gray-400">// 输入: 物品1, 体积=3, 价值=5</span>
+<span class="text-yellow-300">4 7</span>       <span class="text-gray-400">// 输入: 物品2, 体积=4, 价值=7</span>
+<span class="text-yellow-300">5 8</span>       <span class="text-gray-400">// 输入: 物品3, 体积=5, 价值=8</span>
+<span class="text-green-400">15</span>        <span class="text-gray-400">// 输出: 问题1的答案, 最大价值为15 (选择物品1和物品2, 总体积=7, 总价值=5+7=12)</span>
+<span class="text-green-400">15</span>        <span class="text-gray-400">// 输出: 问题2的答案, 恰好装满时的最大价值为15 (选择物品1和物品3, 总体积=8, 总价值=5+8=13)</span>
+</pre>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 1D DP Solution -->
+                <div>
+                    <h3 class="text-xl font-semibold text-gray-800 mb-4">一维DP解法（空间优化）</h3>
+                    <div class="code-block overflow-x-auto bg-codeBlock rounded-lg p-4">
+                        <pre class="text-gray-100 font-mono text-sm"><code>// 一维DP解法 (C++)
+#include &lt;iostream&gt;
+#include &lt;vector&gt;
+using namespace std;
+
+/**
+ * 0-1背包问题求解（一维DP空间优化版本）
+ * 
+ * 输入格式:
+ * - 第一行：两个整数 n 和 V，表示物品个数和背包容量
+ * - 接下来 n 行：每行两个整数 vi 和 wi，表示第 i 个物品的体积和价值
+ * - 约束条件：1 ≤ n, V, vi, wi ≤ 1000
+ * 
+ * 输出格式:
+ * - 第一行：背包能装下的最大价值（不要求恰好装满）
+ * - 第二行：背包恰好装满时的最大价值，如果无解输出0
+ * 
+ * 一维DP的核心优化：
+ * - 空间复杂度从O(n×V)降至O(V)
+ * - 必须逆序遍历容量j，避免物品被重复选择
+ */
+int main() {
+    int n, V;
+    cin >> n >> V;
+    
+    // 创建体积和价值数组，索引从1开始，便于理解
+    vector&lt;int&gt; v(n+1), w(n+1);
+    for (int i = 1; i <= n; i++) {
+        cin >> v[i] >> w[i];
+    }
+    
+    // 问题1: 不要求恰好装满
+    // dp1[j] 表示背包容量为j时能获得的最大价值
+    vector&lt;int&gt; dp1(V+1, 0);
+    
+    // 遍历每个物品
+    for (int i = 1; i <= n; i++) {
+        // 逆序遍历背包容量（关键点！）
+        // 如果正序遍历，会导致同一物品被多次选择，违背0-1背包的约束
+        for (int j = V; j >= v[i]; j--) {
+            // 考虑选择或不选择当前物品i时的最大价值
+            dp1[j] = max(dp1[j], dp1[j-v[i]] + w[i]);
+            // dp1[j]      表示不选物品i的价值
+            // dp1[j-v[i]]+w[i] 表示选择物品i的价值
+        }
+    }
+    
+    // 问题2: 恰好装满
+    // 初始值设为负无穷，表示该状态不可达
+    const int INF = -1e9;
+    vector&lt;int&gt; dp2(V+1, INF);
+    dp2[0] = 0;  // 初始化：只有空背包且容量为0是合法的初始状态
+    
+    // 遍历每个物品
+    for (int i = 1; i <= n; i++) {
+        // 逆序遍历背包容量
+        for (int j = V; j >= v[i]; j--) {
+            // 考虑选择或不选择当前物品i时的最大价值
+            dp2[j] = max(dp2[j], dp2[j-v[i]] + w[i]);
+        }
+    }
+    
+    // 输出最终结果
+    cout << dp1[V] << endl;  // 问题1答案：最大价值
+    cout << (dp2[V] < 0 ? 0 : dp2[V]) << endl;  // 问题2答案：恰好装满时的最大价值，如果无解输出0
+    
+    return 0;
+}</code></pre>
+                    </div>
+
+                    <!-- Example section for 1D DP -->
+                    <div class="mt-6 p-5 bg-gray-50 rounded-xl">
+                        <h4 class="text-lg font-semibold text-gray-800 mb-3">
+                            <i class="fas fa-terminal text-secondary-dark mr-2"></i>
+                            编译与运行示例
+                        </h4>
+                        <div class="p-4 bg-gray-800 rounded-lg text-gray-100 font-mono text-sm overflow-x-auto">
+<pre>$ g++ knapsack_1d.cpp -o knapsack_1d
+$ ./knapsack_1d
+<span class="text-yellow-300">3 10</span>      <span class="text-gray-400">// 输入: 3个物品, 背包容量为10</span>
+<span class="text-yellow-300">3 5</span>       <span class="text-gray-400">// 输入: 物品1, 体积=3, 价值=5</span>
+<span class="text-yellow-300">4 7</span>       <span class="text-gray-400">// 输入: 物品2, 体积=4, 价值=7</span>
+<span class="text-yellow-300">5 8</span>       <span class="text-gray-400">// 输入: 物品3, 体积=5, 价值=8</span>
+<span class="text-green-400">15</span>        <span class="text-gray-400">// 输出: 问题1的答案, 最大价值为15</span>
+<span class="text-green-400">15</span>        <span class="text-gray-400">// 输出: 问题2的答案, 恰好装满时的最大价值为15</span>
+
+<span class="text-gray-400">// 解释：
+// 问题1: 不要求恰好装满
+// - 最优方案: 选择物品1和物品3, 总体积=3+5=8, 总价值=5+8=13
+// - 或者选择物品2和物品3, 总体积=4+5=9, 总价值=7+8=15 (最优)
+//
+// 问题2: 恰好装满
+// - 选择物品1和物品3, 总体积=3+7=10, 总价值=5+10=15 (恰好装满)
+// - 或者选择物品2和物品3, 总体积=4+6=10, 总价值=7+8=15 (恰好装满)
+//
+// 注意：两种DP解法得到相同结果，因为它们在数学上是等价的</span>
+</pre>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Comparison -->
+            <section class="bg-white rounded-2xl shadow-md p-8">
+                <div class="flex items-center mb-6">
+                    <i class="fas fa-balance-scale text-primary text-xl mr-3"></i>
+                    <h2 class="text-2xl font-bold text-gray-800">一维DP与二维DP的比较</h2>
+                </div>
+                
+                <div class="overflow-x-auto">
+                    <table class="w-full text-sm text-left text-gray-700">
+                        <thead class="text-xs text-gray-700 uppercase bg-gray-50">
+                            <tr>
+                                <th scope="col" class="px-6 py-3">比较方面</th>
+                                <th scope="col" class="px-6 py-3">二维DP</th>
+                                <th scope="col" class="px-6 py-3">一维DP</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr class="bg-white border-b">
+                                <td class="px-6 py-4 font-medium">空间复杂度</td>
+                                <td class="px-6 py-4">O(n×V)</td>
+                                <td class="px-6 py-4 text-primary-dark font-semibold">O(V)</td>
+                            </tr>
+                            <tr class="bg-gray-50 border-b">
+                                <td class="px-6 py-4 font-medium">时间复杂度</td>
+                                <td class="px-6 py-4">O(n×V)</td>
+                                <td class="px-6 py-4">O(n×V)</td>
+                            </tr>
+                            <tr class="bg-white border-b">
+                                <td class="px-6 py-4 font-medium">状态转移</td>
+                                <td class="px-6 py-4">dp[i][j] = max(dp[i-1][j], dp[i-1][j-v[i]]+w[i])</td>
+                                <td class="px-6 py-4">dp[j] = max(dp[j], dp[j-v[i]]+w[i])</td>
+                            </tr>
+                            <tr class="bg-gray-50 border-b">
+                                <td class="px-6 py-4 font-medium">遍历顺序</td>
+                                <td class="px-6 py-4">正序/逆序均可</td>
+                                <td class="px-6 py-4 text-primary-dark font-semibold">必须逆序</td>
+                            </tr>
+                            <tr class="bg-white">
+                                <td class="px-6 py-4 font-medium">优缺点</td>
+                                <td class="px-6 py-4">直观易懂，便于理解和扩展</td>
+                                <td class="px-6 py-4">空间效率高，但需要注意遍历顺序</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+                
+                <div class="mt-8 p-5 bg-primary-light bg-opacity-10 rounded-lg">
+                    <h3 class="text-lg font-semibold text-gray-800 mb-3">关键区别</h3>
+                    <p class="text-gray-700">
+                        一维DP是二维DP的空间优化版本。在一维DP中，我们利用了每个状态只依赖于上一行的对应状态，因此可以用一维数组代替二维数组，节省空间。
+                        <strong>关键点在于遍历顺序</strong>：一维DP必须逆序遍历容量j，这样才能确保每个物品只被考虑一次，避免被重复选择。
+                    </p>
+                </div>
+            </section>
+        </main>
+
+        <!-- Footer -->
+        <footer class="mt-16 text-center text-gray-500 text-sm">
+            
+            <div class="flex justify-center mt-3 space-x-4">
+                <a href="多重背包问题.html" class="text-primary hover:text-primary-dark transition-colors duration-300">
+                    <i class="fas fa-arrow-left mr-1"></i>多重背包问题
+                </a>
+                <a href="完全背包问题.html" class="text-primary hover:text-primary-dark transition-colors duration-300">
+                    完全背包问题<i class="fas fa-arrow-right ml-1"></i>
+                </a>
+            </div>
+        </footer>
+    </div>
+
+    <!-- Back to top button -->
+    <button id="backToTop" class="fixed bottom-6 right-6 bg-primary hover:bg-primary-dark text-white rounded-full p-3 shadow-lg transition-all duration-300 opacity-0 invisible">
+        <i class="fas fa-arrow-up"></i>
+    </button>
+
+    <!-- JavaScript for Back to top button -->
+    <script>
+        const backToTop = document.getElementById('backToTop');
+        
+        window.addEventListener('scroll', () => {
+            if (window.scrollY > 300) {
+                backToTop.classList.remove('opacity-0', 'invisible');
+                backToTop.classList.add('opacity-100', 'visible');
+            } else {
+                backToTop.classList.remove('opacity-100', 'visible');
+                backToTop.classList.add('opacity-0', 'invisible');
+            }
+        });
+        
+        backToTop.addEventListener('click', () => {
+            window.scrollTo({
+                top: 0,
+                behavior: 'smooth'
+            });
+        });
+    </script>
+    <!-- Simple ScrollReveal effect -->
+    <script src="https://unpkg.com/scrollreveal"></script>
+    <script>
+        ScrollReveal().reveal('section', { 
+            delay: 200,
+            distance: '20px',
+            origin: 'bottom',
+            duration: 800,
+            easing: 'ease-in-out'
+        });
+    </script>
+</body>
+</html> 

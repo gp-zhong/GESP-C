@@ -1,0 +1,492 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>C++ 文件操作</title>
+    <!-- TailwindCSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&family=Roboto+Mono&display=swap" rel="stylesheet">
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        primary: {
+                            light: '#a5f3fc',
+                            DEFAULT: '#06b6d4',
+                            dark: '#0891b2',
+                        },
+                        secondary: {
+                            light: '#c7d2fe',
+                            DEFAULT: '#818cf8',
+                            dark: '#6366f1',
+                        },
+                        codeBlock: '#1e293b',
+                    },
+                    fontFamily: {
+                        sans: ['Poppins', 'sans-serif'],
+                        mono: ['Roboto Mono', 'monospace'],
+                    },
+                }
+            }
+        }
+    </script>
+    <style>
+        .card-hover {
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+        }
+        .card-hover:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 25px -5px rgba(6, 182, 212, 0.1), 0 10px 10px -5px rgba(6, 182, 212, 0.04);
+        }
+        .code-block::-webkit-scrollbar {
+            height: 8px;
+        }
+        .code-block::-webkit-scrollbar-thumb {
+            background-color: #06b6d4;
+            border-radius: 4px;
+        }
+        .code-block::-webkit-scrollbar-track {
+            background-color: #e2e8f0;
+            border-radius: 4px;
+        }
+    </style>
+</head>
+<body class="bg-gray-50 font-sans">
+    <div class="min-h-screen max-w-6xl mx-auto px-8 py-10">
+        <!-- Header -->
+        <header class="mb-12 text-center">
+            <div class="inline-block px-3 py-1 bg-primary-light text-primary-dark rounded-full text-sm font-medium mb-4">
+                C++ 编程入门
+            </div>
+            <h1 class="text-4xl font-bold text-gray-800 mb-4">C++ 文件操作</h1>
+            <p class="text-lg text-gray-600 max-w-3xl mx-auto">学习如何在C++中读写文件，处理输入输出数据</p>
+        </header>
+
+        <!-- Main Content -->
+        <main>
+            <!-- 文件的概念 Section -->
+            <section class="mb-12 bg-white rounded-2xl shadow-md p-8">
+                <div class="flex items-center mb-6">
+                    <i class="fas fa-file-alt text-primary text-xl mr-3"></i>
+                    <h2 class="text-2xl font-bold text-gray-800">文件的概念</h2>
+                </div>
+                <div class="space-y-4 text-gray-700">
+                    <p>文件是包含信息的数据序列，是存储在外部介质（如硬盘）上的数据的集合。在算法竞赛中，我们主要需要进行读取文件内容和将结果写入文件的操作。</p>
+                    
+                    <div class="p-5 bg-primary-light bg-opacity-10 rounded-lg">
+                        <p>文件操作在算法竞赛中有几个重要用途：读取测试数据、输出计算结果、中间结果的缓存和调试辅助等。掌握文件操作可以帮助我们处理更复杂的数据输入输出问题。</p>
+                    </div>
+                </div>
+            </section>
+            
+            <!-- 文件的操作步骤 Section -->
+            <section class="mb-12 bg-white rounded-2xl shadow-md p-8">
+                <div class="flex items-center mb-6">
+                    <i class="fas fa-list-ol text-primary text-xl mr-3"></i>
+                    <h2 class="text-2xl font-bold text-gray-800">文件的操作步骤</h2>
+                </div>
+                <div class="space-y-4 text-gray-700">
+                    <p>操作文件通常需要以下三个步骤：</p>
+                    
+                    <ol class="list-decimal list-inside space-y-4 pl-4">
+                        <li>
+                            <span class="font-semibold">打开文件：</span> 通过建立文件指针（或文件流对象）与物理文件之间的联系，打开文件进行读写操作
+                        </li>
+                        <li>
+                            <span class="font-semibold">读写文件：</span> 使用合适的函数对文件进行读取或写入操作
+                        </li>
+                        <li>
+                            <span class="font-semibold">关闭文件：</span> 完成文件操作后，关闭文件释放资源
+                        </li>
+                    </ol>
+                    
+                    <div class="p-5 bg-yellow-50 rounded-lg border-l-4 border-yellow-400 mt-4">
+                        <div class="flex items-start">
+                            <i class="fas fa-exclamation-triangle text-yellow-500 mt-1 mr-3"></i>
+                            <p class="text-gray-700">
+                                在算法竞赛中，良好的习惯是在程序结束前关闭所有打开的文件。虽然现代操作系统会在程序结束时自动关闭文件，但显式关闭文件可以避免一些潜在的数据丢失问题。
+                            </p>
+                        </div>
+                    </div>
+                </div>
+            </section>
+            
+            <!-- freopen 函数 Section -->
+            <section class="mb-12 bg-white rounded-2xl shadow-md p-8">
+                <div class="flex items-center mb-6">
+                    <i class="fas fa-exchange-alt text-primary text-xl mr-3"></i>
+                    <h2 class="text-2xl font-bold text-gray-800">freopen 函数</h2>
+                </div>
+                <div class="space-y-4 text-gray-700">
+                    <h3 class="text-xl font-semibold text-gray-800 mb-3">函数简介</h3>
+                    <p>freopen 函数用于将指定输入输出流以指定方式重定向到文件，包含于头文件 <code>stdio.h (cstdio)</code> 中。该函数可以在不改变代码原貌的情况下改变输入输出环境，但使用时应当保证流是可靠的。</p>
+                    
+                    <h3 class="text-xl font-semibold text-gray-800 mb-3 mt-6">函数原型</h3>
+                    <div class="overflow-x-auto bg-codeBlock rounded-lg p-4 mb-4">
+                        <pre class="text-gray-100 font-mono text-sm"><code>FILE* freopen(const char* filename, const char* mode, FILE* stream);</code></pre>
+                    </div>
+                    
+                    <h3 class="text-xl font-semibold text-gray-800 mb-3 mt-6">参数说明</h3>
+                    <ul class="list-disc list-inside space-y-2 pl-4">
+                        <li><code>filename</code>: 要打开的文件名</li>
+                        <li><code>mode</code>: 文件打开的模式，表示文件访问的权限</li>
+                        <li><code>stream</code>: 文件指针，通常使用标准文件流 (<code>stdin/stdout</code>) 或标准错误输出流 (<code>stderr</code>)</li>
+                        <li>返回值：文件指针，指向被打开文件</li>
+                    </ul>
+                    
+                    <div class="card-hover p-6 bg-gray-50 rounded-xl mt-6">
+                        <h4 class="text-lg font-semibold text-gray-800 mb-3">文件打开格式（常用）</h4>
+                        <ul class="list-disc list-inside space-y-2 pl-4">
+                            <li>
+                                <code>r</code>：以只读方式打开文件，文件必须存在，只允许读入数据
+                            </li>
+                            <li>
+                                <code>w</code>：以只写方式打开文件，文件不存在会新建文件，否则清空内容，只允许写入数据
+                            </li>
+                            <li>
+                                <code>a</code>：以只写方式打开文件，文件不存在将新建文件，写入数据将被附加在文件末尾
+                            </li>
+                            <li>
+                                <code>r+</code>：以读/写方式打开文件，文件必须存在，允许读/写数据
+                            </li>
+                            <li>
+                                <code>w+</code>：以读/写方式打开文件，文件不存在将新建文件，否则清空内容，允许读/写数据
+                            </li>
+                        </ul>
+                    </div>
+                    
+                    <h3 class="text-xl font-semibold text-gray-800 mb-3 mt-6">使用方法</h3>
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-8 mb-6">
+                        <div class="card-hover p-6 bg-gray-50 rounded-xl">
+                            <h4 class="text-lg font-semibold text-gray-800 mb-3">
+                                <i class="fas fa-file-import text-primary-dark mr-2"></i>
+                                读入文件内容
+                            </h4>
+                            <div class="overflow-x-auto bg-codeBlock rounded-lg p-3">
+                                <pre class="text-gray-100 font-mono text-sm"><code>freopen("data.in", "r", stdin); 
+// data.in 就是读取的文件名
+// 要和可执行文件放在同一目录下</code></pre>
+                            </div>
+                        </div>
+                        
+                        <div class="card-hover p-6 bg-gray-50 rounded-xl">
+                            <h4 class="text-lg font-semibold text-gray-800 mb-3">
+                                <i class="fas fa-file-export text-primary-dark mr-2"></i>
+                                输出到文件
+                            </h4>
+                            <div class="overflow-x-auto bg-codeBlock rounded-lg p-3">
+                                <pre class="text-gray-100 font-mono text-sm"><code>freopen("data.out", "w", stdout); 
+// data.out 就是输出文件的文件名
+// 和可执行文件在同一目录下</code></pre>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="card-hover p-6 bg-gray-50 rounded-xl">
+                        <h4 class="text-lg font-semibold text-gray-800 mb-3">
+                            <i class="fas fa-file-medical-alt text-primary-dark mr-2"></i>
+                            关闭文件流
+                        </h4>
+                        <div class="overflow-x-auto bg-codeBlock rounded-lg p-3">
+                            <pre class="text-gray-100 font-mono text-sm"><code>fclose(stdin);  // 关闭标准输入流
+fclose(stdout); // 关闭标准输出流</code></pre>
+                        </div>
+                    </div>
+                    
+                    <div class="p-5 bg-blue-50 rounded-xl border-l-4 border-blue-400 mt-6">
+                        <div class="flex items-start">
+                            <i class="fas fa-info-circle text-blue-500 mt-1 mr-3"></i>
+                            <div>
+                                <h3 class="text-lg font-semibold text-gray-800 mb-2">注意事项</h3>
+                                <p class="text-gray-700">
+                                    <code>printf/scanf/cin/cout</code> 等函数默认使用 <code>stdin/stdout</code>，将 <code>stdin/stdout</code> 重定向后，这些函数将输入/输出到被定向的文件。这意味着您可以在不修改原有输入输出代码的情况下切换到文件输入输出。
+                                </p>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <h3 class="text-xl font-semibold text-gray-800 mb-3 mt-6">使用模板</h3>
+                    <div class="overflow-x-auto bg-codeBlock rounded-lg p-4 mb-4">
+                        <pre class="text-gray-100 font-mono text-sm"><code>#include &lt;cstdio&gt;
+#include &lt;iostream&gt;
+
+int main(void) {
+    // 重定向标准输入输出到文件
+    freopen("data.in", "r", stdin);
+    freopen("data.out", "w", stdout);
+    
+    /*
+    中间的代码不需要改变，直接使用 cin 和 cout 即可
+    */
+    
+    // 关闭文件流
+    fclose(stdin);
+    fclose(stdout);
+    return 0;
+}</code></pre>
+                    </div>
+                </div>
+            </section>
+            
+            <!-- fopen 函数 Section -->
+            <section class="mb-12 bg-white rounded-2xl shadow-md p-8">
+                <div class="flex items-center mb-6">
+                    <i class="fas fa-folder-open text-primary text-xl mr-3"></i>
+                    <h2 class="text-2xl font-bold text-gray-800">fopen 函数（选读）</h2>
+                </div>
+                <div class="space-y-4 text-gray-700">
+                    <p>fopen 函数大致与 freopen 相同，但不重定向现有流，而是打开指定文件并返回打开文件的指针。</p>
+                    
+                    <h3 class="text-xl font-semibold text-gray-800 mb-3 mt-4">函数原型</h3>
+                    <div class="overflow-x-auto bg-codeBlock rounded-lg p-4 mb-4">
+                        <pre class="text-gray-100 font-mono text-sm"><code>FILE* fopen(const char* path, const char* mode);</code></pre>
+                    </div>
+                    
+                    <h3 class="text-xl font-semibold text-gray-800 mb-3 mt-6">可用读写函数（基本）</h3>
+                    <ul class="list-disc list-inside space-y-2 pl-4">
+                        <li><code>fread/fwrite</code>：二进制读写</li>
+                        <li><code>fgetc/fputc</code>：字符读写</li>
+                        <li><code>fscanf/fprintf</code>：格式化读写</li>
+                        <li><code>fgets/fputs</code>：字符串读写</li>
+                    </ul>
+                    
+                    <h3 class="text-xl font-semibold text-gray-800 mb-3 mt-6">使用示例</h3>
+                    <div class="overflow-x-auto bg-codeBlock rounded-lg p-4 mb-4">
+                        <pre class="text-gray-100 font-mono text-sm"><code>#include &lt;cstdio&gt;
+
+int main() {
+    FILE *in, *out;  // 定义文件指针
+    
+    in = fopen("data.in", "r");
+    out = fopen("data.out", "w");
+    
+    // 读写操作
+    int n;
+    fscanf(in, "%d", &n);
+    fprintf(out, "读取到的数字是：%d\n", n);
+    
+    // 关闭文件
+    fclose(in);
+    fclose(out);
+    
+    return 0;
+}</code></pre>
+                    </div>
+                </div>
+            </section>
+            
+            <!-- C++ 的 ifstream/ofstream Section -->
+            <section class="mb-12 bg-white rounded-2xl shadow-md p-8">
+                <div class="flex items-center mb-6">
+                    <i class="fas fa-stream text-primary text-xl mr-3"></i>
+                    <h2 class="text-2xl font-bold text-gray-800">C++ 的 ifstream/ofstream 文件流</h2>
+                </div>
+                <div class="space-y-4 text-gray-700">
+                    <p>C++ 提供了面向对象的文件操作方式，使用 <code>ifstream</code> 类处理文件输入，<code>ofstream</code> 类处理文件输出。这些类定义在 <code>&lt;fstream&gt;</code> 头文件中。</p>
+                    
+                    <h3 class="text-xl font-semibold text-gray-800 mb-3 mt-6">使用方法</h3>
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-8 mb-6">
+                        <div class="card-hover p-6 bg-gray-50 rounded-xl">
+                            <h4 class="text-lg font-semibold text-gray-800 mb-3">
+                                <i class="fas fa-file-import text-primary-dark mr-2"></i>
+                                读入文件内容
+                            </h4>
+                            <div class="overflow-x-auto bg-codeBlock rounded-lg p-3">
+                                <pre class="text-gray-100 font-mono text-sm"><code>ifstream fin("data.in"); 
+// data.in 就是读取文件的相对位置或绝对位置</code></pre>
+                            </div>
+                        </div>
+                        
+                        <div class="card-hover p-6 bg-gray-50 rounded-xl">
+                            <h4 class="text-lg font-semibold text-gray-800 mb-3">
+                                <i class="fas fa-file-export text-primary-dark mr-2"></i>
+                                输出到文件
+                            </h4>
+                            <div class="overflow-x-auto bg-codeBlock rounded-lg p-3">
+                                <pre class="text-gray-100 font-mono text-sm"><code>ofstream fout("data.out"); 
+// data.out 就是输出文件的相对位置或绝对位置</code></pre>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="card-hover p-6 bg-gray-50 rounded-xl">
+                        <h4 class="text-lg font-semibold text-gray-800 mb-3">
+                            <i class="fas fa-file-medical-alt text-primary-dark mr-2"></i>
+                            关闭文件流
+                        </h4>
+                        <div class="overflow-x-auto bg-codeBlock rounded-lg p-3">
+                            <pre class="text-gray-100 font-mono text-sm"><code>fin.close();  // 关闭输入文件流
+fout.close(); // 关闭输出文件流</code></pre>
+                        </div>
+                    </div>
+                    
+                    <h3 class="text-xl font-semibold text-gray-800 mb-3 mt-6">使用模板</h3>
+                    <div class="overflow-x-auto bg-codeBlock rounded-lg p-4 mb-4">
+                        <pre class="text-gray-100 font-mono text-sm"><code>#include &lt;fstream&gt;
+#include &lt;iostream&gt;
+using namespace std;  // 两个类型都在 std 命名空间里
+
+int main(void) {
+    ifstream fin("data.in");
+    ofstream fout("data.out");
+    
+    /*
+    中间的代码改变 cin 为 fin，cout 为 fout 即可
+    例如：
+    */
+    int n;
+    fin >> n;
+    fout << "读取到的数字是：" << n << endl;
+    
+    // 关闭文件流
+    fin.close();
+    fout.close();
+    return 0;
+}</code></pre>
+                    </div>
+                    
+                    <div class="p-5 bg-blue-50 rounded-xl border-l-4 border-blue-400 mt-6">
+                        <div class="flex items-start">
+                            <i class="fas fa-info-circle text-blue-500 mt-1 mr-3"></i>
+                            <div>
+                                <h3 class="text-lg font-semibold text-gray-800 mb-2">C++ 文件流的优势</h3>
+                                <p class="text-gray-700">
+                                    C++ 文件流的优势在于与 C++ 输入输出流（如 <code>cin</code>、<code>cout</code>）使用相同的操作符和方法，如 <code>&gt;&gt;</code> 和 <code>&lt;&lt;</code>，使用起来更加统一和直观。此外，文件流对象会在离开作用域时自动关闭文件，减少了资源泄漏的风险。
+                                </p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+            
+            <!-- 综合示例 Section -->
+            <section class="bg-white rounded-2xl shadow-md p-8">
+                <div class="flex items-center mb-6">
+                    <i class="fas fa-code text-primary text-xl mr-3"></i>
+                    <h2 class="text-2xl font-bold text-gray-800">综合示例</h2>
+                </div>
+                <div class="space-y-4 text-gray-700">
+                    <p>以下是一个解决简单问题的实例，展示了如何使用文件操作：</p>
+                    
+                    <div class="p-5 bg-gray-50 rounded-lg mb-4">
+                        <h3 class="text-lg font-semibold text-gray-800 mb-3">问题描述</h3>
+                        <p>有一个包含若干整数的文件 <code>numbers.in</code>，第一行表示整数的个数 n，接下来有 n 个整数，要求将这些整数排序后输出到文件 <code>numbers.out</code> 中。</p>
+                    </div>
+                    
+                    <h3 class="text-xl font-semibold text-gray-800 mb-3 mt-6">使用 freopen 的解决方案</h3>
+                    <div class="overflow-x-auto bg-codeBlock rounded-lg p-4 mb-6">
+                        <pre class="text-gray-100 font-mono text-sm"><code>#include &lt;algorithm&gt;
+#include &lt;cstdio&gt;
+#include &lt;iostream&gt;
+#include &lt;vector&gt;
+using namespace std;
+
+int main() {
+    // 重定向标准输入输出
+    freopen("numbers.in", "r", stdin);
+    freopen("numbers.out", "w", stdout);
+    
+    int n;
+    cin >> n;  // 读取整数个数
+    
+    vector&lt;int&gt; numbers(n);
+    for (int i = 0; i < n; i++) {
+        cin >> numbers[i];  // 读取每个整数
+    }
+    
+    sort(numbers.begin(), numbers.end());  // 排序
+    
+    for (int i = 0; i < n; i++) {
+        cout << numbers[i] << " ";  // 输出排序后的整数
+    }
+    cout << endl;
+    
+    // 关闭文件流
+    fclose(stdin);
+    fclose(stdout);
+    return 0;
+}</code></pre>
+                    </div>
+                    
+                    <h3 class="text-xl font-semibold text-gray-800 mb-3 mt-6">使用 ifstream/ofstream 的解决方案</h3>
+                    <div class="overflow-x-auto bg-codeBlock rounded-lg p-4 mb-4">
+                        <pre class="text-gray-100 font-mono text-sm"><code>#include &lt;algorithm&gt;
+#include &lt;fstream&gt;
+#include &lt;vector&gt;
+using namespace std;
+
+int main() {
+    ifstream fin("numbers.in");
+    ofstream fout("numbers.out");
+    
+    int n;
+    fin >> n;  // 读取整数个数
+    
+    vector&lt;int&gt; numbers(n);
+    for (int i = 0; i < n; i++) {
+        fin >> numbers[i];  // 读取每个整数
+    }
+    
+    sort(numbers.begin(), numbers.end());  // 排序
+    
+    for (int i = 0; i < n; i++) {
+        fout << numbers[i] << " ";  // 输出排序后的整数
+    }
+    fout << endl;
+    
+    // 关闭文件流
+    fin.close();
+    fout.close();
+    return 0;
+}</code></pre>
+                    </div>
+                    
+                    <div class="p-5 bg-yellow-50 rounded-lg border-l-4 border-yellow-400 mt-6">
+                        <div class="flex items-start">
+                            <i class="fas fa-exclamation-triangle text-yellow-500 mt-1 mr-3"></i>
+                            <div>
+                                <h3 class="text-lg font-semibold text-gray-800 mb-2">实际应用建议</h3>
+                                <p class="text-gray-700">
+                                    在算法竞赛中，一般情况下标准输入/输出就足够了，但如果题目明确要求使用文件输入/输出，或者需要处理多个测试用例时，文件操作会非常有用。在选择使用哪种方法时，可以根据个人习惯和代码风格进行选择，freopen 修改较少，而 ifstream/ofstream 更加 C++ 风格。
+                                </p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+        </main>
+
+        <!-- Footer -->
+        <footer class="mt-16 text-center text-gray-500 text-sm">
+            <div class="flex justify-center mt-6 space-x-4">
+                <a href="简介.html" class="text-primary hover:text-primary-dark transition-colors duration-300">
+                    <i class="fas fa-home mr-1"></i>首页
+                </a>
+                <a href="函数.html" class="text-primary hover:text-primary-dark transition-colors duration-300">
+                    <i class="fas fa-arrow-left ml-1"></i>函数
+                </a>
+                <a href="STL容器.html" class="text-primary hover:text-primary-dark transition-colors duration-300">
+                    STL容器<i class="fas fa-arrow-right ml-1"></i>
+                </a>
+            </div>
+        </footer>
+    </div>
+
+    <!-- Simple ScrollReveal effect -->
+    <script src="https://unpkg.com/scrollreveal"></script>
+    <script>
+        ScrollReveal().reveal('section', { 
+            delay: 200,
+            distance: '20px',
+            origin: 'bottom',
+            duration: 800,
+            easing: 'ease-in-out'
+        });
+    </script>
+</body>
+</html> 

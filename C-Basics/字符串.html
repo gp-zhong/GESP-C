@@ -1,0 +1,646 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>C++ 字符串</title>
+    <!-- TailwindCSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&family=Roboto+Mono&display=swap" rel="stylesheet">
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        primary: {
+                            light: '#a5f3fc',
+                            DEFAULT: '#06b6d4',
+                            dark: '#0891b2',
+                        },
+                        secondary: {
+                            light: '#c7d2fe',
+                            DEFAULT: '#818cf8',
+                            dark: '#6366f1',
+                        },
+                        codeBlock: '#1e293b',
+                    },
+                    fontFamily: {
+                        sans: ['Poppins', 'sans-serif'],
+                        mono: ['Roboto Mono', 'monospace'],
+                    },
+                }
+            }
+        }
+    </script>
+    <style>
+        .card-hover {
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+        }
+        .card-hover:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 25px -5px rgba(6, 182, 212, 0.1), 0 10px 10px -5px rgba(6, 182, 212, 0.04);
+        }
+        .code-block::-webkit-scrollbar {
+            height: 8px;
+        }
+        .code-block::-webkit-scrollbar-thumb {
+            background-color: #06b6d4;
+            border-radius: 4px;
+        }
+        .code-block::-webkit-scrollbar-track {
+            background-color: #e2e8f0;
+            border-radius: 4px;
+        }
+    </style>
+</head>
+<body class="bg-gray-50 font-sans">
+    <div class="min-h-screen max-w-6xl mx-auto px-8 py-10">
+        <!-- Header -->
+        <header class="mb-12 text-center">
+            <div class="inline-block px-3 py-1 bg-primary-light text-primary-dark rounded-full text-sm font-medium mb-4">
+                C++ 编程入门
+            </div>
+            <h1 class="text-4xl font-bold text-gray-800 mb-4">C++ 字符串</h1>
+            <p class="text-lg text-gray-600 max-w-3xl mx-auto">掌握字符串的概念与操作，处理文本信息的核心技能</p>
+        </header>
+
+        <!-- Main Content -->
+        <main>
+            <!-- 基本概念 Section -->
+            <section class="mb-12 bg-white rounded-2xl shadow-md p-8">
+                <div class="flex items-center mb-6">
+                    <i class="fas fa-font text-primary text-xl mr-3"></i>
+                    <h2 class="text-2xl font-bold text-gray-800">字符串基本概念</h2>
+                </div>
+                <div class="space-y-4 text-gray-700">
+                    <p>字符串是一种重要的数据类型，用于存储和处理文本信息。在C++中，有多种处理字符串的方式。</p>
+                    
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-8 mb-6">
+                        <div class="card-hover p-6 bg-gray-50 rounded-xl">
+                            <h3 class="text-lg font-semibold text-gray-800 mb-4">
+                                <i class="fas fa-book text-primary-dark mr-2"></i>
+                                字符串定义
+                            </h3>
+                            <p class="mb-3">字符串是将字符顺次排列形成的序列。在C++中，字符串可以通过以下方式表示：</p>
+                            <ul class="list-disc pl-5 space-y-1 mb-4">
+                                <li>C风格字符串 - 字符数组，以空字符('\0')结尾</li>
+                                <li>C++风格字符串 - 使用标准库中的string类</li>
+                            </ul>
+                            <div class="overflow-x-auto bg-codeBlock rounded-lg p-3">
+                                <pre class="text-gray-100 font-mono text-sm"><code>// C风格字符串
+char str1[] = "Hello";  // 编译器自动添加'\0'
+char str2[6] = {'H', 'e', 'l', 'l', 'o', '\0'};
+
+// C++风格字符串
+#include &lt;string&gt;
+std::string str3 = "Hello";
+std::string str4("World");</code></pre>
+                            </div>
+                        </div>
+                        
+                        <div class="card-hover p-6 bg-gray-50 rounded-xl">
+                            <h3 class="text-lg font-semibold text-gray-800 mb-4">
+                                <i class="fas fa-key text-primary-dark mr-2"></i>
+                                重要术语
+                            </h3>
+                            <ul class="space-y-2">
+                                <li><strong>子串</strong> - 字符串的连续部分</li>
+                                <li><strong>子序列</strong> - 从字符串中提取的字符，保持相对顺序</li>
+                                <li><strong>前缀</strong> - 从串首开始到某个位置的子串</li>
+                                <li><strong>后缀</strong> - 从某个位置开始到串尾的子串</li>
+                                <li><strong>字典序</strong> - 字符串按字符逐位比较的顺序</li>
+                                <li><strong>回文串</strong> - 正读和反读都相同的字符串</li>
+                                <li><strong>汉明距离</strong> - 两个等长字符串中对应位置不同字符的数量</li>
+                            </ul>
+                        </div>
+                    </div>
+                    
+                    <div class="p-5 bg-blue-50 rounded-xl border-l-4 border-blue-400">
+                        <div class="flex items-start">
+                            <i class="fas fa-info-circle text-blue-500 mt-1 mr-3"></i>
+                            <div>
+                                <h3 class="text-lg font-semibold text-gray-800 mb-2">字符集</h3>
+                                <p>字符集是一个建立了全序关系的集合，其中的元素称为字符。常见的字符集包括：</p>
+                                <ul class="list-disc pl-5 space-y-1">
+                                    <li>ASCII - 128个字符，包括英文字母、数字和特殊符号</li>
+                                    <li>Unicode - 包含世界上大多数书写系统的字符</li>
+                                    <li>UTF-8 - Unicode的一种可变长度编码方式</li>
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+            
+            <!-- C风格字符串 Section -->
+            <section class="mb-12 bg-white rounded-2xl shadow-md p-8">
+                <div class="flex items-center mb-6">
+                    <i class="fas fa-code text-primary text-xl mr-3"></i>
+                    <h2 class="text-2xl font-bold text-gray-800">C风格字符串</h2>
+                </div>
+                <div class="space-y-4 text-gray-700">
+                    <p>C风格字符串本质上是字符数组，以空字符('\0')结尾。C++支持C风格字符串操作，主要通过<code>cstring</code>（或<code>string.h</code>）头文件提供的函数。</p>
+                    
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-8 mb-6">
+                        <div class="card-hover p-6 bg-gray-50 rounded-xl">
+                            <h3 class="text-lg font-semibold text-gray-800 mb-4">
+                                <i class="fas fa-ruler text-primary-dark mr-2"></i>
+                                基本操作
+                            </h3>
+                            <div class="overflow-x-auto bg-codeBlock rounded-lg p-3">
+                                <pre class="text-gray-100 font-mono text-sm"><code>#include &lt;cstring&gt;
+#include &lt;iostream&gt;
+using namespace std;
+
+int main() {
+    char str1[20] = "Hello";
+    char str2[20] = "World";
+    char str3[40];
+    
+    // 字符串长度
+    cout << "str1长度: " << strlen(str1) << endl;  // 5
+    
+    // 字符串复制
+    strcpy(str3, str1);
+    cout << "str3: " << str3 << endl;  // Hello
+    
+    // 字符串连接
+    strcat(str3, str2);
+    cout << "连接后: " << str3 << endl;  // HelloWorld
+    
+    // 字符串比较
+    int result = strcmp(str1, str2);
+    if (result < 0)
+        cout << "str1 < str2" << endl;
+    else if (result > 0)
+        cout << "str1 > str2" << endl;
+    else
+        cout << "str1 = str2" << endl;
+    
+    return 0;
+}</code></pre>
+                            </div>
+                        </div>
+                        
+                        <div class="card-hover p-6 bg-gray-50 rounded-xl">
+                            <h3 class="text-lg font-semibold text-gray-800 mb-4">
+                                <i class="fas fa-search text-primary-dark mr-2"></i>
+                                字符串查找与处理
+                            </h3>
+                            <div class="overflow-x-auto bg-codeBlock rounded-lg p-3">
+                                <pre class="text-gray-100 font-mono text-sm"><code>// 查找字符
+char* p = strchr(str1, 'e');  // 查找第一个'e'
+if (p) {
+    cout << "找到'e'的位置: " << (p - str1) << endl;
+}
+
+// 查找子串
+char* q = strstr(str3, "World");  // 查找"World"子串
+if (q) {
+    cout << "找到'World'的位置: " << (q - str3) << endl;
+}
+
+// 分割字符串
+char text[] = "apple,banana,orange";
+char* token = strtok(text, ",");
+while (token != NULL) {
+    cout << token << endl;
+    token = strtok(NULL, ",");
+}
+
+// 字符转换
+char s[] = "Hello World 123";
+// 转大写
+for (int i = 0; s[i]; i++) {
+    s[i] = toupper(s[i]);
+}
+cout << s << endl;  // HELLO WORLD 123</code></pre>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="p-5 bg-yellow-50 rounded-lg border-l-4 border-yellow-400 mt-4">
+                        <div class="flex items-start">
+                            <i class="fas fa-exclamation-triangle text-yellow-500 mt-1 mr-3"></i>
+                            <div>
+                                <h3 class="text-lg font-semibold text-gray-800 mb-2">C风格字符串的注意事项</h3>
+                                <p class="text-gray-700">
+                                    使用C风格字符串时需要注意以下几点：<br>
+                                    - 确保字符数组有足够空间存储字符串（包括结尾的'\0'）<br>
+                                    - 避免内存溢出，使用安全版本的函数如strncpy, strncat<br>
+                                    - 字符串操作函数可能导致潜在的安全问题和缓冲区溢出<br>
+                                    - 现代C++编程中，建议优先使用std::string类
+                                </p>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <h3 class="text-xl font-semibold text-gray-800 mt-6 mb-3">字符串与数值转换</h3>
+                    
+                    <div class="card-hover p-6 bg-gray-50 rounded-xl">
+                        <div class="overflow-x-auto bg-codeBlock rounded-lg p-3">
+                            <pre class="text-gray-100 font-mono text-sm"><code>#include &lt;cstdlib&gt;  // 包含数值转换函数
+
+int main() {
+    // 字符串转整数
+    char num1[] = "12345";
+    int value1 = atoi(num1);  // 12345
+    
+    // 字符串转浮点数
+    char num2[] = "123.45";
+    double value2 = atof(num2);  // 123.45
+    
+    // 字符串转长整型
+    char num3[] = "123456789";
+    long value3 = atol(num3);  // 123456789
+    
+    // 整数转字符串
+    char buffer[20];
+    int num = 12345;
+    sprintf(buffer, "%d", num);  // 将数字转为字符串
+    
+    // 更安全的方式 (C++11)
+    snprintf(buffer, sizeof(buffer), "%d", num);
+    
+    return 0;
+}</code></pre>
+                        </div>
+                    </div>
+                </div>
+            </section>
+            
+            <!-- C++ string类 Section -->
+            <section class="mb-12 bg-white rounded-2xl shadow-md p-8">
+                <div class="flex items-center mb-6">
+                    <i class="fas fa-file-alt text-primary text-xl mr-3"></i>
+                    <h2 class="text-2xl font-bold text-gray-800">C++ string 类</h2>
+                </div>
+                <div class="space-y-4 text-gray-700">
+                    <p>C++标准库提供了<code>string</code>类，它提供了更安全、更灵活的字符串操作，比C风格字符串更易于使用。</p>
+                    
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-8 mb-6">
+                        <div class="card-hover p-6 bg-gray-50 rounded-xl">
+                            <h3 class="text-lg font-semibold text-gray-800 mb-4">
+                                <i class="fas fa-plus-circle text-primary-dark mr-2"></i>
+                                创建与基本操作
+                            </h3>
+                            <div class="overflow-x-auto bg-codeBlock rounded-lg p-3">
+                                <pre class="text-gray-100 font-mono text-sm"><code>#include &lt;string&gt;
+#include &lt;iostream&gt;
+using namespace std;
+
+int main() {
+    // 创建string对象
+    string s1;                    // 空字符串
+    string s2 = "Hello";          // 从字符串字面量初始化
+    string s3("World");           // 使用构造函数
+    string s4(5, 'A');            // 5个'A'字符: "AAAAA"
+    string s5(s2);                // 拷贝构造: "Hello"
+    
+    // 基本操作
+    cout << "s2长度: " << s2.length() << endl;       // 5
+    cout << "s2大小: " << s2.size() << endl;         // 5
+    cout << "s4容量: " << s4.capacity() << endl;     // >=5
+    cout << "s2是否为空: " << s2.empty() << endl;    // 0 (false)
+    
+    // 访问字符
+    cout << "s2的第一个字符: " << s2[0] << endl;     // H
+    cout << "s2的最后一个字符: " << s2.back() << endl; // o
+    
+    // 修改string
+    s1 = "Hi";                   // 赋值操作
+    s2 += " C++";                // 追加文本: "Hello C++"
+    s3.append(" Programming");   // 追加: "World Programming"
+    
+    // 遍历string的两种方式
+    cout << "使用索引遍历: ";
+    for (size_t i = 0; i < s2.length(); i++) {
+        cout << s2[i];
+    }
+    cout << endl;
+    
+    cout << "使用迭代器遍历: ";
+    for (auto c : s2) {   // C++11 范围for循环
+        cout << c;
+    }
+    cout << endl;
+    
+    return 0;
+}</code></pre>
+                            </div>
+                        </div>
+                        
+                        <div class="card-hover p-6 bg-gray-50 rounded-xl">
+                            <h3 class="text-lg font-semibold text-gray-800 mb-4">
+                                <i class="fas fa-tools text-primary-dark mr-2"></i>
+                                字符串处理
+                            </h3>
+                            <div class="overflow-x-auto bg-codeBlock rounded-lg p-3">
+                                <pre class="text-gray-100 font-mono text-sm"><code>// 字符串比较
+string s1 = "apple";
+string s2 = "banana";
+
+if (s1 < s2) {                           // true
+    cout << "s1在字典序中小于s2" << endl;
+}
+
+// 子串操作
+string text = "Hello, World!";
+string sub = text.substr(0, 5);          // "Hello"
+cout << "子串: " << sub << endl;
+
+// 查找操作
+size_t pos = text.find("World");         // 7
+if (pos != string::npos) {
+    cout << "找到'World'的位置: " << pos << endl;
+}
+
+// 替换操作
+string s = "Hello, World!";
+s.replace(7, 5, "C++");                 // "Hello, C++!"
+cout << "替换后: " << s << endl;
+
+// 插入操作
+s.insert(7, "awesome ");                // "Hello, awesome C++!"
+cout << "插入后: " << s << endl;
+
+// 删除操作
+s.erase(7, 9);                          // "Hello, C++!"
+cout << "删除后: " << s << endl;
+
+// 清空字符串
+s.clear();
+cout << "s现在是空的: " << s.empty() << endl;  // 1 (true)</code></pre>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <h3 class="text-xl font-semibold text-gray-800 mt-6 mb-3">字符串与数值的转换</h3>
+                    
+                    <div class="card-hover p-6 bg-gray-50 rounded-xl">
+                        <div class="overflow-x-auto bg-codeBlock rounded-lg p-3">
+                            <pre class="text-gray-100 font-mono text-sm"><code>#include &lt;string&gt;
+
+int main() {
+    // C++11以后的转换方法
+    
+    // 数值到字符串
+    int num = 42;
+    string s1 = to_string(num);             // "42"
+    
+    double pi = 3.14159;
+    string s2 = to_string(pi);              // "3.141590"
+    
+    // 字符串到数值
+    string numStr = "123";
+    int value1 = stoi(numStr);              // 123
+    
+    string floatStr = "3.14159";
+    double value2 = stod(floatStr);         // 3.14159
+    
+    // C++98/03 的转换方法
+    #include &lt;sstream&gt;
+    
+    // 数值到字符串
+    int oldNum = 100;
+    ostringstream oss;
+    oss << oldNum;
+    string s3 = oss.str();                  // "100"
+    
+    // 字符串到数值
+    string oldStr = "200";
+    istringstream iss(oldStr);
+    int value3;
+    iss >> value3;                          // 200
+    
+    return 0;
+}</code></pre>
+                        </div>
+                    </div>
+                    
+                    <div class="p-5 bg-green-50 rounded-xl border-l-4 border-green-400 mt-4">
+                        <div class="flex items-start">
+                            <i class="fas fa-check-circle text-green-500 mt-1 mr-3"></i>
+                            <div>
+                                <h3 class="text-lg font-semibold text-gray-800 mb-2">string类的优势</h3>
+                                <ul class="list-disc pl-5 space-y-1 text-gray-700">
+                                    <li>动态内存管理 - 自动调整大小，不用担心缓冲区溢出</li>
+                                    <li>丰富的成员函数 - 提供各种字符串操作</li>
+                                    <li>与STL容器和算法兼容</li>
+                                    <li>支持运算符重载 - 直观的字符串拼接和比较</li>
+                                    <li>异常处理 - 可以捕获异常情况</li>
+                                    <li>更安全 - 避免了许多C风格字符串的常见错误</li>
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+            
+            <!-- 字符串应用 Section -->
+            <section class="mb-12 bg-white rounded-2xl shadow-md p-8">
+                <div class="flex items-center mb-6">
+                    <i class="fas fa-laptop-code text-primary text-xl mr-3"></i>
+                    <h2 class="text-2xl font-bold text-gray-800">字符串应用</h2>
+                </div>
+                <div class="space-y-4 text-gray-700">
+                    <p>字符串是程序设计中最常用的数据类型之一，下面是一些常见的字符串应用场景和实例。</p>
+                    
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-8 mb-6">
+                        <div class="card-hover p-6 bg-gray-50 rounded-xl">
+                            <h3 class="text-lg font-semibold text-gray-800 mb-4">
+                                <i class="fas fa-cogs text-primary-dark mr-2"></i>
+                                字符串处理实例
+                            </h3>
+                            <div class="overflow-x-auto bg-codeBlock rounded-lg p-3">
+                                <pre class="text-gray-100 font-mono text-sm"><code>#include &lt;string&gt;
+#include &lt;iostream&gt;
+#include &lt;algorithm&gt;
+using namespace std;
+
+int main() {
+    // 统计单词数量
+    string text = "This is a sample text with some words";
+    int wordCount = 1;  // 至少有一个单词
+    
+    for (char c : text) {
+        if (c == ' ') {
+            wordCount++;
+        }
+    }
+    cout << "单词数量: " << wordCount << endl;
+    
+    // 反转字符串
+    string str = "Hello";
+    reverse(str.begin(), str.end());
+    cout << "反转后: " << str << endl;  // olleH
+    
+    // 大小写转换
+    string s = "Hello World";
+    
+    // 转大写
+    transform(s.begin(), s.end(), s.begin(), ::toupper);
+    cout << "大写: " << s << endl;  // HELLO WORLD
+    
+    // 转小写
+    transform(s.begin(), s.end(), s.begin(), ::tolower);
+    cout << "小写: " << s << endl;  // hello world
+    
+    // 删除空格
+    string whitespace = " Hello World ";
+    whitespace.erase(0, whitespace.find_first_not_of(" \t\n\r\f\v"));
+    whitespace.erase(whitespace.find_last_not_of(" \t\n\r\f\v") + 1);
+    cout << "去除前后空格: [" << whitespace << "]" << endl;
+    
+    return 0;
+}</code></pre>
+                            </div>
+                        </div>
+                        
+                        <div class="card-hover p-6 bg-gray-50 rounded-xl">
+                            <h3 class="text-lg font-semibold text-gray-800 mb-4">
+                                <i class="fas fa-puzzle-piece text-primary-dark mr-2"></i>
+                                字符串算法
+                            </h3>
+                            <div class="overflow-x-auto bg-codeBlock rounded-lg p-3">
+                                <pre class="text-gray-100 font-mono text-sm"><code>// 回文检测
+bool isPalindrome(const string& s) {
+    int left = 0;
+    int right = s.length() - 1;
+    
+    while (left < right) {
+        if (s[left] != s[right])
+            return false;
+        left++;
+        right--;
+    }
+    return true;
+}
+
+// 最长公共前缀
+string longestCommonPrefix(vector<string>& strs) {
+    if (strs.empty()) return "";
+    
+    string prefix = strs[0];
+    for (size_t i = 1; i < strs.size(); i++) {
+        // 逐个比较前缀
+        while (strs[i].find(prefix) != 0) {
+            prefix = prefix.substr(0, prefix.length() - 1);
+            if (prefix.empty()) return "";
+        }
+    }
+    return prefix;
+}
+
+// 计算子串出现次数
+int countSubstring(const string& str, const string& sub) {
+    if (sub.empty()) return 0;
+    
+    int count = 0;
+    size_t pos = 0;
+    while ((pos = str.find(sub, pos)) != string::npos) {
+        count++;
+        pos += sub.length();
+    }
+    return count;
+}</code></pre>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <h3 class="text-xl font-semibold text-gray-800 mt-6 mb-3">字符串相关的数据结构与高级应用</h3>
+                    
+                    <div class="p-5 bg-indigo-50 rounded-xl border-l-4 border-indigo-400">
+                        <div class="flex items-start">
+                            <i class="fas fa-graduation-cap text-indigo-500 mt-1 mr-3"></i>
+                            <div>
+                                <h3 class="text-lg font-semibold text-gray-800 mb-2">高级字符串应用</h3>
+                                <p class="text-gray-700 mb-3">在算法和实际应用中，字符串处理涉及许多高级技术和数据结构：</p>
+                                <ul class="list-disc pl-5 space-y-1">
+                                    <li><strong>字符串匹配算法</strong> - KMP、Boyer-Moore、Rabin-Karp等</li>
+                                    <li><strong>字典树(Trie)</strong> - 高效存储和检索字符串</li>
+                                    <li><strong>后缀数组和后缀树</strong> - 解决复杂的字符串问题</li>
+                                    <li><strong>正则表达式</strong> - 强大的字符串模式匹配工具</li>
+                                    <li><strong>字符串哈希</strong> - 快速比较和查找</li>
+                                    <li><strong>编辑距离</strong> - 测量两个字符串的相似度</li>
+                                </ul>
+                                <p class="text-gray-700 mt-3">这些技术在文本处理、搜索引擎、DNA序列分析等领域有广泛应用。</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+            
+            <!-- 常见问题与注意事项 Section -->
+            <section class="mb-12 bg-white rounded-2xl shadow-md p-8">
+                <div class="flex items-center mb-6">
+                    <i class="fas fa-exclamation-circle text-primary text-xl mr-3"></i>
+                    <h2 class="text-2xl font-bold text-gray-800">常见问题与注意事项</h2>
+                </div>
+                <div class="space-y-4 text-gray-700">
+                    <div class="p-5 bg-red-50 rounded-xl border-l-4 border-red-400">
+                        <div class="flex items-start">
+                            <i class="fas fa-bug text-red-500 mt-1 mr-3"></i>
+                            <div>
+                                <h3 class="text-lg font-semibold text-gray-800 mb-2">常见错误</h3>
+                                <ul class="list-disc pl-5 space-y-1">
+                                    <li><strong>缓冲区溢出</strong> - 在C风格字符串中写入超过分配空间的数据</li>
+                                    <li><strong>字符串终止符</strong> - 忘记考虑'\0'的空间或意外覆盖它</li>
+                                    <li><strong>越界访问</strong> - 访问string对象或字符数组的无效索引</li>
+                                    <li><strong>内存泄漏</strong> - 动态分配字符串后没有释放内存</li>
+                                    <li><strong>字符编码问题</strong> - 不同编码之间转换错误或不处理多字节字符</li>
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="p-5 bg-green-50 rounded-xl border-l-4 border-green-400 mt-4">
+                        <div class="flex items-start">
+                            <i class="fas fa-lightbulb text-green-500 mt-1 mr-3"></i>
+                            <div>
+                                <h3 class="text-lg font-semibold text-gray-800 mb-2">最佳实践</h3>
+                                <ul class="list-disc pl-5 space-y-1 text-gray-700">
+                                    <li>优先使用<code>std::string</code>而不是C风格字符串</li>
+                                    <li>使用<code>reserve()</code>预分配空间以提高性能</li>
+                                    <li>对于大型字符串操作，考虑使用<code>StringStream</code></li>
+                                    <li>使用<code>const string&</code>作为函数参数避免不必要的复制</li>
+                                    <li>处理用户输入时注意验证和净化字符串</li>
+                                    <li>熟悉标准库中的字符串算法以提高效率</li>
+                                    <li>处理国际化应用时注意Unicode和多字节字符集</li>
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+        </main>
+
+        <!-- Footer -->
+        <footer class="mt-16 text-center text-gray-500 text-sm">
+            <div class="flex justify-center mt-6 space-x-4">
+                <a href="基本数据类型.html" class="text-primary hover:text-primary-dark transition-colors duration-300">
+                    <i class="fas fa-arrow-left mr-1"></i>基本数据类型
+                </a>
+                <a href="数组.html" class="text-primary hover:text-primary-dark transition-colors duration-300">
+                    数组<i class="fas fa-arrow-right ml-1"></i>
+                </a>
+            </div>
+        </footer>
+    </div>
+
+    <!-- Simple ScrollReveal effect -->
+    <script src="https://unpkg.com/scrollreveal"></script>
+    <script>
+        ScrollReveal().reveal('section', { 
+            delay: 200,
+            distance: '20px',
+            origin: 'bottom',
+            duration: 800,
+            easing: 'ease-in-out'
+        });
+    </script>
+</body>
+</html>

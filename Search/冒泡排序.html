@@ -1,0 +1,1006 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>冒泡排序</title>
+    <!-- TailwindCSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&family=Roboto+Mono&display=swap" rel="stylesheet">
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        primary: {
+                            light: '#a5f3fc',
+                            DEFAULT: '#06b6d4',
+                            dark: '#0891b2',
+                        },
+                        secondary: {
+                            light: '#c7d2fe',
+                            DEFAULT: '#818cf8',
+                            dark: '#6366f1',
+                        },
+                        codeBlock: '#1e293b',
+                    },
+                    fontFamily: {
+                        sans: ['Poppins', 'sans-serif'],
+                        mono: ['Roboto Mono', 'monospace'],
+                    },
+                }
+            }
+        }
+    </script>
+    <style>
+        .card-hover {
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+        }
+        .card-hover:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 25px -5px rgba(6, 182, 212, 0.1), 0 10px 10px -5px rgba(6, 182, 212, 0.04);
+        }
+        .code-block::-webkit-scrollbar {
+            height: 8px;
+        }
+        .code-block::-webkit-scrollbar-thumb {
+            background-color: #06b6d4;
+            border-radius: 4px;
+        }
+        .code-block::-webkit-scrollbar-track {
+            background-color: #e2e8f0;
+            border-radius: 4px;
+        }
+    </style>
+</head>
+<body class="bg-gray-50 font-sans">
+    <div class="min-h-screen max-w-6xl mx-auto px-8 py-10">
+        <!-- Header -->
+        <header class="mb-12 text-center">
+            <div class="inline-block px-3 py-1 bg-primary-light text-primary-dark rounded-full text-sm font-medium mb-4">
+                算法基础
+            </div>
+            <h1 class="text-4xl font-bold text-gray-800 mb-4">冒泡排序</h1>
+            <p class="text-lg text-gray-600 max-w-3xl mx-auto">一种简单直观的基础排序算法，通过交换相邻元素实现排序</p>
+        </header>
+
+        <!-- Main Content -->
+        <main>
+            <!-- 算法基础 Section -->
+            <section class="mb-12 bg-white rounded-2xl shadow-md p-8">
+                <div class="flex items-center mb-6">
+                    <i class="fas fa-info-circle text-primary text-xl mr-3"></i>
+                    <h2 class="text-2xl font-bold text-gray-800">算法基础</h2>
+                </div>
+                <div class="space-y-4 text-gray-700">
+                    <p>冒泡排序（Bubble Sort）是一种简单的排序算法，它重复地遍历要排序的序列，一次比较两个元素，如果它们的顺序错误就交换它们。遍历序列的工作会重复进行，直到没有元素再需要交换，此时序列已经排序完成。</p>
+                    
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-4">
+                        <div class="card-hover p-6 bg-gray-50 rounded-xl">
+                            <h3 class="text-lg font-semibold text-gray-800 mb-3">
+                                <i class="fas fa-tag text-primary-dark mr-2"></i>
+                                命名由来
+                            </h3>
+                            <p>这个算法的名字由来是因为较大的元素会经由交换慢慢"浮"到数列的顶端（升序排列时是末尾，降序排列时是开头），就像水中的气泡向上冒一样。</p>
+                        </div>
+                        
+                        <div class="card-hover p-6 bg-gray-50 rounded-xl">
+                            <h3 class="text-lg font-semibold text-gray-800 mb-3">
+                                <i class="fas fa-fingerprint text-primary-dark mr-2"></i>
+                                算法特点
+                            </h3>
+                            <ul class="list-disc list-inside space-y-1">
+                                <li>简单直观，易于实现</li>
+                                <li>稳定排序算法</li>
+                                <li>平均时间复杂度为 O(n²)</li>
+                                <li>空间复杂度为 O(1)</li>
+                            </ul>
+                        </div>
+                    </div>
+                    
+                    <div class="p-5 bg-primary-light bg-opacity-10 rounded-lg">
+                        <p>冒泡排序的核心思想是：通过相邻元素的比较和交换，使得每一轮比较后最大（或最小）的元素都"浮"到序列的一端。重复这个过程，直到整个序列都有序。</p>
+                    </div>
+                </div>
+            </section>
+            
+            <!-- 算法原理 Section -->
+            <section class="mb-12 bg-white rounded-2xl shadow-md p-8">
+                <div class="flex items-center mb-6">
+                    <i class="fas fa-cogs text-primary text-xl mr-3"></i>
+                    <h2 class="text-2xl font-bold text-gray-800">算法原理</h2>
+                </div>
+                <div class="space-y-4 text-gray-700">
+                    <p>冒泡排序的原理是通过相邻元素的比较和交换，使较大的元素逐渐"浮"向数组的末端。算法的名称形象地描述了排序过程中元素的移动方式，就像气泡在水中上升一样。</p>
+                    
+                    <h3 class="text-xl font-semibold text-gray-800 mb-3">工作流程</h3>
+                    <ol class="list-decimal list-inside space-y-2 pl-4">
+                        <li>从数组的第一个元素开始，依次比较相邻的两个元素。</li>
+                        <li>如果前一个元素大于后一个元素（升序排序），则交换这两个元素。</li>
+                        <li>继续比较下一对相邻元素，直到数组的末尾。这完成了第一轮冒泡，此时最大的元素已"浮"到数组末尾。</li>
+                        <li>重复以上步骤，但每次循环都排除已经排好序的元素（即末尾的元素）。</li>
+                        <li>当某一轮没有发生任何交换时，说明数组已经有序，算法可以提前结束。</li>
+                    </ol>
+
+                    <h3 class="text-xl font-semibold text-gray-800 mt-6 mb-3">具体步骤演示</h3>
+                    <p>以数组 [5, 3, 8, 4, 2] 为例，我们来看冒泡排序的完整过程：</p>
+                    
+                    <div class="overflow-x-auto mt-4">
+                        <div class="mb-8 space-y-6">
+                            <!-- 第一轮冒泡 -->
+                            <div>
+                                <p class="font-semibold text-primary-dark mb-2">第一轮冒泡：</p>
+                                <div class="flex flex-col space-y-4">
+                                    <div class="flex items-center">
+                                        <div class="flex space-x-1 items-center">
+                                            <span class="w-10 h-10 flex items-center justify-center bg-primary text-white rounded-lg font-semibold">5</span>
+                                            <span class="w-10 h-10 flex items-center justify-center bg-primary text-white rounded-lg font-semibold">3</span>
+                                            <span class="w-10 h-10 flex items-center justify-center bg-gray-200 text-gray-700 rounded-lg font-semibold">8</span>
+                                            <span class="w-10 h-10 flex items-center justify-center bg-gray-200 text-gray-700 rounded-lg font-semibold">4</span>
+                                            <span class="w-10 h-10 flex items-center justify-center bg-gray-200 text-gray-700 rounded-lg font-semibold">2</span>
+                                        </div>
+                                        <span class="ml-4">比较 5 和 3，5 > 3，交换位置 → [3, 5, 8, 4, 2]</span>
+                                    </div>
+                                    <div class="flex items-center">
+                                        <div class="flex space-x-1 items-center">
+                                            <span class="w-10 h-10 flex items-center justify-center bg-gray-200 text-gray-700 rounded-lg font-semibold">3</span>
+                                            <span class="w-10 h-10 flex items-center justify-center bg-primary text-white rounded-lg font-semibold">5</span>
+                                            <span class="w-10 h-10 flex items-center justify-center bg-primary text-white rounded-lg font-semibold">8</span>
+                                            <span class="w-10 h-10 flex items-center justify-center bg-gray-200 text-gray-700 rounded-lg font-semibold">4</span>
+                                            <span class="w-10 h-10 flex items-center justify-center bg-gray-200 text-gray-700 rounded-lg font-semibold">2</span>
+                                        </div>
+                                        <span class="ml-4">比较 5 和 8，5 < 8，不交换 → [3, 5, 8, 4, 2]</span>
+                                    </div>
+                                    <div class="flex items-center">
+                                        <div class="flex space-x-1 items-center">
+                                            <span class="w-10 h-10 flex items-center justify-center bg-gray-200 text-gray-700 rounded-lg font-semibold">3</span>
+                                            <span class="w-10 h-10 flex items-center justify-center bg-gray-200 text-gray-700 rounded-lg font-semibold">5</span>
+                                            <span class="w-10 h-10 flex items-center justify-center bg-primary text-white rounded-lg font-semibold">8</span>
+                                            <span class="w-10 h-10 flex items-center justify-center bg-primary text-white rounded-lg font-semibold">4</span>
+                                            <span class="w-10 h-10 flex items-center justify-center bg-gray-200 text-gray-700 rounded-lg font-semibold">2</span>
+                                        </div>
+                                        <span class="ml-4">比较 8 和 4，8 > 4，交换位置 → [3, 5, 4, 8, 2]</span>
+                                    </div>
+                                    <div class="flex items-center">
+                                        <div class="flex space-x-1 items-center">
+                                            <span class="w-10 h-10 flex items-center justify-center bg-gray-200 text-gray-700 rounded-lg font-semibold">3</span>
+                                            <span class="w-10 h-10 flex items-center justify-center bg-gray-200 text-gray-700 rounded-lg font-semibold">5</span>
+                                            <span class="w-10 h-10 flex items-center justify-center bg-gray-200 text-gray-700 rounded-lg font-semibold">4</span>
+                                            <span class="w-10 h-10 flex items-center justify-center bg-primary text-white rounded-lg font-semibold">8</span>
+                                            <span class="w-10 h-10 flex items-center justify-center bg-primary text-white rounded-lg font-semibold">2</span>
+                                        </div>
+                                        <span class="ml-4">比较 8 和 2，8 > 2，交换位置 → [3, 5, 4, 2, 8]</span>
+                                    </div>
+                                    <div class="flex items-center">
+                                        <div class="flex space-x-1 items-center">
+                                            <span class="w-10 h-10 flex items-center justify-center bg-gray-200 text-gray-700 rounded-lg font-semibold">3</span>
+                                            <span class="w-10 h-10 flex items-center justify-center bg-gray-200 text-gray-700 rounded-lg font-semibold">5</span>
+                                            <span class="w-10 h-10 flex items-center justify-center bg-gray-200 text-gray-700 rounded-lg font-semibold">4</span>
+                                            <span class="w-10 h-10 flex items-center justify-center bg-gray-200 text-gray-700 rounded-lg font-semibold">2</span>
+                                            <span class="w-10 h-10 flex items-center justify-center bg-red-400 text-white rounded-lg font-semibold">8</span>
+                                        </div>
+                                        <span class="ml-4">第一轮结束：最大元素 8 已浮到末尾</span>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <!-- 第二轮冒泡 -->
+                            <div>
+                                <p class="font-semibold text-primary-dark mb-2">第二轮冒泡：</p>
+                                <div class="flex flex-col space-y-4">
+                                    <div class="flex items-center">
+                                        <div class="flex space-x-1 items-center">
+                                            <span class="w-10 h-10 flex items-center justify-center bg-primary text-white rounded-lg font-semibold">3</span>
+                                            <span class="w-10 h-10 flex items-center justify-center bg-primary text-white rounded-lg font-semibold">5</span>
+                                            <span class="w-10 h-10 flex items-center justify-center bg-gray-200 text-gray-700 rounded-lg font-semibold">4</span>
+                                            <span class="w-10 h-10 flex items-center justify-center bg-gray-200 text-gray-700 rounded-lg font-semibold">2</span>
+                                            <span class="w-10 h-10 flex items-center justify-center bg-gray-100 text-gray-400 rounded-lg font-semibold line-through">8</span>
+                                        </div>
+                                        <span class="ml-4">比较 3 和 5，3 < 5，不交换 → [3, 5, 4, 2, 8]</span>
+                                    </div>
+                                    <div class="flex items-center">
+                                        <div class="flex space-x-1 items-center">
+                                            <span class="w-10 h-10 flex items-center justify-center bg-gray-200 text-gray-700 rounded-lg font-semibold">3</span>
+                                            <span class="w-10 h-10 flex items-center justify-center bg-primary text-white rounded-lg font-semibold">5</span>
+                                            <span class="w-10 h-10 flex items-center justify-center bg-primary text-white rounded-lg font-semibold">4</span>
+                                            <span class="w-10 h-10 flex items-center justify-center bg-gray-200 text-gray-700 rounded-lg font-semibold">2</span>
+                                            <span class="w-10 h-10 flex items-center justify-center bg-gray-100 text-gray-400 rounded-lg font-semibold line-through">8</span>
+                                        </div>
+                                        <span class="ml-4">比较 5 和 4，5 > 4，交换位置 → [3, 4, 5, 2, 8]</span>
+                                    </div>
+                                    <div class="flex items-center">
+                                        <div class="flex space-x-1 items-center">
+                                            <span class="w-10 h-10 flex items-center justify-center bg-gray-200 text-gray-700 rounded-lg font-semibold">3</span>
+                                            <span class="w-10 h-10 flex items-center justify-center bg-gray-200 text-gray-700 rounded-lg font-semibold">4</span>
+                                            <span class="w-10 h-10 flex items-center justify-center bg-primary text-white rounded-lg font-semibold">5</span>
+                                            <span class="w-10 h-10 flex items-center justify-center bg-primary text-white rounded-lg font-semibold">2</span>
+                                            <span class="w-10 h-10 flex items-center justify-center bg-gray-100 text-gray-400 rounded-lg font-semibold line-through">8</span>
+                                        </div>
+                                        <span class="ml-4">比较 5 和 2，5 > 2，交换位置 → [3, 4, 2, 5, 8]</span>
+                                    </div>
+                                    <div class="flex items-center">
+                                        <div class="flex space-x-1 items-center">
+                                            <span class="w-10 h-10 flex items-center justify-center bg-gray-200 text-gray-700 rounded-lg font-semibold">3</span>
+                                            <span class="w-10 h-10 flex items-center justify-center bg-gray-200 text-gray-700 rounded-lg font-semibold">4</span>
+                                            <span class="w-10 h-10 flex items-center justify-center bg-gray-200 text-gray-700 rounded-lg font-semibold">2</span>
+                                            <span class="w-10 h-10 flex items-center justify-center bg-red-400 text-white rounded-lg font-semibold">5</span>
+                                            <span class="w-10 h-10 flex items-center justify-center bg-gray-100 text-gray-400 rounded-lg font-semibold line-through">8</span>
+                                        </div>
+                                        <span class="ml-4">第二轮结束：次大元素 5 已浮到倒数第二位</span>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <!-- 第三轮冒泡 -->
+                            <div>
+                                <p class="font-semibold text-primary-dark mb-2">第三轮冒泡：</p>
+                                <div class="flex flex-col space-y-4">
+                                    <div class="flex items-center">
+                                        <div class="flex space-x-1 items-center">
+                                            <span class="w-10 h-10 flex items-center justify-center bg-primary text-white rounded-lg font-semibold">3</span>
+                                            <span class="w-10 h-10 flex items-center justify-center bg-primary text-white rounded-lg font-semibold">4</span>
+                                            <span class="w-10 h-10 flex items-center justify-center bg-gray-200 text-gray-700 rounded-lg font-semibold">2</span>
+                                            <span class="w-10 h-10 flex items-center justify-center bg-gray-100 text-gray-400 rounded-lg font-semibold line-through">5</span>
+                                            <span class="w-10 h-10 flex items-center justify-center bg-gray-100 text-gray-400 rounded-lg font-semibold line-through">8</span>
+                                        </div>
+                                        <span class="ml-4">比较 3 和 4，3 < 4，不交换 → [3, 4, 2, 5, 8]</span>
+                                    </div>
+                                    <div class="flex items-center">
+                                        <div class="flex space-x-1 items-center">
+                                            <span class="w-10 h-10 flex items-center justify-center bg-gray-200 text-gray-700 rounded-lg font-semibold">3</span>
+                                            <span class="w-10 h-10 flex items-center justify-center bg-primary text-white rounded-lg font-semibold">4</span>
+                                            <span class="w-10 h-10 flex items-center justify-center bg-primary text-white rounded-lg font-semibold">2</span>
+                                            <span class="w-10 h-10 flex items-center justify-center bg-gray-100 text-gray-400 rounded-lg font-semibold line-through">5</span>
+                                            <span class="w-10 h-10 flex items-center justify-center bg-gray-100 text-gray-400 rounded-lg font-semibold line-through">8</span>
+                                        </div>
+                                        <span class="ml-4">比较 4 和 2，4 > 2，交换位置 → [3, 2, 4, 5, 8]</span>
+                                    </div>
+                                    <div class="flex items-center">
+                                        <div class="flex space-x-1 items-center">
+                                            <span class="w-10 h-10 flex items-center justify-center bg-gray-200 text-gray-700 rounded-lg font-semibold">3</span>
+                                            <span class="w-10 h-10 flex items-center justify-center bg-gray-200 text-gray-700 rounded-lg font-semibold">2</span>
+                                            <span class="w-10 h-10 flex items-center justify-center bg-red-400 text-white rounded-lg font-semibold">4</span>
+                                            <span class="w-10 h-10 flex items-center justify-center bg-gray-100 text-gray-400 rounded-lg font-semibold line-through">5</span>
+                                            <span class="w-10 h-10 flex items-center justify-center bg-gray-100 text-gray-400 rounded-lg font-semibold line-through">8</span>
+                                        </div>
+                                        <span class="ml-4">第三轮结束：4 已排好序</span>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <!-- 第四轮冒泡 -->
+                            <div>
+                                <p class="font-semibold text-primary-dark mb-2">第四轮冒泡：</p>
+                                <div class="flex flex-col space-y-4">
+                                    <div class="flex items-center">
+                                        <div class="flex space-x-1 items-center">
+                                            <span class="w-10 h-10 flex items-center justify-center bg-primary text-white rounded-lg font-semibold">3</span>
+                                            <span class="w-10 h-10 flex items-center justify-center bg-primary text-white rounded-lg font-semibold">2</span>
+                                            <span class="w-10 h-10 flex items-center justify-center bg-gray-100 text-gray-400 rounded-lg font-semibold line-through">4</span>
+                                            <span class="w-10 h-10 flex items-center justify-center bg-gray-100 text-gray-400 rounded-lg font-semibold line-through">5</span>
+                                            <span class="w-10 h-10 flex items-center justify-center bg-gray-100 text-gray-400 rounded-lg font-semibold line-through">8</span>
+                                        </div>
+                                        <span class="ml-4">比较 3 和 2，3 > 2，交换位置 → [2, 3, 4, 5, 8]</span>
+                                    </div>
+                                    <div class="flex items-center">
+                                        <div class="flex space-x-1 items-center">
+                                            <span class="w-10 h-10 flex items-center justify-center bg-gray-200 text-gray-700 rounded-lg font-semibold">2</span>
+                                            <span class="w-10 h-10 flex items-center justify-center bg-red-400 text-white rounded-lg font-semibold">3</span>
+                                            <span class="w-10 h-10 flex items-center justify-center bg-gray-100 text-gray-400 rounded-lg font-semibold line-through">4</span>
+                                            <span class="w-10 h-10 flex items-center justify-center bg-gray-100 text-gray-400 rounded-lg font-semibold line-through">5</span>
+                                            <span class="w-10 h-10 flex items-center justify-center bg-gray-100 text-gray-400 rounded-lg font-semibold line-through">8</span>
+                                        </div>
+                                        <span class="ml-4">第四轮结束：3 已排好序</span>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <!-- 最终结果 -->
+                            <div>
+                                <p class="font-semibold text-green-600 mb-2">排序完成 - 最终数组：</p>
+                                <div class="flex space-x-1 items-center">
+                                    <span class="w-10 h-10 flex items-center justify-center bg-green-500 text-white rounded-lg font-semibold">2</span>
+                                    <span class="w-10 h-10 flex items-center justify-center bg-green-500 text-white rounded-lg font-semibold">3</span>
+                                    <span class="w-10 h-10 flex items-center justify-center bg-green-500 text-white rounded-lg font-semibold">4</span>
+                                    <span class="w-10 h-10 flex items-center justify-center bg-green-500 text-white rounded-lg font-semibold">5</span>
+                                    <span class="w-10 h-10 flex items-center justify-center bg-green-500 text-white rounded-lg font-semibold">8</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="p-5 bg-primary-light bg-opacity-10 rounded-lg mt-6">
+                        <h4 class="font-semibold mb-2">算法特性说明：</h4>
+                        <ul class="list-disc list-inside space-y-1 pl-2">
+                            <li>外层循环的每一轮完成后，当前最大的元素会移动到正确的位置（数组末尾）。</li>
+                            <li>随着外层循环的进行，需要比较的元素数量逐渐减少（已排序的元素不再参与比较）。</li>
+                            <li>如果数组已经有序，冒泡排序可以在第一轮就检测到没有交换发生，从而提前终止算法。</li>
+                            <li>较小的元素会慢慢"下沉"到数组的开头，而较大的元素会"上浮"到数组的末尾。</li>
+                        </ul>
+                    </div>
+                    
+                    <div class="flex justify-center my-8">
+                        <svg width="500" height="180" xmlns="http://www.w3.org/2000/svg">
+                            <!-- 原始数组 -->
+                            <g transform="translate(50, 30)">
+                                <rect x="0" y="0" width="50" height="50" fill="#06b6d4" rx="5" ry="5" />
+                                <text x="25" y="30" font-size="20" text-anchor="middle" fill="white">5</text>
+                                
+                                <rect x="70" y="0" width="50" height="50" fill="#06b6d4" rx="5" ry="5" />
+                                <text x="95" y="30" font-size="20" text-anchor="middle" fill="white">3</text>
+                                
+                                <rect x="140" y="0" width="50" height="50" fill="#06b6d4" rx="5" ry="5" />
+                                <text x="165" y="30" font-size="20" text-anchor="middle" fill="white">8</text>
+                                
+                                <rect x="210" y="0" width="50" height="50" fill="#06b6d4" rx="5" ry="5" />
+                                <text x="235" y="30" font-size="20" text-anchor="middle" fill="white">4</text>
+                                
+                                <rect x="280" y="0" width="50" height="50" fill="#06b6d4" rx="5" ry="5" />
+                                <text x="305" y="30" font-size="20" text-anchor="middle" fill="white">2</text>
+                                
+                                <text x="165" y="-10" font-size="16" text-anchor="middle" fill="#0891b2">初始数组</text>
+                            </g>
+                            
+                            <!-- 第一次冒泡后 -->
+                            <g transform="translate(50, 110)">
+                                <rect x="0" y="0" width="50" height="50" fill="#06b6d4" rx="5" ry="5" />
+                                <text x="25" y="30" font-size="20" text-anchor="middle" fill="white">3</text>
+                                
+                                <rect x="70" y="0" width="50" height="50" fill="#06b6d4" rx="5" ry="5" />
+                                <text x="95" y="30" font-size="20" text-anchor="middle" fill="white">5</text>
+                                
+                                <rect x="140" y="0" width="50" height="50" fill="#06b6d4" rx="5" ry="5" />
+                                <text x="165" y="30" font-size="20" text-anchor="middle" fill="white">4</text>
+                                
+                                <rect x="210" y="0" width="50" height="50" fill="#06b6d4" rx="5" ry="5" />
+                                <text x="235" y="30" font-size="20" text-anchor="middle" fill="white">2</text>
+                                
+                                <rect x="280" y="0" width="50" height="50" fill="#f43f5e" rx="5" ry="5" />
+                                <text x="305" y="30" font-size="20" text-anchor="middle" fill="white">8</text>
+                                
+                                <text x="165" y="-10" font-size="16" text-anchor="middle" fill="#0891b2">一次冒泡后，最大值到达末尾</text>
+                                
+                                <!-- 箭头 -->
+                                <path d="M 305,60 L 305,80" stroke="#f43f5e" stroke-width="2" marker-end="url(#arrowhead)" />
+                            </g>
+                            
+                            <!-- 箭头定义 -->
+                            <defs>
+                                <marker id="arrowhead" markerWidth="10" markerHeight="7" refX="0" refY="3.5" orient="auto">
+                                    <polygon points="0 0, 10 3.5, 0 7" fill="#f43f5e" />
+                                </marker>
+                            </defs>
+                        </svg>
+                    </div>
+                </div>
+            </section>
+            
+            <!-- 代码实现 Section -->
+            <section class="mb-12 bg-white rounded-2xl shadow-md p-8">
+                <div class="flex items-center mb-6">
+                    <i class="fas fa-code text-primary text-xl mr-3"></i>
+                    <h2 class="text-2xl font-bold text-gray-800">代码实现</h2>
+                </div>
+                <div class="space-y-4 text-gray-700">
+                    <h3 class="text-xl font-semibold text-gray-800 mb-3">基本实现</h3>
+                    <div class="overflow-x-auto bg-codeBlock rounded-lg p-4 mb-4 code-block">
+                        <pre class="text-gray-100 font-mono text-sm"><code>// 冒泡排序
+template &lt;typename T&gt;
+void bubbleSort(T arr[], int n) {
+    for (int i = 0; i < n - 1; i++) {
+        for (int j = 0; j < n - i - 1; j++) {
+            if (arr[j] > arr[j + 1]) {
+                std::swap(arr[j], arr[j + 1]);
+            }
+        }
+    }
+}</code></pre>
+                    </div>
+                    
+                    <h3 class="text-xl font-semibold text-gray-800 mt-6 mb-3">优化实现</h3>
+                    <p class="mb-3">优化版本的冒泡排序会使用一个标志来记录是否发生交换，如果一轮中没有交换，说明数组已经有序，可以提前结束排序过程。</p>
+                    <div class="overflow-x-auto bg-codeBlock rounded-lg p-4 mb-4 code-block">
+                        <pre class="text-gray-100 font-mono text-sm"><code>// 优化版冒泡排序
+template &lt;typename T&gt;
+void improvedBubbleSort(T arr[], int n) {
+    bool swapped;
+    for (int i = 0; i < n - 1; i++) {
+        swapped = false;
+        for (int j = 0; j < n - i - 1; j++) {
+            if (arr[j] > arr[j + 1]) {
+                std::swap(arr[j], arr[j + 1]);
+                swapped = true;
+            }
+        }
+        // 如果没有交换，说明已经排序完成
+        if (!swapped)
+            break;
+    }
+}</code></pre>
+                    </div>
+                    
+                    <div class="bg-yellow-50 border-l-4 border-yellow-400 p-4 rounded-r mb-4">
+                        <div class="flex items-start">
+                            <i class="fas fa-lightbulb text-yellow-500 mt-1 mr-3"></i>
+                            <p class="text-gray-700">
+                                <strong>优化思路</strong>：还可以记录上一轮冒泡中最后一次交换的位置，作为下一轮比较的终点，因为该位置之后的元素已经有序，无需再次比较。
+                            </p>
+                        </div>
+                    </div>
+                </div>
+            </section>
+            
+            <!-- 算法分析 Section -->
+            <section class="mb-12 bg-white rounded-2xl shadow-md p-8">
+                <div class="flex items-center mb-6">
+                    <i class="fas fa-chart-line text-primary text-xl mr-3"></i>
+                    <h2 class="text-2xl font-bold text-gray-800">算法分析</h2>
+                </div>
+                <div class="space-y-4 text-gray-700">
+                    <h3 class="text-xl font-semibold text-gray-800 mb-3">时间复杂度</h3>
+                    <div class="p-5 bg-gray-50 rounded-xl">
+                        <table class="min-w-full">
+                            <thead>
+                                <tr class="border-b border-gray-200">
+                                    <th class="py-2 text-left">情况</th>
+                                    <th class="py-2 text-left">时间复杂度</th>
+                                    <th class="py-2 text-left">说明</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr class="border-b border-gray-200">
+                                    <td class="py-2">最好情况</td>
+                                    <td class="py-2 font-mono">O(n)</td>
+                                    <td class="py-2">数组已经有序，只需要进行一轮比较</td>
+                                </tr>
+                                <tr class="border-b border-gray-200">
+                                    <td class="py-2">最坏情况</td>
+                                    <td class="py-2 font-mono">O(n²)</td>
+                                    <td class="py-2">数组完全逆序，需要进行 n * (n-1) / 2 次比较</td>
+                                </tr>
+                                <tr>
+                                    <td class="py-2">平均情况</td>
+                                    <td class="py-2 font-mono">O(n²)</td>
+                                    <td class="py-2">平均需要 n² / 4 次比较</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+
+                    <h3 class="text-xl font-semibold text-gray-800 mt-6 mb-3">空间复杂度</h3>
+                    <p>冒泡排序的空间复杂度为 <span class="font-mono">O(1)</span>，因为它只需要常数级别的额外空间（用于交换元素的临时变量）。</p>
+                    
+                    <h3 class="text-xl font-semibold text-gray-800 mt-6 mb-3">稳定性</h3>
+                    <p>冒泡排序是一种<span class="font-semibold text-primary-dark">稳定</span>的排序算法。在排序过程中，只有当两个相邻元素的前一个大于后一个时才会进行交换，而当两个元素相等时不会交换它们的位置，因此相等元素的相对顺序保持不变。</p>
+                </div>
+            </section>
+            
+            <!-- 应用示例 Section -->
+            <section class="bg-white rounded-2xl shadow-md p-8">
+                <div class="flex items-center mb-6">
+                    <i class="fas fa-laptop-code text-primary text-xl mr-3"></i>
+                    <h2 class="text-2xl font-bold text-gray-800">应用示例</h2>
+                </div>
+                <div class="space-y-4 text-gray-700">
+                    <h3 class="text-xl font-semibold text-gray-800 mb-3">实例：学生成绩排序</h3>
+                    <p class="mb-3">这个例子展示了使用冒泡排序对学生按成绩进行降序排序：</p>
+                    <div class="overflow-x-auto bg-codeBlock rounded-lg p-4 mb-6 code-block">
+                        <pre class="text-gray-100 font-mono text-sm"><code>#include &lt;iostream&gt;
+#include &lt;string&gt;
+
+struct Student {
+    std::string name;
+    int score;
+};
+
+void bubbleSortStudents(Student arr[], int n) {
+    for (int i = 0; i < n - 1; i++) {
+        bool swapped = false;
+        for (int j = 0; j < n - i - 1; j++) {
+            if (arr[j].score < arr[j + 1].score) {
+                std::swap(arr[j], arr[j + 1]);
+                swapped = true;
+            }
+        }
+        if (!swapped) break;
+    }
+}
+
+int main() {
+    Student students[5] = {
+        {"张三", 85},
+        {"李四", 92},
+        {"王五", 78},
+        {"赵六", 95},
+        {"孙七", 88}
+    };
+    
+    bubbleSortStudents(students, 5);
+    
+    std::cout << "按成绩排序结果：" << std::endl;
+    for (int i = 0; i < 5; i++) {
+        std::cout << students[i].name << ": " << students[i].score << std::endl;
+    }
+    
+    return 0;
+}</code></pre>
+                    </div>
+                    
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-4">
+                        <div class="card-hover p-6 bg-gray-50 rounded-xl">
+                            <h3 class="text-lg font-semibold text-gray-800 mb-3">
+                                <i class="fas fa-check-circle text-green-600 mr-2"></i>
+                                适用场景
+                            </h3>
+                            <ul class="list-disc list-inside space-y-1">
+                                <li>教学用途 - 易于理解和演示</li>
+                                <li>数据量较小的场景</li>
+                                <li>已经基本有序的数据集</li>
+                                <li>需要稳定排序的场景</li>
+                            </ul>
+                        </div>
+                        
+                        <div class="card-hover p-6 bg-gray-50 rounded-xl">
+                            <h3 class="text-lg font-semibold text-gray-800 mb-3">
+                                <i class="fas fa-times-circle text-red-600 mr-2"></i>
+                                不适用场景
+                            </h3>
+                            <ul class="list-disc list-inside space-y-1">
+                                <li>大型数据集的排序</li>
+                                <li>对排序效率有较高要求的场景</li>
+                                <li>完全逆序的数据集</li>
+                                <li>复杂的商业应用</li>
+                            </ul>
+                        </div>
+                    </div>
+                    
+                    <h3 class="text-xl font-semibold text-gray-800 mt-6 mb-3">练习题</h3>
+                    <div class="p-5 bg-primary-light bg-opacity-10 rounded-lg">
+                        <ol class="list-decimal list-inside space-y-2">
+                            <li>实现一个改进版的冒泡排序，记录上一轮排序中的最后一次交换位置，下一轮排序只需要比较到该位置即可。</li>
+                            <li>使用冒泡排序对字符串数组按长度排序，长度相同时按字典序排序。</li>
+                            <li>比较冒泡排序与选择排序在相同数据集上的性能差异。</li>
+                        </ol>
+                    </div>
+                </div>
+            </section>
+
+            <!-- 交互式可视化 Section -->
+            <section class="mb-12 bg-white rounded-2xl shadow-md p-8">
+                <div class="flex items-center mb-6">
+                    <i class="fas fa-chart-bar text-primary text-xl mr-3"></i>
+                    <h2 class="text-2xl font-bold text-gray-800">交互式可视化</h2>
+                </div>
+                <div class="space-y-6 text-gray-700">
+                    <p>通过下面的交互式演示，您可以亲自体验冒泡排序的运行过程。观察每一步比较和交换操作，理解算法的工作原理。</p>
+                    
+                    <div class="flex flex-col items-center p-6 bg-gray-50 rounded-xl">
+                        <!-- 数组可视化区域 -->
+                        <div id="array-container" class="w-full h-64 bg-white rounded-lg shadow-inner p-4 mb-6 flex items-end justify-center">
+                            <!-- 柱状图将在这里动态生成 -->
+                        </div>
+                        
+                        <!-- 控制按钮 -->
+                        <div class="flex flex-wrap gap-4 justify-center mb-6">
+                            <button id="new-array" class="px-4 py-2 bg-primary hover:bg-primary-dark text-white rounded-lg transition duration-300 flex items-center">
+                                <i class="fas fa-random mr-2"></i> 生成新数组
+                            </button>
+                            <button id="start" class="px-4 py-2 bg-green-500 hover:bg-green-600 text-white rounded-lg transition duration-300 flex items-center">
+                                <i class="fas fa-play mr-2"></i> 开始演示
+                            </button>
+                            <button id="pause" class="px-4 py-2 bg-yellow-500 hover:bg-yellow-600 text-white rounded-lg transition duration-300 flex items-center" disabled>
+                                <i class="fas fa-pause mr-2"></i> 暂停
+                            </button>
+                            <button id="reset" class="px-4 py-2 bg-red-500 hover:bg-red-600 text-white rounded-lg transition duration-300 flex items-center" disabled>
+                                <i class="fas fa-undo mr-2"></i> 重置
+                            </button>
+                        </div>
+                        
+                        <!-- 速度控制 -->
+                        <div class="w-full max-w-md flex items-center mb-6">
+                            <span class="mr-3 text-sm font-medium text-gray-700">速度:</span>
+                            <input id="speed-slider" type="range" min="1" max="5" value="3" class="w-full h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer">
+                            <span class="ml-3 text-sm font-medium text-gray-700" id="speed-value">中等</span>
+                        </div>
+                        
+                        <!-- 当前状态显示 -->
+                        <div class="w-full grid grid-cols-1 md:grid-cols-3 gap-4 mb-4">
+                            <div class="p-3 bg-blue-100 rounded-lg">
+                                <div class="flex items-center">
+                                    <div class="w-4 h-4 bg-blue-500 rounded-sm mr-2"></div>
+                                    <span class="text-sm text-gray-700">当前比较元素</span>
+                                </div>
+                            </div>
+                            <div class="p-3 bg-red-100 rounded-lg">
+                                <div class="flex items-center">
+                                    <div class="w-4 h-4 bg-red-500 rounded-sm mr-2"></div>
+                                    <span class="text-sm text-gray-700">需要交换的元素</span>
+                                </div>
+                            </div>
+                            <div class="p-3 bg-green-100 rounded-lg">
+                                <div class="flex items-center">
+                                    <div class="w-4 h-4 bg-green-500 rounded-sm mr-2"></div>
+                                    <span class="text-sm text-gray-700">已排序元素</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <h3 class="text-xl font-semibold text-gray-800 mt-8 mb-4">算法实现</h3>
+                    <pre class="code-block bg-codeBlock text-white p-4 rounded-lg overflow-x-auto">
+<code class="language-cpp">void bubbleSort(int arr[], int n) {
+    bool swapped;
+    for (int i = 0; i < n - 1; i++) {
+        swapped = false;
+        // 最后i个元素已经排好序
+        for (int j = 0; j < n - i - 1; j++) {
+            // 比较相邻元素
+            if (arr[j] > arr[j + 1]) {
+                // 如果顺序错误则交换
+                swap(arr[j], arr[j + 1]);
+                swapped = true;
+            }
+        }
+        // 如果没有发生交换，说明数组已经有序
+        if (!swapped)
+            break;
+    }
+}</code>
+                    </pre>
+                </div>
+                
+                <!-- JavaScript 实现可视化 -->
+                <script>
+                    // 元素样式类
+                    const NORMAL = 'bg-gray-300';
+                    const COMPARING = 'bg-blue-500';
+                    const SWAPPING = 'bg-red-500';
+                    const SORTED = 'bg-green-500';
+                    
+                    // 全局变量
+                    let array = [];
+                    let arrayBars = [];
+                    let sortingInProgress = false;
+                    let sortingPaused = false;
+                    let sortingTimeout = null;
+                    let sortedElements = 0;
+                    
+                    // DOM 元素
+                    let arrayContainer;
+                    let newArrayBtn;
+                    let startBtn;
+                    let pauseBtn;
+                    let resetBtn;
+                    let speedSlider;
+                    let speedValue;
+                    
+                    // 初始化
+                    function init() {
+                        console.log("Initializing bubble sort visualization...");
+                        // 获取DOM元素
+                        arrayContainer = document.getElementById('array-container');
+                        newArrayBtn = document.getElementById('new-array');
+                        startBtn = document.getElementById('start');
+                        pauseBtn = document.getElementById('pause');
+                        resetBtn = document.getElementById('reset');
+                        speedSlider = document.getElementById('speed-slider');
+                        speedValue = document.getElementById('speed-value');
+                        
+                        if (!arrayContainer || !newArrayBtn || !startBtn || !pauseBtn || !resetBtn || !speedSlider || !speedValue) {
+                            console.error("Failed to find all required DOM elements");
+                            return;
+                        }
+                        
+                        console.log("DOM elements found successfully");
+                        
+                        generateNewArray();
+                        updateSpeedText();
+                        
+                        // 事件监听器
+                        newArrayBtn.addEventListener('click', function() {
+                            console.log("New array button clicked");
+                            generateNewArray();
+                        });
+                        
+                        startBtn.addEventListener('click', function() {
+                            console.log("Start button clicked");
+                            startSorting();
+                        });
+                        
+                        pauseBtn.addEventListener('click', function() {
+                            console.log("Pause button clicked");
+                            togglePause();
+                        });
+                        
+                        resetBtn.addEventListener('click', function() {
+                            console.log("Reset button clicked");
+                            resetSorting();
+                        });
+                        
+                        speedSlider.addEventListener('input', updateSpeedText);
+                        
+                        console.log("Bubble sort visualization initialized");
+                    }
+                    
+                    // 生成新数组
+                    function generateNewArray() {
+                        resetSorting();
+                        array = [];
+                        arrayContainer.innerHTML = '';
+                        arrayBars = [];
+                        
+                        // 生成随机数组
+                        const size = 15; // 数组大小
+                        const maxValue = 100;
+                        for (let i = 0; i < size; i++) {
+                            array.push(Math.floor(Math.random() * maxValue) + 5);
+                        }
+                        
+                        console.log("Generated new array:", array);
+                        
+                        // 创建可视化柱状图
+                        const maxHeight = arrayContainer.clientHeight - 20;
+                        const barWidth = Math.floor((arrayContainer.clientWidth - size * 4) / size);
+                        
+                        for (let i = 0; i < array.length; i++) {
+                            const barHeight = Math.floor((array[i] / maxValue) * maxHeight);
+                            const bar = document.createElement('div');
+                            bar.classList.add(NORMAL, 'mx-1', 'rounded-t-sm', 'flex', 'items-end', 'justify-center', 'transition-all', 'duration-200');
+                            bar.style.height = `${barHeight}px`;
+                            bar.style.width = `${barWidth}px`;
+                            
+                            const label = document.createElement('span');
+                            label.textContent = array[i];
+                            label.classList.add('text-xs', 'font-medium', 'text-white', 'mb-1');
+                            bar.appendChild(label);
+                            
+                            arrayContainer.appendChild(bar);
+                            arrayBars.push(bar);
+                        }
+                    }
+                    
+                    // 更新速度文本
+                    function updateSpeedText() {
+                        const speed = speedSlider.value;
+                        let speedText = '';
+                        
+                        switch (parseInt(speed)) {
+                            case 1: speedText = '非常慢'; break;
+                            case 2: speedText = '慢'; break;
+                            case 3: speedText = '中等'; break;
+                            case 4: speedText = '快'; break;
+                            case 5: speedText = '非常快'; break;
+                        }
+                        
+                        speedValue.textContent = speedText;
+                    }
+                    
+                    // 获取当前速度的毫秒延迟
+                    function getDelay() {
+                        const speed = parseInt(speedSlider.value);
+                        switch (speed) {
+                            case 1: return 1000;
+                            case 2: return 500;
+                            case 3: return 250;
+                            case 4: return 100;
+                            case 5: return 50;
+                            default: return 250;
+                        }
+                    }
+                    
+                    // 启动排序
+                    function startSorting() {
+                        if (sortingInProgress) return;
+                        
+                        sortingInProgress = true;
+                        sortingPaused = false;
+                        startBtn.disabled = true;
+                        newArrayBtn.disabled = true;
+                        pauseBtn.disabled = false;
+                        resetBtn.disabled = false;
+                        
+                        // 开始冒泡排序
+                        bubbleSort();
+                    }
+                    
+                    // 暂停/继续排序
+                    function togglePause() {
+                        sortingPaused = !sortingPaused;
+                        pauseBtn.innerHTML = sortingPaused ? 
+                            '<i class="fas fa-play mr-2"></i> 继续' : 
+                            '<i class="fas fa-pause mr-2"></i> 暂停';
+                    }
+                    
+                    // 重置排序
+                    function resetSorting() {
+                        if (sortingTimeout) {
+                            clearTimeout(sortingTimeout);
+                            sortingTimeout = null;
+                        }
+                        
+                        sortingInProgress = false;
+                        sortingPaused = false;
+                        sortedElements = 0;
+                        
+                        startBtn.disabled = false;
+                        newArrayBtn.disabled = false;
+                        pauseBtn.disabled = true;
+                        resetBtn.disabled = true;
+                        pauseBtn.innerHTML = '<i class="fas fa-pause mr-2"></i> 暂停';
+                        
+                        // 重置所有柱状图样式
+                        if (arrayBars.length > 0) {
+                            arrayBars.forEach(bar => {
+                                bar.className = '';
+                                bar.classList.add(NORMAL, 'mx-1', 'rounded-t-sm', 'flex', 'items-end', 'justify-center', 'transition-all', 'duration-200');
+                            });
+                        }
+                    }
+                    
+                    // 冒泡排序可视化实现
+                    async function bubbleSort() {
+                        const delay = getDelay();
+                        let arr = [...array];
+                        let swapped = false;
+                        
+                        // 外层循环
+                        for (let i = 0; i < arr.length - 1; i++) {
+                            swapped = false;
+                            
+                            // 内层循环，每次找到最大元素并放到末尾
+                            for (let j = 0; j < arr.length - i - 1; j++) {
+                                // 暂停检查
+                                if (sortingPaused) {
+                                    await new Promise(resolve => {
+                                        function checkPauseStatus() {
+                                            if (sortingPaused) {
+                                                sortingTimeout = setTimeout(checkPauseStatus, 100);
+                                            } else {
+                                                resolve();
+                                            }
+                                        }
+                                        checkPauseStatus();
+                                    });
+                                }
+                                
+                                if (!sortingInProgress) return;
+                                
+                                // 高亮当前比较的元素
+                                arrayBars[j].classList.remove(NORMAL);
+                                arrayBars[j].classList.add(COMPARING);
+                                arrayBars[j+1].classList.remove(NORMAL);
+                                arrayBars[j+1].classList.add(COMPARING);
+                                
+                                await new Promise(resolve => setTimeout(resolve, delay));
+                                
+                                if (!sortingInProgress) return;
+                                
+                                // 如果需要交换
+                                if (arr[j] > arr[j+1]) {
+                                    // 高亮需要交换的元素
+                                    arrayBars[j].classList.remove(COMPARING);
+                                    arrayBars[j].classList.add(SWAPPING);
+                                    arrayBars[j+1].classList.remove(COMPARING);
+                                    arrayBars[j+1].classList.add(SWAPPING);
+                                    
+                                    await new Promise(resolve => setTimeout(resolve, delay));
+                                    
+                                    if (!sortingInProgress) return;
+                                    
+                                    // 交换数组元素
+                                    [arr[j], arr[j+1]] = [arr[j+1], arr[j]];
+                                    swapped = true;
+                                    
+                                    // 交换柱状图高度
+                                    const tempHeight = arrayBars[j].style.height;
+                                    arrayBars[j].style.height = arrayBars[j+1].style.height;
+                                    arrayBars[j+1].style.height = tempHeight;
+                                    
+                                    // 交换标签内容
+                                    const tempText = arrayBars[j].firstChild.textContent;
+                                    arrayBars[j].firstChild.textContent = arrayBars[j+1].firstChild.textContent;
+                                    arrayBars[j+1].firstChild.textContent = tempText;
+                                }
+                                
+                                await new Promise(resolve => setTimeout(resolve, delay/2));
+                                
+                                if (!sortingInProgress) return;
+                                
+                                // 恢复正常颜色
+                                arrayBars[j].classList.remove(COMPARING, SWAPPING);
+                                arrayBars[j].classList.add(NORMAL);
+                                arrayBars[j+1].classList.remove(COMPARING, SWAPPING);
+                                arrayBars[j+1].classList.add(NORMAL);
+                            }
+                            
+                            // 标记当前轮次已排序的元素
+                            arrayBars[arr.length - i - 1].classList.remove(NORMAL);
+                            arrayBars[arr.length - i - 1].classList.add(SORTED);
+                            
+                            // 如果没有交换，说明已经排序完成
+                            if (!swapped) {
+                                // 将所有剩余元素标记为已排序
+                                for (let k = 0; k < arr.length - i - 1; k++) {
+                                    arrayBars[k].classList.remove(NORMAL);
+                                    arrayBars[k].classList.add(SORTED);
+                                    await new Promise(resolve => setTimeout(resolve, delay/4));
+                                }
+                                break;
+                            }
+                        }
+                        
+                        // 排序完成
+                        sortingInProgress = false;
+                        startBtn.disabled = true;
+                        newArrayBtn.disabled = false;
+                        pauseBtn.disabled = true;
+                        resetBtn.disabled = false;
+                    }
+                    
+                    // 页面加载完成后初始化
+                    document.addEventListener('DOMContentLoaded', init);
+                </script>
+            </section>
+        </main>
+
+        
+        <!-- 页脚 -->
+        <footer class="mt-10 p-6 bg-gray-800 text-white flex flex-col md:flex-row justify-between items-center">
+            <div class="mb-4 md:mb-0">
+                <p class="text-sm"></p>
+            </div>
+            <div class="flex space-x-4">
+                <a href="index.html" class="text-gray-300 hover:text-white transition-colors">首页</a>
+                <a href="计数排序.html" class="text-gray-300 hover:text-white transition-colors">计数排序</a>
+                <a href="快速排序.html" class="text-gray-300 hover:text-white transition-colors">快速排序</a>
+                <a href="归并排序.html" class="text-gray-300 hover:text-white transition-colors">归并排序</a>
+            </div>
+            <button id="back-to-top" class="fixed right-6 bottom-6 p-3 bg-primary rounded-full shadow-lg text-white hidden">
+                <i class="fas fa-arrow-up"></i>
+            </button>
+        </footer>
+        
+    </div>
+
+    <!-- Back to top button -->
+    <button id="backToTop" class="fixed bottom-6 right-6 bg-primary hover:bg-primary-dark text-white rounded-full p-3 shadow-lg transition-all duration-300 opacity-0 invisible">
+        <i class="fas fa-arrow-up"></i>
+    </button>
+
+    <!-- JavaScript for Back to top button -->
+    <script>
+        const backToTop = document.getElementById('backToTop');
+        
+        window.addEventListener('scroll', () => {
+            if (window.scrollY > 300) {
+                backToTop.classList.remove('opacity-0', 'invisible');
+                backToTop.classList.add('opacity-100', 'visible');
+            } else {
+                backToTop.classList.remove('opacity-100', 'visible');
+                backToTop.classList.add('opacity-0', 'invisible');
+            }
+        });
+        
+        backToTop.addEventListener('click', () => {
+            window.scrollTo({
+                top: 0,
+                behavior: 'smooth'
+            });
+        });
+    </script>
+    <!-- Simple ScrollReveal effect -->
+    <script src="https://unpkg.com/scrollreveal"></script>
+    <script>
+        ScrollReveal().reveal('section', { 
+            delay: 200,
+            distance: '20px',
+            origin: 'bottom',
+            duration: 800,
+            easing: 'ease-in-out'
+        });
+    </script>
+</body>
+</html> 

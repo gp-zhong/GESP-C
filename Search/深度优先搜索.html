@@ -1,0 +1,1404 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>深度优先搜索</title>
+    <!-- TailwindCSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&family=Roboto+Mono&display=swap" rel="stylesheet">
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        primary: {
+                            light: '#93c5fd',
+                            DEFAULT: '#3b82f6',
+                            dark: '#2563eb',
+                        },
+                        secondary: {
+                            light: '#c7d2fe',
+                            DEFAULT: '#818cf8',
+                            dark: '#6366f1',
+                        },
+                        codeBlock: '#1e293b',
+                    },
+                    fontFamily: {
+                        sans: ['Poppins', 'sans-serif'],
+                        mono: ['Roboto Mono', 'monospace'],
+                    },
+                }
+            }
+        }
+    </script>
+    <style>
+        .card-hover {
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+        }
+        .card-hover:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 25px -5px rgba(59, 130, 246, 0.1), 0 10px 10px -5px rgba(59, 130, 246, 0.04);
+        }
+        .code-block::-webkit-scrollbar {
+            height: 8px;
+        }
+        .code-block::-webkit-scrollbar-thumb {
+            background-color: #3b82f6;
+            border-radius: 4px;
+        }
+        .code-block::-webkit-scrollbar-track {
+            background-color: #e2e8f0;
+            border-radius: 4px;
+        }
+    </style>
+</head>
+<body class="bg-gray-50 font-sans">
+    <div class="min-h-screen max-w-6xl mx-auto px-8 py-10">
+        <!-- Header -->
+        <header class="mb-12 text-center">
+            <div class="inline-block px-3 py-1 bg-primary-light text-primary-dark rounded-full text-sm font-medium mb-4">
+                图论算法
+            </div>
+            <h1 class="text-4xl font-bold text-gray-800 mb-4">深度优先搜索</h1>
+            <p class="text-lg text-gray-600 max-w-3xl mx-auto">一种用于遍历或搜索树或图数据结构的算法，从起始节点开始沿一条路径遍历尽可能深入</p>
+        </header>
+
+        <!-- Main Content -->
+        <main>
+            <!-- 算法基础 Section -->
+            <section class="mb-12 bg-white rounded-2xl shadow-md p-8">
+                <div class="flex items-center mb-6">
+                    <i class="fas fa-info-circle text-primary text-xl mr-3"></i>
+                    <h2 class="text-2xl font-bold text-gray-800">算法基础</h2>
+                </div>
+                <div class="space-y-4 text-gray-700">
+                    <p>深度优先搜索算法（Depth-First Search，简称DFS）是一种用于遍历或搜索树或图的算法。其特点是沿着树的深度遍历，尽可能深地搜索树的分支，直到找到目标节点或无法继续为止，然后回溯到上一个节点，继续搜索其他分支。</p>
+                    
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-4">
+                        <div class="card-hover p-6 bg-gray-50 rounded-xl">
+                            <h3 class="text-lg font-semibold text-gray-800 mb-3">
+                                <i class="fas fa-tags text-primary-dark mr-2"></i>
+                                算法思想
+                            </h3>
+                            <p>深度优先搜索的核心思想是"一条路走到黑"，即从起点开始，沿着一条路径一直走到无法继续为止，然后回溯到前一个节点，尝试其他路径，直到遍历完所有可能的路径。</p>
+                        </div>
+                        
+                        <div class="card-hover p-6 bg-gray-50 rounded-xl">
+                            <h3 class="text-lg font-semibold text-gray-800 mb-3">
+                                <i class="fas fa-fingerprint text-primary-dark mr-2"></i>
+                                算法特点
+                            </h3>
+                            <ul class="list-disc list-inside space-y-1">
+                                <li>先走到最深，再回溯</li>
+                                <li>常用递归实现，也可以用栈实现</li>
+                                <li>空间复杂度与深度成正比</li>
+                                <li>可用于寻找所有解或最优解</li>
+                            </ul>
+                        </div>
+                    </div>
+                    
+                    <div class="p-5 bg-primary-light bg-opacity-10 rounded-lg">
+                        <p>深度优先搜索的核心思想是：从起点开始，先访问一个邻接节点，然后以这个邻接节点为新的起点进行深度优先搜索，直到无法继续前进，然后回溯到上一个节点继续搜索其他邻接节点。这个过程直到所有可达节点都被访问过为止。</p>
+                    </div>
+                </div>
+            </section>
+            
+            <!-- 算法原理 Section -->
+            <section class="mb-12 bg-white rounded-2xl shadow-md p-8">
+                <div class="flex items-center mb-6">
+                    <i class="fas fa-cogs text-primary text-xl mr-3"></i>
+                    <h2 class="text-2xl font-bold text-gray-800">算法原理</h2>
+                </div>
+                <div class="space-y-4 text-gray-700">
+                    <p>深度优先搜索的原理是通过递归或栈的方式，从起始节点开始，不断深入探索未访问的相邻节点，直到无法继续为止，然后回溯到前一个节点继续搜索其他路径。</p>
+                    
+                    <h3 class="text-xl font-semibold text-gray-800 mb-3">工作流程</h3>
+                    <ol class="list-decimal list-inside space-y-2 pl-4">
+                        <li>从起始节点开始，将其标记为已访问。</li>
+                        <li>探索起始节点的第一个未访问的相邻节点。</li>
+                        <li>重复此过程，即将当前访问的节点标记为已访问，并探索当前节点的下一个未访问的相邻节点。</li>
+                        <li>如果当前节点没有未访问的相邻节点，则回溯到上一个节点。</li>
+                        <li>如果回溯到起始节点且其所有相邻节点都已被访问，则算法结束。</li>
+                    </ol>
+
+                    <h3 class="text-xl font-semibold text-gray-800 mt-6 mb-3">具体步骤演示</h3>
+                    <p>以下图为例，我们从节点A开始进行深度优先搜索：</p>
+                    
+                    <div class="overflow-x-auto mt-4">
+                        <div class="mb-8 space-y-6">
+                            <div class="flex justify-center">
+                                <svg width="320" height="240" xmlns="http://www.w3.org/2000/svg">
+                                    <!-- 节点 -->
+                                    <circle cx="160" cy="40" r="24" fill="#3b82f6" />
+                                    <text x="160" y="45" text-anchor="middle" fill="white" font-weight="bold">A</text>
+                                    
+                                    <circle cx="80" cy="120" r="24" fill="#3b82f6" />
+                                    <text x="80" y="125" text-anchor="middle" fill="white" font-weight="bold">B</text>
+                                    
+                                    <circle cx="240" cy="120" r="24" fill="#3b82f6" />
+                                    <text x="240" y="125" text-anchor="middle" fill="white" font-weight="bold">C</text>
+                                    
+                                    <circle cx="40" cy="200" r="24" fill="#3b82f6" />
+                                    <text x="40" y="205" text-anchor="middle" fill="white" font-weight="bold">D</text>
+                                    
+                                    <circle cx="120" cy="200" r="24" fill="#3b82f6" />
+                                    <text x="120" y="205" text-anchor="middle" fill="white" font-weight="bold">E</text>
+                                    
+                                    <circle cx="200" cy="200" r="24" fill="#3b82f6" />
+                                    <text x="200" y="205" text-anchor="middle" fill="white" font-weight="bold">F</text>
+                                    
+                                    <circle cx="280" cy="200" r="24" fill="#3b82f6" />
+                                    <text x="280" y="205" text-anchor="middle" fill="white" font-weight="bold">G</text>
+                                    
+                                    <!-- 边 -->
+                                    <line x1="146" y1="57" x2="94" y2="103" stroke="#64748b" stroke-width="2" />
+                                    <line x1="174" y1="57" x2="226" y2="103" stroke="#64748b" stroke-width="2" />
+                                    <line x1="70" y1="140" x2="50" y2="180" stroke="#64748b" stroke-width="2" />
+                                    <line x1="90" y1="140" x2="110" y2="180" stroke="#64748b" stroke-width="2" />
+                                    <line x1="230" y1="140" x2="210" y2="180" stroke="#64748b" stroke-width="2" />
+                                    <line x1="250" y1="140" x2="270" y2="180" stroke="#64748b" stroke-width="2" />
+                                </svg>
+                            </div>
+                            
+                            <!-- 步骤演示 -->
+                            <div>
+                                <p class="font-semibold text-primary-dark mb-2">搜索过程：</p>
+                                <div class="flex flex-col space-y-4">
+                                    <div class="flex items-start">
+                                        <div class="w-8 h-8 flex items-center justify-center bg-primary text-white rounded-lg font-semibold">1</div>
+                                        <div class="ml-4">
+                                            <p class="font-semibold">访问起始节点 A 并标记为已访问。</p>
+                                            <div class="mt-2 p-3 bg-gray-100 rounded-lg">
+                                                <p>已访问：A</p>
+                                                <p>栈：[A]</p>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    
+                                    <div class="flex items-start">
+                                        <div class="w-8 h-8 flex items-center justify-center bg-primary text-white rounded-lg font-semibold">2</div>
+                                        <div class="ml-4">
+                                            <p class="font-semibold">访问 A 的第一个邻接节点 B 并标记为已访问。</p>
+                                            <div class="mt-2 p-3 bg-gray-100 rounded-lg">
+                                                <p>已访问：A, B</p>
+                                                <p>栈：[A, B]</p>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    
+                                    <div class="flex items-start">
+                                        <div class="w-8 h-8 flex items-center justify-center bg-primary text-white rounded-lg font-semibold">3</div>
+                                        <div class="ml-4">
+                                            <p class="font-semibold">访问 B 的第一个邻接节点 D 并标记为已访问。</p>
+                                            <div class="mt-2 p-3 bg-gray-100 rounded-lg">
+                                                <p>已访问：A, B, D</p>
+                                                <p>栈：[A, B, D]</p>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    
+                                    <div class="flex items-start">
+                                        <div class="w-8 h-8 flex items-center justify-center bg-primary text-white rounded-lg font-semibold">4</div>
+                                        <div class="ml-4">
+                                            <p class="font-semibold">D 没有未访问的邻接节点，回溯到 B。</p>
+                                            <div class="mt-2 p-3 bg-gray-100 rounded-lg">
+                                                <p>已访问：A, B, D</p>
+                                                <p>栈：[A, B]</p>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    
+                                    <div class="flex items-start">
+                                        <div class="w-8 h-8 flex items-center justify-center bg-primary text-white rounded-lg font-semibold">5</div>
+                                        <div class="ml-4">
+                                            <p class="font-semibold">访问 B 的第二个邻接节点 E 并标记为已访问。</p>
+                                            <div class="mt-2 p-3 bg-gray-100 rounded-lg">
+                                                <p>已访问：A, B, D, E</p>
+                                                <p>栈：[A, B, E]</p>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    
+                                    <div class="flex items-start">
+                                        <div class="w-8 h-8 flex items-center justify-center bg-primary text-white rounded-lg font-semibold">6</div>
+                                        <div class="ml-4">
+                                            <p class="font-semibold">E 没有未访问的邻接节点，回溯到 B。</p>
+                                            <div class="mt-2 p-3 bg-gray-100 rounded-lg">
+                                                <p>已访问：A, B, D, E</p>
+                                                <p>栈：[A, B]</p>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    
+                                    <div class="flex items-start">
+                                        <div class="w-8 h-8 flex items-center justify-center bg-primary text-white rounded-lg font-semibold">7</div>
+                                        <div class="ml-4">
+                                            <p class="font-semibold">B 没有其他未访问的邻接节点，回溯到 A。</p>
+                                            <div class="mt-2 p-3 bg-gray-100 rounded-lg">
+                                                <p>已访问：A, B, D, E</p>
+                                                <p>栈：[A]</p>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    
+                                    <div class="flex items-start">
+                                        <div class="w-8 h-8 flex items-center justify-center bg-primary text-white rounded-lg font-semibold">8</div>
+                                        <div class="ml-4">
+                                            <p class="font-semibold">访问 A 的第二个邻接节点 C 并标记为已访问。</p>
+                                            <div class="mt-2 p-3 bg-gray-100 rounded-lg">
+                                                <p>已访问：A, B, D, E, C</p>
+                                                <p>栈：[A, C]</p>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    
+                                    <div class="flex items-start">
+                                        <div class="w-8 h-8 flex items-center justify-center bg-primary text-white rounded-lg font-semibold">9</div>
+                                        <div class="ml-4">
+                                            <p class="font-semibold">依次访问 C 的邻接节点 F 和 G。</p>
+                                            <div class="mt-2 p-3 bg-gray-100 rounded-lg">
+                                                <p>最终已访问：A, B, D, E, C, F, G</p>
+                                                <p>最终访问顺序：A → B → D → E → C → F → G</p>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="p-5 bg-primary-light bg-opacity-10 rounded-lg mt-6">
+                        <h4 class="font-semibold mb-2">算法特性说明：</h4>
+                        <ul class="list-disc list-inside space-y-1 pl-2">
+                            <li>DFS是一种盲目搜索，对于解决一些特定问题（如寻找某条路径）效率较高</li>
+                            <li>使用递归实现时，系统栈保存了递归调用的上下文，使我们能够方便地回溯</li>
+                            <li>实际应用中，通常使用标记数组或集合来记录已访问的节点，避免重复访问</li>
+                            <li>对于无向图，需要防止在遍历时回到父节点，造成无限循环</li>
+                        </ul>
+                    </div>
+                </div>
+            </section>
+            
+            <!-- 代码实现 Section -->
+            <section class="mb-12 bg-white rounded-2xl shadow-md p-8">
+                <div class="flex items-center mb-6">
+                    <i class="fas fa-code text-primary text-xl mr-3"></i>
+                    <h2 class="text-2xl font-bold text-gray-800">代码实现</h2>
+                </div>
+                <div class="space-y-4 text-gray-700">
+                    <h3 class="text-xl font-semibold text-gray-800 mb-3">递归实现</h3>
+                    <div class="mb-4">
+                        <button class="code-toggle-btn px-4 py-2 bg-gray-200 hover:bg-gray-300 rounded-lg transition duration-300 flex items-center" data-target="recursive-code">
+                            <i class="fas fa-code mr-2"></i> <span>展开/收起代码</span>
+                        </button>
+                    </div>
+                    <div id="recursive-code" class="overflow-x-auto bg-codeBlock rounded-lg p-4 mb-4 code-block">
+                        <pre class="text-gray-100 font-mono text-sm"><code>#include &lt;iostream&gt;
+#include &lt;vector&gt;
+
+class Graph {
+private:
+    int V;                      // 图中顶点的数量
+    std::vector&lt;std::vector&lt;int&gt;&gt; adj;  // 邻接表表示图
+    
+public:
+    // 构造函数
+    Graph(int v) : V(v) {
+        adj.resize(v);
+    }
+    
+    // 添加边的函数
+    void addEdge(int v, int w) {
+        adj[v].push_back(w);    // 添加边 v -> w
+    }
+    
+    // DFS遍历的辅助函数
+    void DFSUtil(int v, std::vector&lt;bool&gt;& visited) {
+        // 标记当前节点为已访问
+        visited[v] = true;
+        std::cout << v << " ";
+        
+        // 递归地访问所有与当前节点相邻且未访问过的节点
+        for (int i : adj[v]) {
+            if (!visited[i]) {
+                DFSUtil(i, visited);
+            }
+        }
+    }
+    
+    // 执行DFS的主函数
+    void DFS(int start) {
+        // 创建访问标记数组
+        std::vector&lt;bool&gt; visited(V, false);
+        
+        // 从指定的起始顶点开始DFS
+        std::cout << "深度优先遍历（从顶点" << start << "开始）: ";
+        DFSUtil(start, visited);
+        std::cout << std::endl;
+        
+        // 处理图中非连通的部分
+        for (int i = 0; i < V; i++) {
+            if (!visited[i]) {
+                DFSUtil(i, visited);
+            }
+        }
+    }
+};
+
+int main() {
+    // 创建一个有4个顶点的图
+    Graph g(4);
+    
+    // 添加边
+    g.addEdge(0, 1);
+    g.addEdge(0, 2);
+    g.addEdge(1, 2);
+    g.addEdge(2, 0);
+    g.addEdge(2, 3);
+    g.addEdge(3, 3);
+    
+    // 从顶点2开始执行DFS
+    g.DFS(2);
+    
+    return 0;
+}</code></pre>
+                    </div>
+                    
+                    <h3 class="text-xl font-semibold text-gray-800 mt-6 mb-3">非递归实现（使用栈）</h3>
+                    <div class="mb-4">
+                        <button class="code-toggle-btn px-4 py-2 bg-gray-200 hover:bg-gray-300 rounded-lg transition duration-300 flex items-center" data-target="non-recursive-code">
+                            <i class="fas fa-code mr-2"></i> <span>展开/收起代码</span>
+                        </button>
+                    </div>
+                    <div id="non-recursive-code" class="overflow-x-auto bg-codeBlock rounded-lg p-4 mb-4 code-block">
+                        <pre class="text-gray-100 font-mono text-sm"><code>#include &lt;iostream&gt;
+#include &lt;vector&gt;
+#include &lt;stack&gt;
+
+class Graph {
+private:
+    int V;                      // 图中顶点的数量
+    std::vector&lt;std::vector&lt;int&gt;&gt; adj;  // 邻接表表示图
+    
+public:
+    // 构造函数
+    Graph(int v) : V(v) {
+        adj.resize(v);
+    }
+    
+    // 添加边的函数
+    void addEdge(int v, int w) {
+        adj[v].push_back(w);    // 添加边 v -> w
+    }
+    
+    // 使用栈的迭代DFS
+    void DFSIterative(int start) {
+        // 创建访问标记数组
+        std::vector&lt;bool&gt; visited(V, false);
+        
+        // 创建一个栈用于DFS
+        std::stack&lt;int&gt; stack;
+        
+        // 将起始顶点入栈并标记为已访问
+        stack.push(start);
+        visited[start] = true;
+        
+        std::cout << "深度优先遍历（从顶点" << start << "开始）: ";
+        
+        while (!stack.empty()) {
+            // 弹出栈顶元素并打印
+            int v = stack.top();
+            stack.pop();
+            std::cout << v << " ";
+            
+            // 获取与当前顶点相邻的所有顶点
+            // 以相反的顺序入栈，以保持与递归DFS相同的访问顺序
+            for (auto it = adj[v].rbegin(); it != adj[v].rend(); ++it) {
+                int u = *it;
+                if (!visited[u]) {
+                    stack.push(u);
+                    visited[u] = true;
+                }
+            }
+        }
+        
+        std::cout << std::endl;
+        
+        // 处理图中非连通的部分
+        for (int i = 0; i < V; i++) {
+            if (!visited[i]) {
+                stack.push(i);
+                visited[i] = true;
+                
+                while (!stack.empty()) {
+                    int v = stack.top();
+                    stack.pop();
+                    std::cout << v << " ";
+                    
+                    for (auto it = adj[v].rbegin(); it != adj[v].rend(); ++it) {
+                        int u = *it;
+                        if (!visited[u]) {
+                            stack.push(u);
+                            visited[u] = true;
+                        }
+                    }
+                }
+            }
+        }
+    }
+};
+
+int main() {
+    // 创建一个有4个顶点的图
+    Graph g(4);
+    
+    // 添加边
+    g.addEdge(0, 1);
+    g.addEdge(0, 2);
+    g.addEdge(1, 2);
+    g.addEdge(2, 0);
+    g.addEdge(2, 3);
+    g.addEdge(3, 3);
+    
+    // 使用迭代方式从顶点2开始执行DFS
+    g.DFSIterative(2);
+    
+    return 0;
+}</code></pre>
+                    </div>
+                    
+                    <div class="bg-yellow-50 border-l-4 border-yellow-400 p-4 rounded-r mb-4">
+                        <div class="flex items-start">
+                            <i class="fas fa-lightbulb text-yellow-500 mt-1 mr-3"></i>
+                            <p class="text-gray-700">
+                                <strong>特别说明</strong>：在递归实现中，系统栈自动管理了回溯过程；而在非递归实现中，我们显式使用栈来模拟这一过程。非递归实现的一个优点是可以避免递归深度过大导致的栈溢出问题。
+                            </p>
+                        </div>
+                    </div>
+                </div>
+            </section>
+            
+            <!-- 算法分析 Section -->
+            <section class="mb-12 bg-white rounded-2xl shadow-md p-8">
+                <div class="flex items-center mb-6">
+                    <i class="fas fa-chart-line text-primary text-xl mr-3"></i>
+                    <h2 class="text-2xl font-bold text-gray-800">算法分析</h2>
+                </div>
+                <div class="space-y-4 text-gray-700">
+                    <h3 class="text-xl font-semibold text-gray-800 mb-3">时间复杂度</h3>
+                    <div class="p-5 bg-gray-50 rounded-xl">
+                        <table class="min-w-full">
+                            <thead>
+                                <tr class="border-b border-gray-200">
+                                    <th class="py-2 text-left">数据结构</th>
+                                    <th class="py-2 text-left">时间复杂度</th>
+                                    <th class="py-2 text-left">说明</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr class="border-b border-gray-200">
+                                    <td class="py-2">邻接矩阵</td>
+                                    <td class="py-2 font-mono">O(V²)</td>
+                                    <td class="py-2">V是图中的顶点数，需要检查每个顶点与所有其他顶点的连接</td>
+                                </tr>
+                                <tr class="border-b border-gray-200">
+                                    <td class="py-2">邻接表</td>
+                                    <td class="py-2 font-mono">O(V+E)</td>
+                                    <td class="py-2">V是顶点数，E是边数，每个顶点和每条边都只会被访问一次</td>
+                                </tr>
+                                <tr>
+                                    <td class="py-2">树</td>
+                                    <td class="py-2 font-mono">O(N)</td>
+                                    <td class="py-2">N是树中的节点数，每个节点只会被访问一次</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+
+                    <h3 class="text-xl font-semibold text-gray-800 mt-6 mb-3">空间复杂度</h3>
+                    <p>深度优先搜索的空间复杂度取决于以下因素：</p>
+                    <ul class="list-disc list-inside pl-4 mb-3">
+                        <li>邻接矩阵或邻接表存储图的结构，需要 O(V²) 或 O(V+E) 的空间</li>
+                        <li>递归调用栈或显式栈，需要 O(h) 的空间，其中 h 是图的最大深度（最坏情况下为 O(V)）</li>
+                        <li>访问标记数组，需要 O(V) 的空间</li>
+                    </ul>
+                    <p>因此，总体空间复杂度为 O(V+E) 或 O(V²)，取决于图的表示方式。</p>
+                    
+                    <h3 class="text-xl font-semibold text-gray-800 mt-6 mb-3">优缺点</h3>
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-4">
+                        <div class="card-hover p-6 bg-gray-50 rounded-xl">
+                            <h4 class="text-lg font-semibold text-gray-800 mb-3">
+                                <i class="fas fa-check-circle text-green-600 mr-2"></i>
+                                优点
+                            </h4>
+                            <ul class="list-disc list-inside space-y-1">
+                                <li>实现简单，易于理解</li>
+                                <li>内存占用较低（相比于BFS）</li>
+                                <li>可以轻松找到一个解决方案</li>
+                                <li>适合探索所有可能的路径</li>
+                                <li>隐式地记录了访问路径</li>
+                            </ul>
+                        </div>
+                        
+                        <div class="card-hover p-6 bg-gray-50 rounded-xl">
+                            <h4 class="text-lg font-semibold text-gray-800 mb-3">
+                                <i class="fas fa-times-circle text-red-600 mr-2"></i>
+                                缺点
+                            </h4>
+                            <ul class="list-disc list-inside space-y-1">
+                                <li>可能会进入无限循环（环检测很重要）</li>
+                                <li>不一定找到最短路径</li>
+                                <li>递归调用可能导致栈溢出</li>
+                                <li>对于大型图可能效率较低</li>
+                                <li>深度遍历可能离目标很远</li>
+                            </ul>
+                        </div>
+                    </div>
+                    
+                    <h3 class="text-xl font-semibold text-gray-800 mt-6 mb-3">优化策略</h3>
+                    <div class="p-5 bg-primary-light bg-opacity-10 rounded-lg">
+                        <ol class="list-decimal list-inside space-y-2 pl-2">
+                            <li><strong>剪枝优化</strong>：在DFS中添加条件判断，排除无效的搜索分支，减少不必要的搜索</li>
+                            <li><strong>双向DFS</strong>：同时从起点和终点开始搜索，当两个搜索相遇时即找到路径</li>
+                            <li><strong>记忆化搜索</strong>：记录已经计算过的状态，避免重复计算</li>
+                            <li><strong>迭代加深搜索</strong>：逐步增加搜索深度限制，避免在无限大的状态空间中迷失</li>
+                            <li><strong>启发式搜索</strong>：结合A*等算法，使用启发函数指导搜索方向</li>
+                        </ol>
+                    </div>
+                </div>
+            </section>
+            
+            <!-- 应用示例 Section -->
+            <section class="mb-12 bg-white rounded-2xl shadow-md p-8">
+                <div class="flex items-center mb-6">
+                    <i class="fas fa-laptop-code text-primary text-xl mr-3"></i>
+                    <h2 class="text-2xl font-bold text-gray-800">应用示例</h2>
+                </div>
+                <div class="space-y-4 text-gray-700">
+                    <h3 class="text-xl font-semibold text-gray-800 mb-3">实例：迷宫求解</h3>
+                    <div class="mb-4">
+                        <button class="code-toggle-btn px-4 py-2 bg-gray-200 hover:bg-gray-300 rounded-lg transition duration-300 flex items-center" data-target="maze-code">
+                            <i class="fas fa-code mr-2"></i> <span>展开/收起代码</span>
+                        </button>
+                    </div>
+                    <div id="maze-code" class="overflow-x-auto bg-codeBlock rounded-lg p-4 mb-6 code-block">
+                        <pre class="text-gray-100 font-mono text-sm"><code>#include &lt;iostream&gt;
+#include &lt;vector&gt;
+
+// 迷宫的四个方向：上、右、下、左
+const int dx[] = {-1, 0, 1, 0};
+const int dy[] = {0, 1, 0, -1};
+
+// 迷宫大小
+const int ROWS = 5;
+const int COLS = 5;
+
+// 迷宫：0表示通道，1表示墙壁
+int maze[ROWS][COLS] = {
+    {0, 1, 0, 0, 0},
+    {0, 1, 0, 1, 0},
+    {0, 0, 0, 0, 0},
+    {0, 1, 1, 1, 0},
+    {0, 0, 0, 1, 0}
+};
+
+// 标记数组：标记哪些格子已经被访问过
+bool visited[ROWS][COLS] = {false};
+
+// 路径：记录从起点到终点的路径
+std::vector&lt;std::pair&lt;int, int&gt;&gt; path;
+
+// 判断位置是否合法（在迷宫内且是通道）
+bool isValid(int x, int y) {
+    return x >= 0 && x < ROWS && y >= 0 && y < COLS && maze[x][y] == 0 && !visited[x][y];
+}
+
+// 使用DFS寻找从起点到终点的路径
+bool findPath(int x, int y, int destX, int destY) {
+    // 如果到达终点，返回true
+    if (x == destX && y == destY) {
+        path.push_back({x, y});
+        return true;
+    }
+    
+    // 标记当前格子为已访问
+    visited[x][y] = true;
+    
+    // 尝试四个方向
+    for (int i = 0; i < 4; i++) {
+        int newX = x + dx[i];
+        int newY = y + dy[i];
+        
+        // 如果新位置合法且未访问过
+        if (isValid(newX, newY)) {
+            // 递归搜索
+            if (findPath(newX, newY, destX, destY)) {
+                // 如果找到路径，将当前格子加入路径
+                path.push_back({x, y});
+                return true;
+            }
+        }
+    }
+    
+    // 如果四个方向都不行，返回false
+    return false;
+}
+
+// 打印迷宫
+void printMaze() {
+    for (int i = 0; i < ROWS; i++) {
+        for (int j = 0; j < COLS; j++) {
+            std::cout << maze[i][j] << " ";
+        }
+        std::cout << std::endl;
+    }
+}
+
+// 打印路径
+void printPath() {
+    // 创建一个临时迷宫用于显示路径
+    int tempMaze[ROWS][COLS];
+    
+    // 复制原始迷宫
+    for (int i = 0; i < ROWS; i++) {
+        for (int j = 0; j < COLS; j++) {
+            tempMaze[i][j] = maze[i][j];
+        }
+    }
+    
+    // 标记路径
+    for (const auto& point : path) {
+        tempMaze[point.first][point.second] = 2; // 2表示路径
+    }
+    
+    std::cout << "路径 (2 表示路径):" << std::endl;
+    for (int i = 0; i < ROWS; i++) {
+        for (int j = 0; j < COLS; j++) {
+            std::cout << tempMaze[i][j] << " ";
+        }
+        std::cout << std::endl;
+    }
+}
+
+int main() {
+    std::cout << "迷宫 (0: 通道, 1: 墙壁):" << std::endl;
+    printMaze();
+    
+    int startX = 0, startY = 0;  // 起点
+    int destX = 4, destY = 4;    // 终点
+    
+    std::cout << "使用DFS寻找从 (" << startX << "," << startY << ") 到 (" 
+              << destX << "," << destY << ") 的路径:" << std::endl;
+    
+    if (findPath(startX, startY, destX, destY)) {
+        std::cout << "找到路径!" << std::endl;
+        printPath();
+    } else {
+        std::cout << "没有找到路径!" << std::endl;
+    }
+    
+    return 0;
+}</code></pre>
+                    </div>
+                    
+                    <h3 class="text-xl font-semibold text-gray-800 mt-6 mb-3">DFS的应用领域</h3>
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-4">
+                        <div class="card-hover p-6 bg-gray-50 rounded-xl">
+                            <h4 class="text-lg font-semibold text-gray-800 mb-3">
+                                <i class="fas fa-project-diagram text-primary-dark mr-2"></i>
+                                图论问题
+                            </h4>
+                            <ul class="list-disc list-inside space-y-1">
+                                <li>拓扑排序</li>
+                                <li>连通分量检测</li>
+                                <li>环检测</li>
+                                <li>强连通分量</li>
+                                <li>二分图检测</li>
+                            </ul>
+                        </div>
+                        
+                        <div class="card-hover p-6 bg-gray-50 rounded-xl">
+                            <h4 class="text-lg font-semibold text-gray-800 mb-3">
+                                <i class="fas fa-puzzle-piece text-primary-dark mr-2"></i>
+                                搜索与回溯
+                            </h4>
+                            <ul class="list-disc list-inside space-y-1">
+                                <li>迷宫求解</li>
+                                <li>数独求解</li>
+                                <li>N皇后问题</li>
+                                <li>排列组合生成</li>
+                                <li>图的着色问题</li>
+                            </ul>
+                        </div>
+                    </div>
+                    
+                    <h3 class="text-xl font-semibold text-gray-800 mt-6 mb-3">练习题</h3>
+                    <div class="p-5 bg-primary-light bg-opacity-10 rounded-lg">
+                        <ol class="list-decimal list-inside space-y-2">
+                            <li>实现一个函数，使用DFS检测一个无向图中是否存在环。</li>
+                            <li>使用DFS解决八数码问题。</li>
+                            <li>编写一个程序，使用DFS找出一个二维矩阵中最大的连通区域（相同值的相邻单元格）。</li>
+                            <li>实现拓扑排序算法，并用它解决课程安排问题。</li>
+                            <li>使用DFS查找有向图中的所有强连通分量。</li>
+                        </ol>
+                    </div>
+                </div>
+            </section>
+            
+            <!-- 交互式可视化 Section -->
+            <section class="mb-12 bg-white rounded-2xl shadow-md p-8">
+                <div class="flex items-center mb-6">
+                    <i class="fas fa-chart-bar text-primary text-xl mr-3"></i>
+                    <h2 class="text-2xl font-bold text-gray-800">交互式可视化</h2>
+                </div>
+                <div class="space-y-6 text-gray-700">
+                    <p>下面是深度优先搜索算法的交互式可视化演示。您可以通过点击节点创建图，然后选择起始节点观察DFS遍历的过程。已为您初始化一个示例图，可直接点击"开始DFS"按钮并选择一个起始节点体验算法运行过程。</p>
+                    
+                    <div class="flex flex-col items-center p-6 bg-gray-50 rounded-xl">
+                        <!-- 图可视化区域 -->
+                        <div id="graph-container" class="w-full h-96 bg-blue-100 rounded-lg shadow-inner p-4 mb-6 flex items-center justify-center">
+                            <canvas id="graph-canvas" class="w-full h-full"></canvas>
+                        </div>
+                        
+                        <!-- 控制区域 - 将按钮和操作说明分为两列 -->
+                        <div class="w-full grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
+                            <!-- 左侧：控制按钮和速度滑块 -->
+                            <div class="flex flex-col space-y-6">
+                                <div class="flex flex-wrap gap-4">
+                                    <button id="add-node" class="px-4 py-2 bg-primary hover:bg-primary-dark text-white rounded-lg transition duration-300 flex items-center">
+                                        <i class="fas fa-plus mr-2"></i> 添加节点
+                                    </button>
+                                    <button id="add-edge" class="px-4 py-2 bg-green-500 hover:bg-green-600 text-white rounded-lg transition duration-300 flex items-center">
+                                        <i class="fas fa-link mr-2"></i> 添加边
+                                    </button>
+                                    <button id="start-dfs" class="px-4 py-2 bg-yellow-500 hover:bg-yellow-600 text-white rounded-lg transition duration-300 flex items-center">
+                                        <i class="fas fa-play mr-2"></i> 开始DFS
+                                    </button>
+                                    <button id="reset" class="px-4 py-2 bg-red-500 hover:bg-red-600 text-white rounded-lg transition duration-300 flex items-center">
+                                        <i class="fas fa-undo mr-2"></i> 重置
+                                    </button>
+                                </div>
+                                <div class="w-full flex items-center">
+                                    <span class="mr-3 text-sm font-medium text-gray-700">速度:</span>
+                                    <input id="speed-slider" type="range" min="1" max="5" value="3" class="w-full h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer">
+                                    <span class="ml-3 text-sm font-medium text-gray-700" id="speed-value">中等</span>
+                                </div>
+                            </div>
+                            
+                            <!-- 右侧：操作说明 -->
+                            <div class="bg-white p-4 rounded-lg shadow-sm">
+                                <h4 class="font-semibold text-gray-800 mb-2">操作说明:</h4>
+                                <ul class="list-disc list-inside text-sm text-gray-600 pl-2">
+                                    <li>已为您初始化一个演示图，您可以直接体验或者自行创建新图</li>
+                                    <li>点击"添加节点"按钮后，在画布上点击创建新节点</li>
+                                    <li>点击"添加边"按钮后，先点击起始节点再点击目标节点创建边</li>
+                                    <li>点击"开始DFS"按钮后，点击一个节点作为DFS的起点</li>
+                                    <li>使用速度滑块控制动画速度</li>
+                                    <li>点击"重置"按钮清除所有节点和边并重新初始化示例图</li>
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <h3 class="text-xl font-semibold text-gray-800 mt-8 mb-4">DFS遍历过程</h3>
+                    <div class="overflow-x-auto">
+                        <div id="dfs-output" class="w-full bg-gray-100 p-4 rounded-lg font-mono text-sm h-32 overflow-y-auto">
+                            DFS遍历结果将显示在这里...
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- JavaScript 实现可视化 -->
+                <script>
+                    // 节点和边的颜色定义
+                    const COLORS = {
+                        NODE: {
+                            DEFAULT: '#3b82f6',
+                            SELECTED: '#f59e0b',
+                            VISITED: '#10b981',
+                            CURRENT: '#ef4444',
+                            TEXT: '#ffffff'
+                        },
+                        EDGE: {
+                            DEFAULT: '#64748b',
+                            TRAVERSED: '#10b981'
+                        }
+                    };
+                    
+                    // 图的数据结构
+                    class Graph {
+                        constructor() {
+                            this.nodes = [];
+                            this.edges = [];
+                            this.adjacencyList = {};
+                        }
+                        
+                        // 添加节点
+                        addNode(x, y, label) {
+                            const node = { x, y, label, color: COLORS.NODE.DEFAULT };
+                            this.nodes.push(node);
+                            this.adjacencyList[label] = [];
+                            return node;
+                        }
+                        
+                        // 添加边
+                        addEdge(startLabel, endLabel) {
+                            const startNode = this.getNodeByLabel(startLabel);
+                            const endNode = this.getNodeByLabel(endLabel);
+                            
+                            if (startNode && endNode) {
+                                this.edges.push({
+                                    start: startNode,
+                                    end: endNode,
+                                    color: COLORS.EDGE.DEFAULT
+                                });
+                                
+                                // 更新邻接表（无向图）
+                                this.adjacencyList[startLabel].push(endLabel);
+                                this.adjacencyList[endLabel].push(startLabel);
+                            }
+                        }
+                        
+                        // 通过标签获取节点
+                        getNodeByLabel(label) {
+                            return this.nodes.find(node => node.label === label);
+                        }
+                        
+                        // 通过坐标获取节点
+                        getNodeByPosition(x, y) {
+                            const radius = 24;
+                            return this.nodes.find(node => {
+                                const distance = Math.sqrt(Math.pow(node.x - x, 2) + Math.pow(node.y - y, 2));
+                                return distance <= radius;
+                            });
+                        }
+                        
+                        // 重置所有节点和边的颜色
+                        resetColors() {
+                            this.nodes.forEach(node => {
+                                node.color = COLORS.NODE.DEFAULT;
+                            });
+                            
+                            this.edges.forEach(edge => {
+                                edge.color = COLORS.EDGE.DEFAULT;
+                            });
+                        }
+                    }
+                    
+                    // 画布管理器
+                    class CanvasManager {
+                        constructor(canvasId) {
+                            this.canvas = document.getElementById(canvasId);
+                            this.ctx = this.canvas.getContext('2d');
+                            this.nodeRadius = 24;
+                            this.resizeCanvas();
+                            
+                            // 添加窗口大小调整事件监听
+                            window.addEventListener('resize', () => this.resizeCanvas());
+                        }
+                        
+                        // 调整画布大小
+                        resizeCanvas() {
+                            const container = this.canvas.parentElement;
+                            this.canvas.width = container.clientWidth;
+                            this.canvas.height = container.clientHeight;
+                        }
+                        
+                        // 清空画布
+                        clear() {
+                            this.ctx.clearRect(0, 0, this.canvas.width, this.canvas.height);
+                        }
+                        
+                        // 绘制节点
+                        drawNode(node) {
+                            const { x, y, label, color } = node;
+                            
+                            // 绘制节点阴影
+                            this.ctx.beginPath();
+                            this.ctx.arc(x, y, this.nodeRadius + 2, 0, Math.PI * 2);
+                            this.ctx.fillStyle = 'rgba(0, 0, 0, 0.2)';
+                            this.ctx.fill();
+                            
+                            // 绘制圆形
+                            this.ctx.beginPath();
+                            this.ctx.arc(x, y, this.nodeRadius, 0, Math.PI * 2);
+                            this.ctx.fillStyle = color;
+                            this.ctx.fill();
+                            
+                            // 绘制边框
+                            this.ctx.beginPath();
+                            this.ctx.arc(x, y, this.nodeRadius, 0, Math.PI * 2);
+                            this.ctx.strokeStyle = '#ffffff';
+                            this.ctx.lineWidth = 2;
+                            this.ctx.stroke();
+                            
+                            // 绘制标签
+                            this.ctx.fillStyle = COLORS.NODE.TEXT;
+                            this.ctx.font = 'bold 16px Arial';
+                            this.ctx.textAlign = 'center';
+                            this.ctx.textBaseline = 'middle';
+                            this.ctx.fillText(label, x, y);
+                        }
+                        
+                        // 绘制边
+                        drawEdge(edge) {
+                            const { start, end, color } = edge;
+                            
+                            // 设置虚线样式
+                            this.ctx.setLineDash([]);
+                            
+                            // 计算方向向量
+                            const dx = end.x - start.x;
+                            const dy = end.y - start.y;
+                            const length = Math.sqrt(dx * dx + dy * dy);
+                            
+                            // 归一化方向向量
+                            const nx = dx / length;
+                            const ny = dy / length;
+                            
+                            // 计算线段起点和终点（考虑节点半径）
+                            const startX = start.x + nx * this.nodeRadius;
+                            const startY = start.y + ny * this.nodeRadius;
+                            const endX = end.x - nx * this.nodeRadius;
+                            const endY = end.y - ny * this.nodeRadius;
+                            
+                            // 绘制线段
+                            this.ctx.beginPath();
+                            this.ctx.moveTo(startX, startY);
+                            this.ctx.lineTo(endX, endY);
+                            this.ctx.strokeStyle = color;
+                            this.ctx.lineWidth = 3;
+                            this.ctx.stroke();
+                            
+                            // 绘制箭头（无向图不需要）
+                            // this.drawArrow(endX, endY, nx, ny, color);
+                        }
+                        
+                        // 绘制整个图
+                        drawGraph(graph) {
+                            this.clear();
+                            
+                            // 先绘制所有边
+                            graph.edges.forEach(edge => {
+                                this.drawEdge(edge);
+                            });
+                            
+                            // 再绘制所有节点
+                            graph.nodes.forEach(node => {
+                                this.drawNode(node);
+                            });
+                        }
+                    }
+                    
+                    // DFS算法
+                    class DFSAlgorithm {
+                        constructor(graph) {
+                            this.graph = graph;
+                            this.visited = {};
+                            this.traversalOrder = [];
+                            this.inProgress = false;
+                        }
+                        
+                        // 初始化
+                        init() {
+                            this.visited = {};
+                            this.traversalOrder = [];
+                            this.graph.nodes.forEach(node => {
+                                this.visited[node.label] = false;
+                            });
+                        }
+                        
+                        // 执行DFS
+                        async dfs(startLabel, onVisit, delay) {
+                            this.init();
+                            this.inProgress = true;
+                            await this.dfsVisit(startLabel, null, onVisit, delay);
+                            this.inProgress = false;
+                            return this.traversalOrder;
+                        }
+                        
+                        // DFS递归访问
+                        async dfsVisit(currentLabel, parentLabel, onVisit, delay) {
+                            // 标记当前节点为已访问
+                            this.visited[currentLabel] = true;
+                            this.traversalOrder.push(currentLabel);
+                            
+                            // 如果有访问回调，执行它
+                            if (onVisit) {
+                                await onVisit(currentLabel, parentLabel);
+                            }
+                            
+                            // 等待指定时间
+                            await new Promise(resolve => setTimeout(resolve, delay));
+                            
+                            // 访问所有未访问的邻接节点
+                            for (const adjacentLabel of this.graph.adjacencyList[currentLabel]) {
+                                if (!this.visited[adjacentLabel]) {
+                                    await this.dfsVisit(adjacentLabel, currentLabel, onVisit, delay);
+                                }
+                            }
+                        }
+                    }
+                    
+                    // 主程序
+                    document.addEventListener('DOMContentLoaded', function() {
+                        // 初始化画布和图
+                        const canvasManager = new CanvasManager('graph-canvas');
+                        const graph = new Graph();
+                        const dfsAlgorithm = new DFSAlgorithm(graph);
+                        
+                        // 获取DOM元素
+                        const addNodeBtn = document.getElementById('add-node');
+                        const addEdgeBtn = document.getElementById('add-edge');
+                        const startDFSBtn = document.getElementById('start-dfs');
+                        const resetBtn = document.getElementById('reset');
+                        const speedSlider = document.getElementById('speed-slider');
+                        const speedValue = document.getElementById('speed-value');
+                        const dfsOutput = document.getElementById('dfs-output');
+                        
+                        // 模式控制
+                        let mode = 'none';
+                        let selectedNode = null;
+                        let nodeCounter = 0;
+                        
+                        // 初始化示例图
+                        function initializeExampleGraph() {
+                            graph.nodes = [];
+                            graph.edges = [];
+                            graph.adjacencyList = {};
+                            nodeCounter = 0;
+                            
+                            // 获取画布尺寸
+                            const width = canvasManager.canvas.width;
+                            const height = canvasManager.canvas.height;
+                            
+                            // 创建节点
+                            const positions = [
+                                { x: width * 0.5, y: height * 0.2 },  // A - 中上
+                                { x: width * 0.3, y: height * 0.4 },  // B - 左中
+                                { x: width * 0.7, y: height * 0.4 },  // C - 右中
+                                { x: width * 0.2, y: height * 0.6 },  // D - 左下
+                                { x: width * 0.4, y: height * 0.6 },  // E - 中下左
+                                { x: width * 0.6, y: height * 0.6 },  // F - 中下右
+                                { x: width * 0.8, y: height * 0.6 }   // G - 右下
+                            ];
+                            
+                            // 添加节点
+                            positions.forEach((pos, i) => {
+                                const label = String.fromCharCode(65 + i); // A, B, C, ...
+                                graph.addNode(pos.x, pos.y, label);
+                                nodeCounter++;
+                            });
+                            
+                            // 添加边
+                            graph.addEdge('A', 'B');
+                            graph.addEdge('A', 'C');
+                            graph.addEdge('B', 'D');
+                            graph.addEdge('B', 'E');
+                            graph.addEdge('C', 'F');
+                            graph.addEdge('C', 'G');
+                            graph.addEdge('D', 'E');
+                            graph.addEdge('F', 'G');
+                            
+                            // 初始绘制
+                            canvasManager.drawGraph(graph);
+                        }
+                        
+                        // 根据速度滑块获取延迟时间
+                        function getDelay() {
+                            const speed = parseInt(speedSlider.value);
+                            switch (speed) {
+                                case 1: return 1000;
+                                case 2: return 500;
+                                case 3: return 300;
+                                case 4: return 150;
+                                case 5: return 50;
+                                default: return 300;
+                            }
+                        }
+                        
+                        // 更新速度显示
+                        function updateSpeedText() {
+                            const speed = speedSlider.value;
+                            let speedText = '';
+                            
+                            switch (parseInt(speed)) {
+                                case 1: speedText = '非常慢'; break;
+                                case 2: speedText = '慢'; break;
+                                case 3: speedText = '中等'; break;
+                                case 4: speedText = '快'; break;
+                                case 5: speedText = '非常快'; break;
+                            }
+                            
+                            speedValue.textContent = speedText;
+                        }
+                        
+                        // 初始化速度显示
+                        updateSpeedText();
+                        
+                        // 速度滑块事件监听
+                        speedSlider.addEventListener('input', updateSpeedText);
+                        
+                        // 添加节点按钮事件监听
+                        addNodeBtn.addEventListener('click', function() {
+                            mode = 'add-node';
+                            resetSelection();
+                        });
+                        
+                        // 添加边按钮事件监听
+                        addEdgeBtn.addEventListener('click', function() {
+                            mode = 'add-edge';
+                            resetSelection();
+                        });
+                        
+                        // 开始DFS按钮事件监听
+                        startDFSBtn.addEventListener('click', function() {
+                            if (graph.nodes.length === 0) {
+                                alert('请先添加节点');
+                                return;
+                            }
+                            
+                            mode = 'start-dfs';
+                            resetSelection();
+                        });
+                        
+                        // 重置按钮事件监听
+                        resetBtn.addEventListener('click', function() {
+                            mode = 'none';
+                            resetSelection();
+                            dfsOutput.textContent = 'DFS遍历结果将显示在这里...';
+                            initializeExampleGraph();
+                        });
+                        
+                        // 画布点击事件监听
+                        canvasManager.canvas.addEventListener('click', function(event) {
+                            if (dfsAlgorithm.inProgress) return;
+                            
+                            // 获取点击坐标
+                            const rect = canvasManager.canvas.getBoundingClientRect();
+                            // Calculate scaled coordinates considering canvas size ratio
+                            const scaleX = canvasManager.canvas.width / rect.width;
+                            const scaleY = canvasManager.canvas.height / rect.height;
+                            const x = (event.clientX - rect.left) * scaleX;
+                            const y = (event.clientY - rect.top) * scaleY;
+                            
+                            // 根据当前模式处理点击事件
+                            switch (mode) {
+                                case 'add-node':
+                                    handleAddNodeClick(x, y);
+                                    break;
+                                case 'add-edge':
+                                    handleAddEdgeClick(x, y);
+                                    break;
+                                case 'start-dfs':
+                                    handleStartDFSClick(x, y);
+                                    break;
+                            }
+                            
+                            // 重绘图
+                            canvasManager.drawGraph(graph);
+                        });
+                        
+                        // 处理添加节点的点击事件
+                        function handleAddNodeClick(x, y) {
+                            // 检查是否有节点存在于此位置
+                            const existingNode = graph.getNodeByPosition(x, y);
+                            if (existingNode) {
+                                alert('此位置已存在节点');
+                                return;
+                            }
+                            
+                            // 添加新节点
+                            const label = String.fromCharCode(65 + nodeCounter); // A, B, C, ...
+                            graph.addNode(x, y, label);
+                            nodeCounter++;
+                            
+                            // 添加反馈信息
+                            dfsOutput.textContent += `添加了节点 ${label} 在位置 (${Math.round(x)}, ${Math.round(y)})\n`;
+                            dfsOutput.scrollTop = dfsOutput.scrollHeight;
+                        }
+                        
+                        // 处理添加边的点击事件
+                        function handleAddEdgeClick(x, y) {
+                            const clickedNode = graph.getNodeByPosition(x, y);
+                            
+                            if (!clickedNode) return;
+                            
+                            if (!selectedNode) {
+                                // 第一次点击，选择起始节点
+                                selectedNode = clickedNode;
+                                selectedNode.color = COLORS.NODE.SELECTED;
+                            } else {
+                                // 第二次点击，选择终点节点并添加边
+                                if (selectedNode.label !== clickedNode.label) {
+                                    // 检查边是否已存在
+                                    const edgeExists = graph.edges.some(edge => 
+                                        (edge.start.label === selectedNode.label && edge.end.label === clickedNode.label) ||
+                                        (edge.start.label === clickedNode.label && edge.end.label === selectedNode.label)
+                                    );
+                                    
+                                    if (!edgeExists) {
+                                        graph.addEdge(selectedNode.label, clickedNode.label);
+                                    } else {
+                                        alert('这条边已经存在');
+                                    }
+                                }
+                                
+                                // 重置选择状态
+                                resetSelection();
+                            }
+                        }
+                        
+                        // 处理开始DFS的点击事件
+                        async function handleStartDFSClick(x, y) {
+                            const startNode = graph.getNodeByPosition(x, y);
+                            
+                            if (!startNode) return;
+                            
+                            // 重置颜色
+                            graph.resetColors();
+                            
+                            // 开始DFS
+                            dfsOutput.textContent = '正在执行DFS...\n';
+                            
+                            // 处理节点访问的回调函数
+                            async function onVisit(label, parentLabel) {
+                                const node = graph.getNodeByLabel(label);
+                                node.color = COLORS.NODE.CURRENT;
+                                
+                                // 如果是从父节点访问的，标记边
+                                if (parentLabel) {
+                                    const edge = graph.edges.find(e => 
+                                        (e.start.label === parentLabel && e.end.label === label) ||
+                                        (e.start.label === label && e.end.label === parentLabel)
+                                    );
+                                    
+                                    if (edge) {
+                                        edge.color = COLORS.EDGE.TRAVERSED;
+                                    }
+                                }
+                                
+                                canvasManager.drawGraph(graph);
+                                dfsOutput.textContent += `访问节点: ${label}\n`;
+                                dfsOutput.scrollTop = dfsOutput.scrollHeight;
+                                
+                                // 等待动画完成后将当前节点设置为已访问
+                                await new Promise(resolve => setTimeout(resolve, getDelay()));
+                                node.color = COLORS.NODE.VISITED;
+                                canvasManager.drawGraph(graph);
+                            }
+                            
+                            // 执行DFS
+                            const traversalOrder = await dfsAlgorithm.dfs(startNode.label, onVisit, getDelay());
+                            
+                            // 显示遍历顺序
+                            dfsOutput.textContent += `\nDFS遍历完成!\n遍历顺序: ${traversalOrder.join(' -> ')}`;
+                            
+                            // 重置模式
+                            mode = 'none';
+                        }
+                        
+                        // 重置选择状态
+                        function resetSelection() {
+                            if (selectedNode) {
+                                selectedNode.color = COLORS.NODE.DEFAULT;
+                                selectedNode = null;
+                            }
+                            canvasManager.drawGraph(graph);
+                        }
+                        
+                        // 初始化示例图
+                        initializeExampleGraph();
+                    });
+                </script>
+            </section>
+        </main>
+        
+        <!-- 页脚 -->
+        <footer class="mt-10 p-6 bg-gray-800 text-white flex flex-col md:flex-row justify-between items-center">
+            <div class="mb-4 md:mb-0">
+                <p class="text-sm"></p>
+            </div>
+            <div class="flex space-x-4">
+                <a href="index.html" class="text-gray-300 hover:text-white transition-colors">首页</a>
+                <a href="广度优先搜索.html" class="text-gray-300 hover:text-white transition-colors">广度优先搜索</a>
+            </div>
+            <button id="back-to-top" class="fixed right-6 bottom-6 p-3 bg-primary rounded-full shadow-lg text-white hidden">
+                <i class="fas fa-arrow-up"></i>
+            </button>
+        </footer>
+    </div>
+
+    <!-- Back to top button -->
+    <button id="backToTop" class="fixed bottom-6 right-6 bg-primary hover:bg-primary-dark text-white rounded-full p-3 shadow-lg transition-all duration-300 opacity-0 invisible">
+        <i class="fas fa-arrow-up"></i>
+    </button>
+
+    <!-- JavaScript for Back to top button -->
+    <script>
+        const backToTop = document.getElementById('backToTop');
+        
+        window.addEventListener('scroll', () => {
+            if (window.scrollY > 300) {
+                backToTop.classList.remove('opacity-0', 'invisible');
+                backToTop.classList.add('opacity-100', 'visible');
+            } else {
+                backToTop.classList.remove('opacity-100', 'visible');
+                backToTop.classList.add('opacity-0', 'invisible');
+            }
+        });
+        
+        backToTop.addEventListener('click', () => {
+            window.scrollTo({
+                top: 0,
+                behavior: 'smooth'
+            });
+        });
+    </script>
+    
+    <!-- Simple ScrollReveal effect -->
+    <script src="https://unpkg.com/scrollreveal"></script>
+    <script>
+        ScrollReveal().reveal('section', { 
+            delay: 200,
+            distance: '20px',
+            origin: 'bottom',
+            duration: 800,
+            easing: 'ease-in-out'
+        });
+    </script>
+
+    <!-- 添加代码块切换功能 -->
+    <script>
+    document.addEventListener('DOMContentLoaded', function() {
+        // 获取所有的代码切换按钮
+        const codeToggleBtns = document.querySelectorAll('.code-toggle-btn');
+        
+        // 默认先隐藏所有代码块
+        document.querySelectorAll('.code-block').forEach(block => {
+            block.style.display = 'none';
+        });
+        
+        // 为每个按钮添加点击事件
+        codeToggleBtns.forEach(btn => {
+            btn.addEventListener('click', function() {
+                const targetId = this.getAttribute('data-target');
+                const targetBlock = document.getElementById(targetId);
+                
+                if (targetBlock.style.display === 'none') {
+                    targetBlock.style.display = 'block';
+                    this.querySelector('span').textContent = '收起代码';
+                } else {
+                    targetBlock.style.display = 'none';
+                    this.querySelector('span').textContent = '展开代码';
+                }
+            });
+        });
+    });
+    </script>
+</body>
+</html> 

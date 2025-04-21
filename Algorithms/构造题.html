@@ -1,0 +1,699 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>构造题</title>
+    <!-- TailwindCSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&family=Roboto+Mono&display=swap" rel="stylesheet">
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        primary: {
+                            light: '#a5f3fc',
+                            DEFAULT: '#06b6d4',
+                            dark: '#0891b2',
+                        },
+                        secondary: {
+                            light: '#c7d2fe',
+                            DEFAULT: '#818cf8',
+                            dark: '#6366f1',
+                        },
+                        codeBlock: '#1e293b',
+                    },
+                    fontFamily: {
+                        sans: ['Poppins', 'sans-serif'],
+                        mono: ['Roboto Mono', 'monospace'],
+                    },
+                }
+            }
+        }
+    </script>
+    <style>
+        .card-hover {
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+        }
+        .card-hover:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 25px -5px rgba(6, 182, 212, 0.1), 0 10px 10px -5px rgba(6, 182, 212, 0.04);
+        }
+        .code-block::-webkit-scrollbar {
+            height: 8px;
+        }
+        .code-block::-webkit-scrollbar-thumb {
+            background-color: #06b6d4;
+            border-radius: 4px;
+        }
+        .code-block::-webkit-scrollbar-track {
+            background-color: #e2e8f0;
+            border-radius: 4px;
+        }
+    </style>
+</head>
+<body class="bg-gray-50 font-sans">
+    <div class="min-h-screen max-w-6xl mx-auto px-8 py-10">
+        <!-- Header -->
+        <header class="mb-12 text-center">
+            <div class="inline-block px-3 py-1 bg-primary-light text-primary-dark rounded-full text-sm font-medium mb-4">
+                算法基础
+            </div>
+            <h1 class="text-4xl font-bold text-gray-800 mb-4">构造题</h1>
+            <p class="text-lg text-gray-600 max-w-3xl mx-auto">掌握算法竞赛中的构造性思维与解题技巧</p>
+        </header>
+
+        <!-- Main Content -->
+        <main>
+            <!-- 构造题概览 Section -->
+            <section class="mb-12 bg-white rounded-2xl shadow-md p-8">
+                <div class="flex items-center mb-6">
+                    <i class="fas fa-tools text-primary text-xl mr-3"></i>
+                    <h2 class="text-2xl font-bold text-gray-800">构造题概述</h2>
+                </div>
+                <div class="space-y-4 text-gray-700">
+                    <p>构造题是一类要求构造出满足特定条件的解的题目，与传统算法题不同，它更注重思维的灵活性和创造性，没有固定的解题模板。</p>
+                    
+                    <div class="p-5 bg-primary-light bg-opacity-10 rounded-lg">
+                        <p>构造题的核心是设计一个满足题目要求的对象（如序列、图、函数等），关键在于找出构造对象需要满足的性质，并通过合理的构造手段实现这些性质。</p>
+                    </div>
+
+                    <h3 class="text-xl font-semibold text-gray-800 mt-6 mb-3">构造题的特点</h3>
+                    <ul class="list-disc list-inside space-y-2 pl-4">
+                        <li>没有固定套路，需要灵活的思维和丰富的数学知识</li>
+                        <li>通常有多种可能的构造方法</li>
+                        <li>解题关键在于发现问题的本质和关键性质</li>
+                        <li>解题过程强调证明和验证的严谨性</li>
+                        <li>经常需要用到特殊的数学性质或数据结构</li>
+                    </ul>
+                </div>
+            </section>
+            
+            <!-- 构造题常用技巧 Section -->
+            <section class="mb-12 bg-white rounded-2xl shadow-md p-8">
+                <div class="flex items-center mb-6">
+                    <i class="fas fa-lightbulb text-primary text-xl mr-3"></i>
+                    <h2 class="text-2xl font-bold text-gray-800">构造题常用技巧</h2>
+                </div>
+                <div class="space-y-4 text-gray-700">
+                    <p>虽然构造题没有固定的解法，但有一些常用的思路和技巧可以帮助我们找到突破口：</p>
+                    
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-8 mb-6">
+                        <div class="card-hover p-6 bg-gray-50 rounded-xl">
+                            <h3 class="text-lg font-semibold text-gray-800 mb-4">
+                                <i class="fas fa-cubes text-primary-dark mr-2"></i>
+                                特殊情况分析
+                            </h3>
+                            <p class="mb-3">从简单、特殊的情况入手，尝试找出规律。</p>
+                            <div class="text-sm">
+                                <p>先考虑问题的极端情况或小规模情况，寻找解题灵感。例如，当 n = 1, 2, 3 时的解是什么？有什么规律？</p>
+                            </div>
+                        </div>
+                        
+                        <div class="card-hover p-6 bg-gray-50 rounded-xl">
+                            <h3 class="text-lg font-semibold text-gray-800 mb-4">
+                                <i class="fas fa-object-group text-primary-dark mr-2"></i>
+                                倒推法
+                            </h3>
+                            <p class="mb-3">从目标状态出发，反向思考如何达到它。</p>
+                            <div class="text-sm">
+                                <p>明确最终的目标状态，然后思考如何从一个简单状态通过某些操作变换到目标状态。</p>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-8 mb-6">
+                        <div class="card-hover p-6 bg-gray-50 rounded-xl">
+                            <h3 class="text-lg font-semibold text-gray-800 mb-4">
+                                <i class="fas fa-random text-primary-dark mr-2"></i>
+                                对称性与不变量
+                            </h3>
+                            <p class="mb-3">利用问题中的对称性或不变性质。</p>
+                            <div class="text-sm">
+                                <p>寻找问题在某些变换下保持不变的性质，或利用对称性简化问题。</p>
+                            </div>
+                        </div>
+                        
+                        <div class="card-hover p-6 bg-gray-50 rounded-xl">
+                            <h3 class="text-lg font-semibold text-gray-800 mb-4">
+                                <i class="fas fa-project-diagram text-primary-dark mr-2"></i>
+                                数学性质应用
+                            </h3>
+                            <p class="mb-3">利用数学定理、性质来辅助构造。</p>
+                            <div class="text-sm">
+                                <p>使用数论、组合数学、线性代数等领域的性质来构造满足条件的对象。</p>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-8 mb-6">
+                        <div class="card-hover p-6 bg-gray-50 rounded-xl">
+                            <h3 class="text-lg font-semibold text-gray-800 mb-4">
+                                <i class="fas fa-th text-primary-dark mr-2"></i>
+                                贪心思想
+                            </h3>
+                            <p class="mb-3">按照某种优先级规则构造解。</p>
+                            <div class="text-sm">
+                                <p>设计一种贪心策略，按照某种顺序或优先级来构造解，同时证明这样的构造是正确的。</p>
+                            </div>
+                        </div>
+                        
+                        <div class="card-hover p-6 bg-gray-50 rounded-xl">
+                            <h3 class="text-lg font-semibold text-gray-800 mb-4">
+                                <i class="fas fa-layer-group text-primary-dark mr-2"></i>
+                                分层构造
+                            </h3>
+                            <p class="mb-3">分步构造满足不同性质的部分。</p>
+                            <div class="text-sm">
+                                <p>将问题拆分为多个子性质，逐一构造满足这些性质的结构，最后组合成完整解。</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+            
+            <!-- 构造题经典例题 Section -->
+            <section class="mb-12 bg-white rounded-2xl shadow-md p-8">
+                <div class="flex items-center mb-6">
+                    <i class="fas fa-tasks text-primary text-xl mr-3"></i>
+                    <h2 class="text-2xl font-bold text-gray-800">构造题经典例题</h2>
+                </div>
+                <div class="space-y-4 text-gray-700">
+                    <h3 class="text-xl font-semibold text-gray-800 mb-3">例题1：构造特殊序列</h3>
+                    <p>问题：构造一个长度为 n 的序列，使得任意相邻的两个数之和都是完全平方数。</p>
+                    
+                    <div class="p-6 bg-gray-50 rounded-xl">
+                        <h4 class="font-semibold mb-3 text-primary-dark">解题思路</h4>
+                        <ol class="list-decimal list-inside space-y-2 pl-4">
+                            <li>寻找完全平方数的性质：如果两数之和是完全平方数，那么这两个数的奇偶性必须相同</li>
+                            <li>构造思路：考虑使用交替的偶数序列</li>
+                            <li>验证：15和1的和是16=4<sup>2</sup>，1和8的和是9=3<sup>2</sup>，以此类推</li>
+                        </ol>
+                        
+                        <div class="overflow-x-auto bg-codeBlock rounded-lg p-4 mt-4">
+                            <pre class="text-gray-100 font-mono text-sm"><code>#include &lt;iostream&gt;
+#include &lt;vector&gt;
+using namespace std;
+
+vector&lt;int&gt; constructSequence(int n) {
+    vector&lt;int&gt; result(n);
+    
+    // 第一个数选择15
+    result[0] = 15;
+    
+    if (n >= 2) {
+        // 第二个数选择1
+        result[1] = 1;
+    }
+    
+    if (n >= 3) {
+        // 第三个数选择8
+        result[2] = 8;
+    }
+    
+    // 后续数字按照规律构造
+    for (int i = 3; i < n; ++i) {
+        if (i % 2 == 1) {
+            // 奇数位置放置1
+            result[i] = 1;
+        } else {
+            // 偶数位置放置8
+            result[i] = 8;
+        }
+    }
+    
+    return result;
+}
+
+int main() {
+    int n;
+    cin >> n;
+    
+    vector&lt;int&gt; sequence = constructSequence(n);
+    
+    for (int i = 0; i < n; ++i) {
+        cout << sequence[i] << " ";
+    }
+    cout << endl;
+    
+    // 验证相邻两数之和是完全平方数
+    for (int i = 0; i < n - 1; ++i) {
+        int sum = sequence[i] + sequence[i + 1];
+        cout << sequence[i] << " + " << sequence[i + 1] << " = " << sum << endl;
+    }
+    
+    return 0;
+}</code></pre>
+                        </div>
+                    </div>
+                    
+                    <h3 class="text-xl font-semibold text-gray-800 mt-6 mb-3">例题2：构造特殊图</h3>
+                    <p>问题：构造一个有 n 个节点的无向图，使得图中每个节点的度数都相等。</p>
+                    
+                    <div class="p-6 bg-gray-50 rounded-xl">
+                        <h4 class="font-semibold mb-3 text-primary-dark">解题思路</h4>
+                        <ul class="list-disc list-inside space-y-2 pl-4">
+                            <li>对于度数为 k 的正则图，满足 n * k 必须是偶数（因为每条边贡献两个度数）</li>
+                            <li>构造方法一：对于偶数 n，可以构造度数为 n-1 的完全图</li>
+                            <li>构造方法二：对于奇数 n，可以构造度数为 n-1（偶数）的完全图</li>
+                        </ul>
+                        
+                        <div class="overflow-x-auto bg-codeBlock rounded-lg p-4 mt-4">
+                            <pre class="text-gray-100 font-mono text-sm"><code>#include &lt;iostream&gt;
+#include &lt;vector&gt;
+using namespace std;
+
+void constructRegularGraph(int n) {
+    // 度数要求
+    int degree = n - 1;
+    
+    cout << "构造" << n << "个节点，每个节点度数为" << degree << "的图：" << endl;
+    
+    // 输出边的列表
+    for (int i = 1; i <= n; ++i) {
+        for (int j = i + 1; j <= n; ++j) {
+            cout << i << " -- " << j << endl;
+        }
+    }
+}
+
+int main() {
+    int n;
+    cin >> n;
+    
+    constructRegularGraph(n);
+    
+    return 0;
+}</code></pre>
+                        </div>
+                    </div>
+
+                    <h3 class="text-xl font-semibold text-gray-800 mt-6 mb-3">例题3：构造等差数列（CF 1036D）</h3>
+                    <p>问题：给定两个数组 A 和 B，你需要合并 A 中的元素，使得最终 A 和 B 数组相等。合并操作是指将相邻的元素相加形成一个新元素。</p>
+                    
+                    <div class="p-6 bg-gray-50 rounded-xl">
+                        <h4 class="font-semibold mb-3 text-primary-dark">解题思路</h4>
+                        <ol class="list-decimal list-inside space-y-2 pl-4">
+                            <li>首先检查两个数组的元素和是否相等，如果不相等，则无解</li>
+                            <li>使用双指针技巧，分别从两个数组的开头开始</li>
+                            <li>计算前缀和，当两个数组的前缀和相等时，表示找到了一个合并点</li>
+                            <li>继续移动指针寻找下一个合并点，直到处理完全部元素</li>
+                        </ol>
+                        
+                        <div class="overflow-x-auto bg-codeBlock rounded-lg p-4 mt-4">
+                            <pre class="text-gray-100 font-mono text-sm"><code>#include &lt;iostream&gt;
+#include &lt;vector&gt;
+using namespace std;
+
+int main() {
+    int n, m;
+    cin >> n;
+    
+    vector&lt;long long&gt; a(n);
+    for (int i = 0; i < n; ++i) {
+        cin >> a[i];
+    }
+    
+    cin >> m;
+    vector&lt;long long&gt; b(m);
+    for (int i = 0; i < m; ++i) {
+        cin >> b[i];
+    }
+    
+    int result = 0;
+    int i = 0, j = 0;
+    long long sum_a = 0, sum_b = 0;
+    
+    while (i < n && j < m) {
+        if (sum_a == 0) {
+            sum_a = a[i++];
+        }
+        if (sum_b == 0) {
+            sum_b = b[j++];
+        }
+        
+        if (sum_a == sum_b) {
+            // 找到一个合并点
+            ++result;
+            sum_a = sum_b = 0;
+        } else if (sum_a < sum_b) {
+            // A 的和小于 B，继续合并 A 中的元素
+            if (i < n) {
+                sum_a += a[i++];
+            } else {
+                // 无法继续合并，无解
+                cout << -1 << endl;
+                return 0;
+            }
+        } else {
+            // B 的和小于 A，继续合并 B 中的元素
+            if (j < m) {
+                sum_b += b[j++];
+            } else {
+                // 无法继续合并，无解
+                cout << -1 << endl;
+                return 0;
+            }
+        }
+    }
+    
+    // 检查是否所有元素都处理完毕
+    if (i < n || j < m || sum_a != 0 || sum_b != 0) {
+        cout << -1 << endl;
+    } else {
+        cout << result << endl;
+    }
+    
+    return 0;
+}</code></pre>
+                        </div>
+                    </div>
+
+                    <h3 class="text-xl font-semibold text-gray-800 mt-6 mb-3">例题4：构造整数（CF 1288D）</h3>
+                    <p>问题：给定一个 n×m 的矩阵 a，你需要选择两行 i 和 j，使得 max(min(a[i][0], a[j][0]), min(a[i][1], a[j][1]), ..., min(a[i][m-1], a[j][m-1])) 的值最大。</p>
+                    
+                    <div class="p-6 bg-gray-50 rounded-xl">
+                        <h4 class="font-semibold mb-3 text-primary-dark">解题思路</h4>
+                        <ol class="list-decimal list-inside space-y-2 pl-4">
+                            <li>使用二分搜索思想，二分答案 x</li>
+                            <li>对于每个猜测的答案 x，判断是否存在两行 i 和 j 满足条件</li>
+                            <li>利用位运算技巧：对于每一行，构造一个长度为 2^m 的掩码，表示该行中大于等于 x 的列</li>
+                            <li>如果存在两个掩码的按位或运算结果为 2^m - 1，则说明这两行满足条件</li>
+                        </ol>
+                        
+                        <div class="overflow-x-auto bg-codeBlock rounded-lg p-4 mt-4">
+                            <pre class="text-gray-100 font-mono text-sm"><code>#include &lt;iostream&gt;
+#include &lt;vector&gt;
+#include &lt;algorithm&gt;
+using namespace std;
+
+const int INF = 1e9 + 7;
+
+int main() {
+    int n, m;
+    cin >> n >> m;
+    
+    vector&lt;vector&lt;int&gt;&gt; a(n, vector&lt;int&gt;(m));
+    for (int i = 0; i < n; ++i) {
+        for (int j = 0; j < m; ++j) {
+            cin >> a[i][j];
+        }
+    }
+    
+    int left = 0, right = INF;
+    int ans_i = 0, ans_j = 0;
+    
+    // 二分搜索最大的可能答案
+    while (left <= right) {
+        int mid = left + (right - left) / 2;
+        
+        // 对于答案 mid，判断是否存在满足条件的两行
+        vector&lt;int&gt; masks(n, 0);
+        for (int i = 0; i < n; ++i) {
+            for (int j = 0; j < m; ++j) {
+                if (a[i][j] >= mid) {
+                    masks[i] |= (1 << j);
+                }
+            }
+        }
+        
+        // 检查是否存在两个掩码的按位或为 2^m - 1
+        bool found = false;
+        for (int i = 0; i < n; ++i) {
+            for (int j = i; j < n; ++j) {
+                if ((masks[i] | masks[j]) == (1 << m) - 1) {
+                    found = true;
+                    ans_i = i + 1;  // 1-indexed
+                    ans_j = j + 1;  // 1-indexed
+                    break;
+                }
+            }
+            if (found) break;
+        }
+        
+        if (found) {
+            left = mid + 1;
+        } else {
+            right = mid - 1;
+        }
+    }
+    
+    cout << ans_i << " " << ans_j << endl;
+    
+    return 0;
+}</code></pre>
+                        </div>
+                    </div>
+
+                    <h3 class="text-xl font-semibold text-gray-800 mt-6 mb-3">例题5：最短路径构造（CF 1045I）</h3>
+                    <p>问题：给定 n 个字符串，找出有多少对字符串 i 和 j，通过添加、删除或替换字符，可以将字符串 i 转换为字符串 j 的回文字符串。</p>
+                    
+                    <div class="p-6 bg-gray-50 rounded-xl">
+                        <h4 class="font-semibold mb-3 text-primary-dark">解题思路</h4>
+                        <ol class="list-decimal list-inside space-y-2 pl-4">
+                            <li>分析回文字符串的性质：字符出现次数的奇偶性是关键</li>
+                            <li>对于每个字符串，计算每个字符出现次数的奇偶性</li>
+                            <li>用一个长度为 26 的二进制掩码表示每个字符的奇偶性</li>
+                            <li>两个字符串能够组成回文当且仅当它们的掩码相同或仅有一位不同</li>
+                        </ol>
+                        
+                        <div class="overflow-x-auto bg-codeBlock rounded-lg p-4 mt-4">
+                            <pre class="text-gray-100 font-mono text-sm"><code>#include &lt;iostream&gt;
+#include &lt;vector&gt;
+#include &lt;string&gt;
+#include &lt;map&gt;
+using namespace std;
+
+int main() {
+    int n;
+    cin >> n;
+    
+    vector&lt;string&gt; strings(n);
+    for (int i = 0; i < n; ++i) {
+        cin >> strings[i];
+    }
+    
+    map&lt;int, long long&gt; mask_count;
+    long long result = 0;
+    
+    for (const string& s : strings) {
+        // 计算字符频率的奇偶性掩码
+        int mask = 0;
+        for (char c : s) {
+            mask ^= (1 << (c - 'a'));
+        }
+        
+        // 增加当前掩码的计数
+        result += mask_count[mask];
+        
+        // 检查差一位的掩码
+        for (int i = 0; i < 26; ++i) {
+            int new_mask = mask ^ (1 << i);
+            result += mask_count[new_mask];
+        }
+        
+        // 更新掩码计数
+        mask_count[mask]++;
+    }
+    
+    cout << result << endl;
+    
+    return 0;
+}</code></pre>
+                        </div>
+                    </div>
+                </div>
+            </section>
+            
+            <!-- 高级构造方法 Section -->
+            <section class="mb-12 bg-white rounded-2xl shadow-md p-8">
+                <div class="flex items-center mb-6">
+                    <i class="fas fa-magic text-primary text-xl mr-3"></i>
+                    <h2 class="text-2xl font-bold text-gray-800">高级构造方法</h2>
+                </div>
+                <div class="space-y-4 text-gray-700">
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-8 mb-6">
+                        <div class="card-hover p-6 bg-gray-50 rounded-xl">
+                            <h3 class="text-lg font-semibold text-gray-800 mb-3">构造性证明</h3>
+                            <p>构造性证明是一种通过给出具体构造方法来证明某个命题的技术。</p>
+                            <ul class="list-disc list-inside space-y-1 pl-4 text-sm mt-2">
+                                <li>在证明存在性问题时特别有用</li>
+                                <li>提供了从理论到实践的桥梁</li>
+                                <li>例如：证明任何简单图都可以用不超过 Δ+1 种颜色进行着色（其中 Δ 是最大度数）</li>
+                            </ul>
+                        </div>
+                        
+                        <div class="card-hover p-6 bg-gray-50 rounded-xl">
+                            <h3 class="text-lg font-semibold text-gray-800 mb-3">对抗构造</h3>
+                            <p>针对某些算法或策略，构造出使其表现最差的实例。</p>
+                            <ul class="list-disc list-inside space-y-1 pl-4 text-sm mt-2">
+                                <li>用于分析算法的最坏情况复杂度</li>
+                                <li>找出算法的弱点</li>
+                                <li>例如：构造使快速排序退化为 O(n²) 的序列</li>
+                            </ul>
+                        </div>
+                    </div>
+                    
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-8 mb-6">
+                        <div class="card-hover p-6 bg-gray-50 rounded-xl">
+                            <h3 class="text-lg font-semibold text-gray-800 mb-3">折半构造</h3>
+                            <p>将问题分解成两部分，分别构造满足不同条件的子结构。</p>
+                            <ul class="list-disc list-inside space-y-1 pl-4 text-sm mt-2">
+                                <li>适用于复杂条件的问题</li>
+                                <li>通过分而治之简化构造难度</li>
+                                <li>例如：在构造平衡树时，先构造左右子树，再合并</li>
+                            </ul>
+                        </div>
+                        
+                        <div class="card-hover p-6 bg-gray-50 rounded-xl">
+                            <h3 class="text-lg font-semibold text-gray-800 mb-3">随机化构造</h3>
+                            <p>使用随机算法构造解，然后证明成功概率高。</p>
+                            <ul class="list-disc list-inside space-y-1 pl-4 text-sm mt-2">
+                                <li>适用于普通方法难以解决的问题</li>
+                                <li>概率分析是关键</li>
+                                <li>例如：随机化快速排序的轴选择</li>
+                            </ul>
+                        </div>
+                    </div>
+                    
+                    <div class="p-5 bg-yellow-50 rounded-lg border-l-4 border-yellow-400">
+                        <div class="flex items-start">
+                            <i class="fas fa-exclamation-triangle text-yellow-500 mt-1 mr-3"></i>
+                            <div>
+                                <h4 class="font-semibold text-gray-800 mb-2">构造题的挑战</h4>
+                                <p class="text-gray-700">
+                                    构造题的难点在于需要深入理解问题，灵活运用各种数学工具，并进行严谨的证明。解题时，要注意：
+                                </p>
+                                <ul class="mt-2 list-disc list-inside pl-4 space-y-1">
+                                    <li>确保构造满足所有条件，别遗漏边界情况</li>
+                                    <li>构造方法尽量简单明了，容易实现</li>
+                                    <li>对于复杂问题，可以先尝试求解简化版本</li>
+                                    <li>遇到难题时，可以尝试使用反证法寻找突破口</li>
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+            
+            <!-- 练习与提高 Section -->
+            <section class="bg-white rounded-2xl shadow-md p-8">
+                <div class="flex items-center mb-6">
+                    <i class="fas fa-dumbbell text-primary text-xl mr-3"></i>
+                    <h2 class="text-2xl font-bold text-gray-800">练习与提高</h2>
+                </div>
+                <div class="space-y-4 text-gray-700">
+                    <p>构造题是需要通过大量练习才能提高的题型。以下是一些提高构造能力的方法：</p>
+                    
+                    <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-6">
+                        <div class="card-hover p-6 bg-gray-50 rounded-xl">
+                            <h3 class="text-lg font-semibold text-gray-800 mb-3">学习经典构造</h3>
+                            <ul class="list-disc list-inside space-y-1 pl-4">
+                                <li>哈密尔顿路径构造</li>
+                                <li>特殊数列构造</li>
+                                <li>平衡括号序列构造</li>
+                                <li>树和图的构造</li>
+                            </ul>
+                        </div>
+                        
+                        <div class="card-hover p-6 bg-gray-50 rounded-xl">
+                            <h3 class="text-lg font-semibold text-gray-800 mb-3">加强数学基础</h3>
+                            <ul class="list-disc list-inside space-y-1 pl-4">
+                                <li>数论</li>
+                                <li>组合数学</li>
+                                <li>线性代数</li>
+                                <li>图论</li>
+                            </ul>
+                        </div>
+                        
+                        <div class="card-hover p-6 bg-gray-50 rounded-xl">
+                            <h3 class="text-lg font-semibold text-gray-800 mb-3">多方法尝试</h3>
+                            <ul class="list-disc list-inside space-y-1 pl-4">
+                                <li>从简单情况出发</li>
+                                <li>尝试不同的构造思路</li>
+                                <li>反向思考</li>
+                                <li>打破常规思维</li>
+                            </ul>
+                        </div>
+                    </div>
+                    
+                    <div class="p-5 bg-blue-50 rounded-xl border-l-4 border-blue-400">
+                        <div class="flex items-start">
+                            <i class="fas fa-info-circle text-blue-500 mt-1 mr-3"></i>
+                            <div>
+                                <h3 class="text-lg font-semibold text-gray-800 mb-2">推荐练习题目</h3>
+                                <ul class="mt-2 list-disc list-inside pl-4 space-y-1">
+                                    <li>构造一个长度为n的排列，使得相邻元素的差的绝对值恰好构成1到n-1</li>
+                                    <li>构造一个树，使得从根到每个叶子节点的路径长度相等</li>
+                                    <li>构造一个图，使其既是二分图又是连通图，且每个点的度数不超过3</li>
+                                    <li>构造一个01序列，使得它的所有连续子序列中0和1的数量差不超过k</li>
+                                    <li><strong>LeetCode 2375：根据模式构造排列</strong> - 给定一个长度为 n-1 的字符串 pattern，仅由 'I' 和 'D' 组成，构造一个长度为 n 的排列 p 满足：如果 pattern[i] == 'I'，则 p[i] < p[i+1]；如果 pattern[i] == 'D'，则 p[i] > p[i+1]</li>
+                                    <li><strong>Codeforces 1354D：多重集合</strong> - 实现一种数据结构，支持添加元素和删除第k小的元素操作</li>
+                                    <li><strong>USACO Gold: Why Did the Cow Cross the Road</strong> - 构造一个满足特定路径要求的网格图</li>
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+        </main>
+
+        <!-- Footer -->
+        <footer class="mt-16 text-center text-gray-500 text-sm">
+            <div class="flex justify-center mt-6 space-x-4">
+                <a href="简介.html" class="text-primary hover:text-primary-dark transition-colors duration-300">
+                    <i class="fas fa-home mr-1"></i>首页
+                </a>
+                <a href="倍增法.html" class="text-primary hover:text-primary-dark transition-colors duration-300">
+                    <i class="fas fa-arrow-left ml-1"></i>倍增法
+                </a>
+                <a href="贪心.html" class="text-primary hover:text-primary-dark transition-colors duration-300">
+                    贪心算法<i class="fas fa-arrow-right ml-1"></i>
+                </a>
+            </div>
+        </footer>
+    </div>
+
+    <!-- Back to top button -->
+    <button id="backToTop" class="fixed bottom-6 right-6 bg-primary hover:bg-primary-dark text-white rounded-full p-3 shadow-lg transition-all duration-300 opacity-0 invisible">
+        <i class="fas fa-arrow-up"></i>
+    </button>
+
+    <!-- JavaScript for Back to top button -->
+    <script>
+        const backToTop = document.getElementById('backToTop');
+        
+        window.addEventListener('scroll', () => {
+            if (window.scrollY > 300) {
+                backToTop.classList.remove('opacity-0', 'invisible');
+                backToTop.classList.add('opacity-100', 'visible');
+            } else {
+                backToTop.classList.remove('opacity-100', 'visible');
+                backToTop.classList.add('opacity-0', 'invisible');
+            }
+        });
+        
+        backToTop.addEventListener('click', () => {
+            window.scrollTo({
+                top: 0,
+                behavior: 'smooth'
+            });
+        });
+    </script>
+    <!-- Simple ScrollReveal effect -->
+    <script src="https://unpkg.com/scrollreveal"></script>
+    <script>
+        ScrollReveal().reveal('section', { 
+            delay: 200,
+            distance: '20px',
+            origin: 'bottom',
+            duration: 800,
+            easing: 'ease-in-out'
+        });
+    </script>
+</body>
+</html> 

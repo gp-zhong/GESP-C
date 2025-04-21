@@ -1,0 +1,384 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>C++ 运算符</title>
+    <!-- TailwindCSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&family=Roboto+Mono&display=swap" rel="stylesheet">
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        primary: {
+                            light: '#a5f3fc',
+                            DEFAULT: '#06b6d4',
+                            dark: '#0891b2',
+                        },
+                        secondary: {
+                            light: '#c7d2fe',
+                            DEFAULT: '#818cf8',
+                            dark: '#6366f1',
+                        },
+                        codeBlock: '#1e293b',
+                    },
+                    fontFamily: {
+                        sans: ['Poppins', 'sans-serif'],
+                        mono: ['Roboto Mono', 'monospace'],
+                    },
+                }
+            }
+        }
+    </script>
+    <style>
+        .card-hover {
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+        }
+        .card-hover:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 25px -5px rgba(6, 182, 212, 0.1), 0 10px 10px -5px rgba(6, 182, 212, 0.04);
+        }
+        .code-block::-webkit-scrollbar {
+            height: 8px;
+        }
+        .code-block::-webkit-scrollbar-thumb {
+            background-color: #06b6d4;
+            border-radius: 4px;
+        }
+        .code-block::-webkit-scrollbar-track {
+            background-color: #e2e8f0;
+            border-radius: 4px;
+        }
+    </style>
+</head>
+<body class="bg-gray-50 font-sans">
+    <div class="min-h-screen max-w-6xl mx-auto px-8 py-10">
+        <!-- Header -->
+        <header class="mb-12 text-center">
+            <div class="inline-block px-3 py-1 bg-primary-light text-primary-dark rounded-full text-sm font-medium mb-4">
+                C++ 编程入门
+            </div>
+            <h1 class="text-4xl font-bold text-gray-800 mb-4">C++ 运算符</h1>
+            <p class="text-lg text-gray-600 max-w-3xl mx-auto">理解 C++ 中各种运算符的用法、优先级和关联性</p>
+        </header>
+
+        <!-- Main Content -->
+        <main>
+            <!-- 算术运算符 Section -->
+            <section class="mb-12 bg-white rounded-2xl shadow-md p-8">
+                <div class="flex items-center mb-6">
+                    <i class="fas fa-calculator text-primary text-xl mr-3"></i>
+                    <h2 class="text-2xl font-bold text-gray-800">算术运算符</h2>
+                </div>
+                <div class="space-y-4 text-gray-700">
+                    <p>算术运算符用于执行基本的数学运算，如加法、减法、乘法和除法。</p>
+                    
+                    <div class="overflow-x-auto">
+                        <table class="min-w-full bg-white rounded-lg overflow-hidden">
+                            <thead class="bg-gray-100">
+                                <tr>
+                                    <th class="py-2 px-4 text-left">运算符</th>
+                                    <th class="py-2 px-4 text-left">描述</th>
+                                    <th class="py-2 px-4 text-left">示例</th>
+                                </tr>
+                            </thead>
+                            <tbody class="divide-y divide-gray-200">
+                                <tr>
+                                    <td class="py-2 px-4 font-mono">+</td>
+                                    <td class="py-2 px-4">加法</td>
+                                    <td class="py-2 px-4 font-mono">a + b</td>
+                                </tr>
+                                <tr>
+                                    <td class="py-2 px-4 font-mono">-</td>
+                                    <td class="py-2 px-4">减法</td>
+                                    <td class="py-2 px-4 font-mono">a - b</td>
+                                </tr>
+                                <tr>
+                                    <td class="py-2 px-4 font-mono">*</td>
+                                    <td class="py-2 px-4">乘法</td>
+                                    <td class="py-2 px-4 font-mono">a * b</td>
+                                </tr>
+                                <tr>
+                                    <td class="py-2 px-4 font-mono">/</td>
+                                    <td class="py-2 px-4">除法</td>
+                                    <td class="py-2 px-4 font-mono">a / b</td>
+                                </tr>
+                                <tr>
+                                    <td class="py-2 px-4 font-mono">%</td>
+                                    <td class="py-2 px-4">取模（余数）</td>
+                                    <td class="py-2 px-4 font-mono">a % b</td>
+                                </tr>
+                                <tr>
+                                    <td class="py-2 px-4 font-mono">++</td>
+                                    <td class="py-2 px-4">自增</td>
+                                    <td class="py-2 px-4 font-mono">++a 或 a++</td>
+                                </tr>
+                                <tr>
+                                    <td class="py-2 px-4 font-mono">--</td>
+                                    <td class="py-2 px-4">自减</td>
+                                    <td class="py-2 px-4 font-mono">--a 或 a--</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                    
+                    <div class="overflow-x-auto bg-codeBlock rounded-lg p-4 mt-4">
+                        <pre class="text-gray-100 font-mono text-sm"><code>// 算术运算符示例
+int a = 10, b = 3;
+
+cout << "a + b = " << a + b << endl;  // 输出: 13
+cout << "a - b = " << a - b << endl;  // 输出: 7
+cout << "a * b = " << a * b << endl;  // 输出: 30
+cout << "a / b = " << a / b << endl;  // 输出: 3 (整数除法)
+cout << "a % b = " << a % b << endl;  // 输出: 1 (余数)
+
+float c = 10.0, d = 3.0;
+cout << "c / d = " << c / d << endl;  // 输出: 3.33333 (浮点数除法)
+
+int e = 5;
+cout << "++e = " << ++e << endl;      // 输出: 6 (前缀自增)
+cout << "e++ = " << e++ << endl;      // 输出: 6 (后缀自增)
+cout << "e = " << e << endl;          // 输出: 7</code></pre>
+                    </div>
+                </div>
+            </section>
+            
+            <!-- 关系运算符 Section -->
+            <section class="mb-12 bg-white rounded-2xl shadow-md p-8">
+                <div class="flex items-center mb-6">
+                    <i class="fas fa-equals text-primary text-xl mr-3"></i>
+                    <h2 class="text-2xl font-bold text-gray-800">关系运算符</h2>
+                </div>
+                <div class="space-y-4 text-gray-700">
+                    <p>关系运算符用于比较两个值，返回结果为布尔值（true 或 false）。</p>
+                    
+                    <div class="overflow-x-auto">
+                        <table class="min-w-full bg-white rounded-lg overflow-hidden">
+                            <thead class="bg-gray-100">
+                                <tr>
+                                    <th class="py-2 px-4 text-left">运算符</th>
+                                    <th class="py-2 px-4 text-left">描述</th>
+                                    <th class="py-2 px-4 text-left">示例</th>
+                                </tr>
+                            </thead>
+                            <tbody class="divide-y divide-gray-200">
+                                <tr>
+                                    <td class="py-2 px-4 font-mono">==</td>
+                                    <td class="py-2 px-4">等于</td>
+                                    <td class="py-2 px-4 font-mono">a == b</td>
+                                </tr>
+                                <tr>
+                                    <td class="py-2 px-4 font-mono">!=</td>
+                                    <td class="py-2 px-4">不等于</td>
+                                    <td class="py-2 px-4 font-mono">a != b</td>
+                                </tr>
+                                <tr>
+                                    <td class="py-2 px-4 font-mono">></td>
+                                    <td class="py-2 px-4">大于</td>
+                                    <td class="py-2 px-4 font-mono">a > b</td>
+                                </tr>
+                                <tr>
+                                    <td class="py-2 px-4 font-mono"><</td>
+                                    <td class="py-2 px-4">小于</td>
+                                    <td class="py-2 px-4 font-mono">a < b</td>
+                                </tr>
+                                <tr>
+                                    <td class="py-2 px-4 font-mono">>=</td>
+                                    <td class="py-2 px-4">大于等于</td>
+                                    <td class="py-2 px-4 font-mono">a >= b</td>
+                                </tr>
+                                <tr>
+                                    <td class="py-2 px-4 font-mono"><=</td>
+                                    <td class="py-2 px-4">小于等于</td>
+                                    <td class="py-2 px-4 font-mono">a <= b</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                    
+                    <div class="overflow-x-auto bg-codeBlock rounded-lg p-4 mt-4">
+                        <pre class="text-gray-100 font-mono text-sm"><code>// 关系运算符示例
+int a = 10, b = 5;
+
+cout << "a == b 的结果是 " << (a == b) << endl;  // 输出: 0 (false)
+cout << "a != b 的结果是 " << (a != b) << endl;  // 输出: 1 (true)
+cout << "a > b 的结果是 " << (a > b) << endl;    // 输出: 1 (true)
+cout << "a < b 的结果是 " << (a < b) << endl;    // 输出: 0 (false)
+cout << "a >= b 的结果是 " << (a >= b) << endl;  // 输出: 1 (true)
+cout << "a <= b 的结果是 " << (a <= b) << endl;  // 输出: 0 (false)</code></pre>
+                    </div>
+                </div>
+            </section>
+            
+            <!-- 逻辑运算符 Section -->
+            <section class="mb-12 bg-white rounded-2xl shadow-md p-8">
+                <div class="flex items-center mb-6">
+                    <i class="fas fa-code-branch text-primary text-xl mr-3"></i>
+                    <h2 class="text-2xl font-bold text-gray-800">逻辑运算符</h2>
+                </div>
+                <div class="space-y-4 text-gray-700">
+                    <p>逻辑运算符用于组合多个条件表达式，并返回布尔结果。</p>
+                    
+                    <div class="overflow-x-auto">
+                        <table class="min-w-full bg-white rounded-lg overflow-hidden">
+                            <thead class="bg-gray-100">
+                                <tr>
+                                    <th class="py-2 px-4 text-left">运算符</th>
+                                    <th class="py-2 px-4 text-left">描述</th>
+                                    <th class="py-2 px-4 text-left">示例</th>
+                                </tr>
+                            </thead>
+                            <tbody class="divide-y divide-gray-200">
+                                <tr>
+                                    <td class="py-2 px-4 font-mono">&&</td>
+                                    <td class="py-2 px-4">逻辑与</td>
+                                    <td class="py-2 px-4 font-mono">a && b</td>
+                                </tr>
+                                <tr>
+                                    <td class="py-2 px-4 font-mono">||</td>
+                                    <td class="py-2 px-4">逻辑或</td>
+                                    <td class="py-2 px-4 font-mono">a || b</td>
+                                </tr>
+                                <tr>
+                                    <td class="py-2 px-4 font-mono">!</td>
+                                    <td class="py-2 px-4">逻辑非</td>
+                                    <td class="py-2 px-4 font-mono">!a</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                    
+                    <div class="overflow-x-auto bg-codeBlock rounded-lg p-4 mt-4">
+                        <pre class="text-gray-100 font-mono text-sm"><code>// 逻辑运算符示例
+bool a = true, b = false;
+
+cout << "a && b 的结果是 " << (a && b) << endl;  // 输出: 0 (false)
+cout << "a || b 的结果是 " << (a || b) << endl;  // 输出: 1 (true)
+cout << "!a 的结果是 " << (!a) << endl;         // 输出: 0 (false)
+cout << "!b 的结果是 " << (!b) << endl;         // 输出: 1 (true)
+
+// 短路求值
+int x = 5, y = 0;
+if (y != 0 && x / y > 2) {  // 短路求值，避免除以零
+    cout << "x / y > 2" << endl;
+}</code></pre>
+                    </div>
+                    
+                    <div class="p-5 bg-blue-50 rounded-xl border-l-4 border-blue-400 mt-4">
+                        <div class="flex items-start">
+                            <i class="fas fa-info-circle text-blue-500 mt-1 mr-3"></i>
+                            <div>
+                                <h3 class="text-lg font-semibold text-gray-800 mb-2">短路求值</h3>
+                                <p class="text-gray-700">
+                                    C++ 中的逻辑运算符具有短路求值的特性：
+                                </p>
+                                <ul class="list-disc pl-5 mt-2">
+                                    <li><strong>&&</strong>：如果第一个操作数为 false，则不会计算第二个操作数</li>
+                                    <li><strong>||</strong>：如果第一个操作数为 true，则不会计算第二个操作数</li>
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+            
+            <!-- 位运算符 Section -->
+            <section class="mb-12 bg-white rounded-2xl shadow-md p-8">
+                <div class="flex items-center mb-6">
+                    <i class="fas fa-microchip text-primary text-xl mr-3"></i>
+                    <h2 class="text-2xl font-bold text-gray-800">位运算符</h2>
+                </div>
+                <div class="space-y-4 text-gray-700">
+                    <p>位运算符用于对二进制位进行操作，常用于底层编程、优化和位掩码操作。</p>
+                    
+                    <div class="overflow-x-auto">
+                        <table class="min-w-full bg-white rounded-lg overflow-hidden">
+                            <thead class="bg-gray-100">
+                                <tr>
+                                    <th class="py-2 px-4 text-left">运算符</th>
+                                    <th class="py-2 px-4 text-left">描述</th>
+                                    <th class="py-2 px-4 text-left">示例</th>
+                                </tr>
+                            </thead>
+                            <tbody class="divide-y divide-gray-200">
+                                <tr>
+                                    <td class="py-2 px-4 font-mono">&</td>
+                                    <td class="py-2 px-4">按位与</td>
+                                    <td class="py-2 px-4 font-mono">a & b</td>
+                                </tr>
+                                <tr>
+                                    <td class="py-2 px-4 font-mono">|</td>
+                                    <td class="py-2 px-4">按位或</td>
+                                    <td class="py-2 px-4 font-mono">a | b</td>
+                                </tr>
+                                <tr>
+                                    <td class="py-2 px-4 font-mono">^</td>
+                                    <td class="py-2 px-4">按位异或</td>
+                                    <td class="py-2 px-4 font-mono">a ^ b</td>
+                                </tr>
+                                <tr>
+                                    <td class="py-2 px-4 font-mono">~</td>
+                                    <td class="py-2 px-4">按位取反</td>
+                                    <td class="py-2 px-4 font-mono">~a</td>
+                                </tr>
+                                <tr>
+                                    <td class="py-2 px-4 font-mono"><<</td>
+                                    <td class="py-2 px-4">左移</td>
+                                    <td class="py-2 px-4 font-mono">a << b</td>
+                                </tr>
+                                <tr>
+                                    <td class="py-2 px-4 font-mono">>></td>
+                                    <td class="py-2 px-4">右移</td>
+                                    <td class="py-2 px-4 font-mono">a >> b</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                    
+                    <div class="overflow-x-auto bg-codeBlock rounded-lg p-4 mt-4">
+                        <pre class="text-gray-100 font-mono text-sm"><code>// 位运算符示例
+int a = 5;  // 二进制 0101
+int b = 3;  // 二进制 0011
+
+cout << "a & b = " << (a & b) << endl;   // 输出: 1 (二进制 0001)
+cout << "a | b = " << (a | b) << endl;   // 输出: 7 (二进制 0111)
+cout << "a ^ b = " << (a ^ b) << endl;   // 输出: 6 (二进制 0110)
+cout << "~a = " << (~a) << endl;         // 输出: -6 (取决于整数表示)
+cout << "a << 1 = " << (a << 1) << endl; // 输出: 10 (二进制 1010)
+cout << "a >> 1 = " << (a >> 1) << endl; // 输出: 2 (二进制 0010)</code></pre>
+                    </div>
+                </div>
+            </section>
+        </main>
+
+        <!-- Footer -->
+        <footer class="mt-16 text-center text-gray-500 text-sm">
+            <div class="flex justify-center mt-6 space-x-4">
+                <a href="联合体.html" class="text-primary hover:text-primary-dark transition-colors duration-300">
+                    <i class="fas fa-arrow-left mr-1"></i>联合体
+                </a>
+                <a href="index.html" class="text-primary hover:text-primary-dark transition-colors duration-300">
+                    返回首页<i class="fas fa-arrow-right ml-1"></i>
+                </a>
+            </div>
+        </footer>
+    </div>
+
+    <!-- Simple ScrollReveal effect -->
+    <script src="https://unpkg.com/scrollreveal"></script>
+    <script>
+        ScrollReveal().reveal('section', { 
+            delay: 200,
+            distance: '20px',
+            origin: 'bottom',
+            duration: 800,
+            easing: 'ease-in-out'
+        });
+    </script>
+</body>
+</html>

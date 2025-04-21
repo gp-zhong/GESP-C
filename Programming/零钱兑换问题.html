@@ -1,0 +1,399 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>零钱兑换问题</title>
+    <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css" rel="stylesheet">
+    <style>
+        body {
+            background-color: #f8f9fa;
+            color: #333;
+            font-family: 'Inter', sans-serif;
+        }
+        .card {
+            background: white;
+            border-radius: 16px;
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.05);
+            transition: all 0.3s ease;
+        }
+        .card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 15px 30px rgba(0, 0, 0, 0.1);
+        }
+        pre {
+            background-color: #f6f8fa;
+            border-radius: 8px;
+            overflow-x: auto;
+        }
+        code {
+            font-family: 'Fira Code', monospace;
+        }
+        .algorithm-step {
+            counter-increment: step;
+            position: relative;
+        }
+        .algorithm-step:before {
+            content: counter(step);
+            position: absolute;
+            left: -40px;
+            top: 0;
+            width: 30px;
+            height: 30px;
+            background-color: #6366f1;
+            color: white;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+        }
+        .highlight {
+            background-color: #FFF8DC;
+            padding: 2px 4px;
+            border-radius: 4px;
+        }
+    </style>
+</head>
+<body class="py-10">
+    <div class="container mx-auto px-8">
+        <div class="card p-8 mb-8">
+            <h1 class="text-3xl font-bold text-center text-indigo-700 mb-6">零钱兑换问题</h1>
+            <div class="text-gray-600 mb-6 text-center">
+                <span class="px-3"><i class="fas fa-chart-line mr-2"></i>复杂度: 中等</span>
+                <span class="px-3"><i class="fas fa-brain mr-2"></i>算法类别: 动态规划</span>
+                <span class="px-3"><i class="fas fa-code-branch mr-2"></i>解法: 多种</span>
+            </div>
+            
+            <div class="bg-indigo-50 p-4 rounded-lg mb-6">
+                <h2 class="text-xl font-semibold text-indigo-700 mb-2">问题描述</h2>
+                <p>给你一个整数数组 <code class="bg-gray-100 px-1">coins</code>，表示不同面额的硬币；以及一个整数 <code class="bg-gray-100 px-1">amount</code>，表示总金额。计算并返回可以凑成总金额所需的<span class="font-bold">最少的硬币个数</span>。如果没有任何一种硬币组合能组成总金额，返回 <code class="bg-gray-100 px-1">-1</code>。你可以认为每种硬币的数量是无限的。</p>
+            </div>
+        </div>
+
+        <div class="card p-8 mb-8">
+            <h2 class="text-2xl font-bold text-indigo-700 mb-4">解题思路</h2>
+            <p class="mb-4">这是一个典型的"最优子结构"问题，可以使用动态规划来解决。核心思想是：要凑出金额n，可以从已经凑出金额n-coin的情况再加一个coin。</p>
+            
+            <div class="flex flex-col md:flex-row gap-6 mt-6">
+                <div class="flex-1 bg-gradient-to-br from-indigo-50 to-purple-50 p-5 rounded-lg">
+                    <h3 class="text-lg font-semibold text-indigo-700 mb-3"><i class="fas fa-lightbulb mr-2 text-yellow-500"></i>核心思想</h3>
+                    <p>如果我们知道凑出金额 i-cⱼ 的最少硬币数量是 dp[i-cⱼ]，那么凑出金额 i 的最少硬币数量就是 dp[i-cⱼ] + 1（再加上一个面值为 cⱼ 的硬币）。</p>
+                </div>
+                <div class="flex-1 bg-gradient-to-br from-blue-50 to-cyan-50 p-5 rounded-lg">
+                    <h3 class="text-lg font-semibold text-blue-700 mb-3"><i class="fas fa-puzzle-piece mr-2 text-blue-500"></i>状态转移方程</h3>
+                    <p class="text-center my-4 font-mono">dp[i] = min(dp[i], dp[i-coin] + 1)</p>
+                    <p>其中 i 表示当前考虑的金额，coin ∈ coins 是可用的硬币面值。</p>
+                </div>
+            </div>
+        </div>
+
+        <div class="card p-8 mb-8">
+            <h2 class="text-2xl font-bold text-indigo-700 mb-4">朴素解法 - 自顶向下（递归+记忆化）</h2>
+            <p class="mb-4">首先介绍递归解法，它是一种自顶向下的方法：</p>
+            
+            <pre class="p-4 mb-6 text-sm"><code class="language-cpp">#include &lt;vector&gt;
+#include &lt;unordered_map&gt;
+#include &lt;climits&gt;
+#include &lt;algorithm&gt;
+using namespace std;
+
+class Solution {
+public:
+    int coinChange(vector&lt;int&gt;& coins, int amount) {
+        // 创建记忆化数组避免重复计算
+        unordered_map&lt;int, int&gt; memo;
+        
+        return dp(coins, amount, memo);
+    }
+    
+private:
+    int dp(vector&lt;int&gt;& coins, int amount, unordered_map&lt;int, int&gt;& memo) {
+        // 基础情况
+        if (amount == 0) return 0;
+        if (amount < 0) return -1;
+        
+        // 查询记忆化数组
+        if (memo.count(amount)) return memo[amount];
+        
+        // 初始化为无穷大（表示无解）
+        int res = INT_MAX;
+        
+        // 尝试每一种硬币
+        for (int coin : coins) {
+            int subproblem = dp(coins, amount - coin, memo);
+            // 子问题有解
+            if (subproblem != -1) {
+                res = min(res, subproblem + 1);
+            }
+        }
+        
+        // 存储结果到记忆化数组
+        memo[amount] = (res == INT_MAX) ? -1 : res;
+        return memo[amount];
+    }
+};</code></pre>
+            
+            <div class="bg-yellow-50 p-4 rounded-lg mb-4">
+                <h3 class="text-lg font-semibold text-yellow-700 mb-2"><i class="fas fa-info-circle mr-2"></i>复杂度分析</h3>
+                <ul class="list-disc list-inside pl-4">
+                    <li><strong>时间复杂度</strong>: O(amount × coins.size()) - 每个金额只计算一次，每次最多考虑所有硬币</li>
+                    <li><strong>空间复杂度</strong>: O(amount) - 记忆化数组的大小</li>
+                </ul>
+            </div>
+        </div>
+
+        <div class="card p-8 mb-8">
+            <h2 class="text-2xl font-bold text-indigo-700 mb-4">优化解法 - 自底向上（动态规划）</h2>
+            <p class="mb-4">自底向上的动态规划方法通常比递归方法更高效：</p>
+            
+            <pre class="p-4 mb-6 text-sm"><code class="language-cpp">#include &lt;vector&gt;
+#include &lt;algorithm&gt;
+using namespace std;
+
+class Solution {
+public:
+    int coinChange(vector&lt;int&gt;& coins, int amount) {
+        // 初始化dp数组，默认值为 amount+1（比任何有效解都大）
+        vector&lt;int&gt; dp(amount + 1, amount + 1);
+        // 基本情况：金额为0时不需要硬币
+        dp[0] = 0;
+        
+        // 填充dp数组
+        for (int i = 1; i <= amount; i++) {
+            for (int coin : coins) {
+                if (i - coin >= 0) {
+                    dp[i] = min(dp[i], dp[i - coin] + 1);
+                }
+            }
+        }
+        
+        // 如果dp[amount]没有被更新，说明无解
+        return dp[amount] > amount ? -1 : dp[amount];
+    }
+};</code></pre>
+            
+            <div class="bg-green-50 p-4 rounded-lg mb-6">
+                <h3 class="text-lg font-semibold text-green-700 mb-2"><i class="fas fa-rocket mr-2"></i>解法优势</h3>
+                <ul class="list-disc list-inside pl-4">
+                    <li>避免了递归调用的开销</li>
+                    <li>直接从小问题开始解决，逐步构建到大问题</li>
+                    <li>实现更简洁，运行效率更高</li>
+                </ul>
+            </div>
+        </div>
+
+        <div class="card p-8 mb-8">
+            <h2 class="text-2xl font-bold text-indigo-700 mb-4">解法比较</h2>
+            <div class="overflow-x-auto">
+                <table class="min-w-full bg-white rounded-lg overflow-hidden">
+                    <thead class="bg-indigo-100 text-indigo-800">
+                        <tr>
+                            <th class="py-3 px-4 text-left">解法</th>
+                            <th class="py-3 px-4 text-left">优点</th>
+                            <th class="py-3 px-4 text-left">缺点</th>
+                            <th class="py-3 px-4 text-left">适用场景</th>
+                        </tr>
+                    </thead>
+                    <tbody class="divide-y divide-gray-200">
+                        <tr>
+                            <td class="py-3 px-4 font-medium">递归+记忆化</td>
+                            <td class="py-3 px-4">
+                                <ul class="list-disc list-inside text-sm">
+                                    <li>实现直观，易于理解</li>
+                                    <li>自然地映射问题描述</li>
+                                </ul>
+                            </td>
+                            <td class="py-3 px-4">
+                                <ul class="list-disc list-inside text-sm">
+                                    <li>递归调用栈开销</li>
+                                    <li>对大输入可能栈溢出</li>
+                                </ul>
+                            </td>
+                            <td class="py-3 px-4">较小规模问题，需要快速实现</td>
+                        </tr>
+                        <tr>
+                            <td class="py-3 px-4 font-medium">动态规划(自底向上)</td>
+                            <td class="py-3 px-4">
+                                <ul class="list-disc list-inside text-sm">
+                                    <li>效率更高</li>
+                                    <li>没有递归开销</li>
+                                    <li>适合大规模问题</li>
+                                </ul>
+                            </td>
+                            <td class="py-3 px-4">
+                                <ul class="list-disc list-inside text-sm">
+                                    <li>需要额外空间</li>
+                                    <li>可能计算不需要的子问题</li>
+                                </ul>
+                            </td>
+                            <td class="py-3 px-4">大规模输入，追求最优性能</td>
+                        </tr>
+                        <tr>
+                            <td class="py-3 px-4 font-medium">贪心算法</td>
+                            <td class="py-3 px-4">
+                                <ul class="list-disc list-inside text-sm">
+                                    <li>简单快速</li>
+                                </ul>
+                            </td>
+                            <td class="py-3 px-4">
+                                <ul class="list-disc list-inside text-sm">
+                                    <li>不适用于此问题</li>
+                                    <li>可能得到错误结果</li>
+                                </ul>
+                            </td>
+                            <td class="py-3 px-4">不适用于此问题</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <div class="card p-8 mb-8">
+            <h2 class="text-2xl font-bold text-indigo-700 mb-4">算法可视化</h2>
+            <div class="w-full overflow-x-auto">
+                <svg viewBox="0 0 800 400" xmlns="http://www.w3.org/2000/svg" class="w-full">
+                    <!-- 背景 -->
+                    <rect x="0" y="0" width="800" height="400" fill="#f8f9ff" rx="8" />
+                    
+                    <!-- 标题 -->
+                    <text x="400" y="30" font-size="20" text-anchor="middle" font-weight="bold" fill="#4f46e5">零钱兑换问题 - 动态规划解法可视化</text>
+                    <text x="400" y="55" font-size="14" text-anchor="middle" fill="#6b7280">示例: coins = [1, 2, 5], amount = 11</text>
+                    
+                    <!-- 图表边框 -->
+                    <rect x="100" y="80" width="600" height="260" fill="none" stroke="#e5e7eb" stroke-width="2" rx="8" />
+                    
+                    <!-- DP表格 -->
+                    <g transform="translate(150, 100)">
+                        <!-- 表头 -->
+                        <rect x="0" y="0" width="50" height="40" fill="#4f46e5" rx="4" />
+                        <text x="25" y="25" font-size="14" text-anchor="middle" fill="white" font-weight="bold">金额</text>
+                        
+                        <rect x="50" y="0" width="50" height="40" fill="#4f46e5" rx="4" />
+                        <text x="75" y="25" font-size="14" text-anchor="middle" fill="white" font-weight="bold">最少</text>
+                        <text x="75" y="40" font-size="10" text-anchor="middle" fill="white">硬币数</text>
+                        
+                        <!-- 数据行 -->
+                        <g>
+                            <rect x="0" y="40" width="50" height="30" fill="#e0e7ff" rx="4" />
+                            <text x="25" y="60" font-size="14" text-anchor="middle">0</text>
+                            <rect x="50" y="40" width="50" height="30" fill="#e0e7ff" rx="4" />
+                            <text x="75" y="60" font-size="14" text-anchor="middle">0</text>
+                        </g>
+                        
+                        <g>
+                            <rect x="0" y="70" width="50" height="30" fill="white" rx="4" stroke="#e5e7eb" />
+                            <text x="25" y="90" font-size="14" text-anchor="middle">1</text>
+                            <rect x="50" y="70" width="50" height="30" fill="#dbeafe" rx="4" />
+                            <text x="75" y="90" font-size="14" text-anchor="middle">1</text>
+                        </g>
+                        
+                        <g>
+                            <rect x="0" y="100" width="50" height="30" fill="white" rx="4" stroke="#e5e7eb" />
+                            <text x="25" y="120" font-size="14" text-anchor="middle">2</text>
+                            <rect x="50" y="100" width="50" height="30" fill="#dbeafe" rx="4" />
+                            <text x="75" y="120" font-size="14" text-anchor="middle">1</text>
+                        </g>
+                        
+                        <g>
+                            <rect x="0" y="130" width="50" height="30" fill="white" rx="4" stroke="#e5e7eb" />
+                            <text x="25" y="150" font-size="14" text-anchor="middle">5</text>
+                            <rect x="50" y="130" width="50" height="30" fill="#dbeafe" rx="4" />
+                            <text x="75" y="150" font-size="14" text-anchor="middle">1</text>
+                        </g>
+                        
+                        <g>
+                            <rect x="0" y="160" width="50" height="30" fill="white" rx="4" stroke="#e5e7eb" />
+                            <text x="25" y="180" font-size="14" text-anchor="middle">11</text>
+                            <rect x="50" y="160" width="50" height="30" fill="#c7d2fe" rx="4" />
+                            <text x="75" y="180" font-size="14" text-anchor="middle">3</text>
+                        </g>
+                    </g>
+                    
+                    <!-- 最优解决方案可视化 -->
+                    <g transform="translate(350, 100)">
+                        <rect x="0" y="0" width="300" height="40" fill="#4f46e5" rx="4" />
+                        <text x="150" y="25" font-size="14" text-anchor="middle" fill="white" font-weight="bold">最优解决方案: 11 = 5 + 5 + 1</text>
+                        
+                        <!-- 硬币 -->
+                        <circle cx="90" cy="100" r="40" fill="#f59e0b" stroke="#d97706" stroke-width="3" />
+                        <text x="90" y="105" font-size="20" text-anchor="middle" font-weight="bold" fill="white">5</text>
+                        
+                        <circle cx="180" cy="100" r="40" fill="#f59e0b" stroke="#d97706" stroke-width="3" />
+                        <text x="180" y="105" font-size="20" text-anchor="middle" font-weight="bold" fill="white">5</text>
+                        
+                        <circle cx="270" cy="100" r="30" fill="#3b82f6" stroke="#2563eb" stroke-width="3" />
+                        <text x="270" y="105" font-size="16" text-anchor="middle" font-weight="bold" fill="white">1</text>
+                    </g>
+                    
+                    <!-- 核心公式 -->
+                    <g transform="translate(400, 230)">
+                        <rect x="-150" y="0" width="300" height="50" fill="#f0f9ff" rx="8" stroke="#93c5fd" stroke-width="2" />
+                        <text x="0" y="30" font-size="16" text-anchor="middle" font-weight="bold" fill="#2563eb">dp[i] = min(dp[i], dp[i-coin] + 1)</text>
+                    </g>
+                    
+                    <!-- 备注 -->
+                    <text x="400" y="330" font-size="14" text-anchor="middle" fill="#6b7280">在此例中，11 = 5 + 5 + 1 需要 3 个硬币，这是最优解</text>
+                </svg>
+            </div>
+        </div>
+
+        <div class="card p-8">
+            <h2 class="text-2xl font-bold text-indigo-700 mb-4">相关习题</h2>
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+                <div class="bg-gradient-to-r from-indigo-50 to-blue-50 p-5 rounded-lg">
+                    <h3 class="text-lg font-semibold text-indigo-700 mb-2">完全背包问题</h3>
+                    <p class="text-gray-700 mb-3">给定不同种物品，每种物品数量不限，求如何选择物品装入背包，使得总价值最大。</p>
+                    <div class="text-indigo-600 font-medium">难度：中等</div>
+                    <details class="mt-3">
+                        <summary class="cursor-pointer text-blue-600 font-medium">参考代码</summary>
+                        <pre class="p-2 mt-2 bg-gray-50 rounded text-xs overflow-auto"><code class="language-cpp">#include &lt;vector&gt;
+#include &lt;algorithm&gt;
+using namespace std;
+
+int completeKnapsack(vector&lt;int&gt;& weights, vector&lt;int&gt;& values, int bagCapacity) {
+    int n = weights.size();
+    // dp[i]表示容量为i的背包能获得的最大价值
+    vector&lt;int&gt; dp(bagCapacity + 1, 0);
+    
+    for (int i = 0; i < n; i++) {
+        for (int j = weights[i]; j <= bagCapacity; j++) {
+            // 对于每种物品，可以选择0个、1个、2个...直到装不下
+            dp[j] = max(dp[j], dp[j - weights[i]] + values[i]);
+        }
+    }
+    
+    return dp[bagCapacity];
+}</code></pre>
+                    </details>
+                </div>
+                
+                <div class="bg-gradient-to-r from-purple-50 to-pink-50 p-5 rounded-lg">
+                    <h3 class="text-lg font-semibold text-purple-700 mb-2">零钱兑换 II</h3>
+                    <p class="text-gray-700 mb-3">求凑出指定金额的硬币组合数，而不是最少硬币数。</p>
+                    <div class="text-purple-600 font-medium">难度：中等</div>
+                </div>
+                
+                <div class="bg-gradient-to-r from-blue-50 to-cyan-50 p-5 rounded-lg">
+                    <h3 class="text-lg font-semibold text-blue-700 mb-2">打家劫舍问题</h3>
+                    <p class="text-gray-700 mb-3">沿街房屋，相邻房屋不能同时抢劫，求最大抢劫金额。</p>
+                    <div class="text-blue-600 font-medium">难度：中等</div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+        <!-- Footer -->
+        <footer class="mt-16 text-center text-gray-500 text-sm">
+            <div class="flex justify-center mt-3 space-x-4">
+                <a href="多重背包问题.html" class="text-primary hover:text-primary-dark transition-colors duration-300">
+                    <i class="fas fa-arrow-left mr-1"></i>多重背包问题
+                </a>
+                <a href="最长公共子序列.html" class="text-primary hover:text-primary-dark transition-colors duration-300">
+                    最长公共子序列<i class="fas fa-arrow-right ml-1"></i>
+                </a>
+            </div>
+        </footer>
+</body>
+</html> 

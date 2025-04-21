@@ -1,0 +1,384 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>C++ 联合体</title>
+    <!-- TailwindCSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&family=Roboto+Mono&display=swap" rel="stylesheet">
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        primary: {
+                            light: '#a5f3fc',
+                            DEFAULT: '#06b6d4',
+                            dark: '#0891b2',
+                        },
+                        secondary: {
+                            light: '#c7d2fe',
+                            DEFAULT: '#818cf8',
+                            dark: '#6366f1',
+                        },
+                        codeBlock: '#1e293b',
+                    },
+                    fontFamily: {
+                        sans: ['Poppins', 'sans-serif'],
+                        mono: ['Roboto Mono', 'monospace'],
+                    },
+                }
+            }
+        }
+    </script>
+    <style>
+        .card-hover {
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+        }
+        .card-hover:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 25px -5px rgba(6, 182, 212, 0.1), 0 10px 10px -5px rgba(6, 182, 212, 0.04);
+        }
+        .code-block::-webkit-scrollbar {
+            height: 8px;
+        }
+        .code-block::-webkit-scrollbar-thumb {
+            background-color: #06b6d4;
+            border-radius: 4px;
+        }
+        .code-block::-webkit-scrollbar-track {
+            background-color: #e2e8f0;
+            border-radius: 4px;
+        }
+    </style>
+</head>
+<body class="bg-gray-50 font-sans">
+    <div class="min-h-screen max-w-6xl mx-auto px-8 py-10">
+        <!-- Header -->
+        <header class="mb-12 text-center">
+            <div class="inline-block px-3 py-1 bg-primary-light text-primary-dark rounded-full text-sm font-medium mb-4">
+                C++ 编程入门
+            </div>
+            <h1 class="text-4xl font-bold text-gray-800 mb-4">C++ 联合体</h1>
+            <p class="text-lg text-gray-600 max-w-3xl mx-auto">理解 C++ 联合体（union）的概念、特性及其在内存优化中的应用</p>
+        </header>
+
+        <!-- Main Content -->
+        <main>
+            <!-- 联合体基础 Section -->
+            <section class="mb-12 bg-white rounded-2xl shadow-md p-8">
+                <div class="flex items-center mb-6">
+                    <i class="fas fa-cube text-primary text-xl mr-3"></i>
+                    <h2 class="text-2xl font-bold text-gray-800">联合体基础</h2>
+                </div>
+                <div class="space-y-4 text-gray-700">
+                    <p>联合体（union）是一种特殊的类，它使多种不同类型的变量共享同一块内存空间。联合体的大小等于其最大成员的大小。</p>
+                    
+                    <div class="overflow-x-auto bg-codeBlock rounded-lg p-4 mb-4">
+                        <pre class="text-gray-100 font-mono text-sm"><code>// 联合体的基本语法
+union 联合体名 {
+    数据类型1 成员1;
+    数据类型2 成员2;
+    数据类型3 成员3;
+    // ...
+};
+
+// 示例：定义一个简单的联合体
+union Data {
+    int i;      // 4 字节
+    float f;    // 4 字节
+    char str[8]; // 8 字节
+};
+
+// 这个联合体占用8字节内存(最大成员的大小)</code></pre>
+                    </div>
+                    
+                    <div class="p-5 bg-primary-light bg-opacity-10 rounded-lg">
+                        <h3 class="text-lg font-semibold text-gray-800 mb-2">联合体的特点：</h3>
+                        <ul class="list-disc pl-5 space-y-1">
+                            <li>所有成员共享同一块内存空间</li>
+                            <li>一次只能使用一个成员</li>
+                            <li>修改一个成员会影响其他成员的值</li>
+                            <li>联合体的大小等于最大成员的大小</li>
+                            <li>联合体的默认访问修饰符是 public（与 struct 类似）</li>
+                        </ul>
+                    </div>
+                </div>
+            </section>
+            
+            <!-- 使用联合体 Section -->
+            <section class="mb-12 bg-white rounded-2xl shadow-md p-8">
+                <div class="flex items-center mb-6">
+                    <i class="fas fa-code text-primary text-xl mr-3"></i>
+                    <h2 class="text-2xl font-bold text-gray-800">使用联合体</h2>
+                </div>
+                <div class="space-y-4 text-gray-700">
+                    <p>联合体的声明和使用类似于结构体，但需要注意同一时间只能使用一个成员。</p>
+                    
+                    <div class="overflow-x-auto bg-codeBlock rounded-lg p-4 mb-4">
+                        <pre class="text-gray-100 font-mono text-sm"><code>// 定义联合体
+union Value {
+    int i;
+    double d;
+    char c;
+};
+
+int main() {
+    // 创建联合体变量
+    Value val;
+    
+    // 使用整数成员
+    val.i = 10;
+    cout << "整数值: " << val.i << endl;
+    
+    // 使用浮点数成员 (会覆盖整数值)
+    val.d = 3.14;
+    cout << "浮点数值: " << val.d << endl;
+    
+    // 此时整数成员的值已经被覆盖
+    cout << "整数值(已被覆盖): " << val.i << endl;
+    
+    // 使用字符成员
+    val.c = 'A';
+    cout << "字符值: " << val.c << endl;
+    cout << "浮点数值(已被覆盖): " << val.d << endl;
+    
+    // 联合体大小
+    cout << "联合体大小: " << sizeof(Value) << " 字节" << endl;
+    
+    return 0;
+}</code></pre>
+                    </div>
+                    
+                    <div class="p-5 bg-blue-50 rounded-xl border-l-4 border-blue-400 mt-4">
+                        <div class="flex items-start">
+                            <i class="fas fa-info-circle text-blue-500 mt-1 mr-3"></i>
+                            <div>
+                                <h3 class="text-lg font-semibold text-gray-800 mb-2">内存布局</h3>
+                                <p class="text-gray-700">
+                                    假设 int 为 4 字节，double 为 8 字节，char 为 1 字节：
+                                </p>
+                                <div class="mt-2 p-4 bg-white rounded-lg">
+                                    <div class="grid grid-cols-1 md:grid-cols-8 gap-2">
+                                        <div class="bg-gray-200 p-2 text-center font-mono text-xs">字节 0</div>
+                                        <div class="bg-gray-200 p-2 text-center font-mono text-xs">字节 1</div>
+                                        <div class="bg-gray-200 p-2 text-center font-mono text-xs">字节 2</div>
+                                        <div class="bg-gray-200 p-2 text-center font-mono text-xs">字节 3</div>
+                                        <div class="bg-gray-200 p-2 text-center font-mono text-xs">字节 4</div>
+                                        <div class="bg-gray-200 p-2 text-center font-mono text-xs">字节 5</div>
+                                        <div class="bg-gray-200 p-2 text-center font-mono text-xs">字节 6</div>
+                                        <div class="bg-gray-200 p-2 text-center font-mono text-xs">字节 7</div>
+                                    </div>
+                                    <div class="grid grid-cols-1 md:grid-cols-1 gap-2 mt-2">
+                                        <div class="bg-green-100 p-2 text-center font-mono text-xs">int i（占用字节 0-3）</div>
+                                        <div class="bg-blue-100 p-2 text-center font-mono text-xs">double d（占用字节 0-7）</div>
+                                        <div class="bg-red-100 p-2 text-center font-mono text-xs">char c（仅占用字节 0）</div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+            
+            <!-- 联合体应用场景 Section -->
+            <section class="mb-12 bg-white rounded-2xl shadow-md p-8">
+                <div class="flex items-center mb-6">
+                    <i class="fas fa-puzzle-piece text-primary text-xl mr-3"></i>
+                    <h2 class="text-2xl font-bold text-gray-800">联合体应用场景</h2>
+                </div>
+                <div class="space-y-4 text-gray-700">
+                    <p>联合体在某些特定的场景下非常有用，特别是在需要节省内存或进行类型转换的情况下。</p>
+                    
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
+                        <div class="card-hover p-6 bg-gray-50 rounded-xl">
+                            <h3 class="text-lg font-semibold text-gray-800 mb-4">
+                                <i class="fas fa-memory text-primary-dark mr-2"></i>
+                                内存优化
+                            </h3>
+                            <p class="mb-3">当某个数据结构有多种可能的表现形式，但同一时间只使用其中一种时，联合体可以节省内存。</p>
+                            <div class="overflow-x-auto bg-codeBlock rounded-lg p-3">
+                                <pre class="text-gray-100 font-mono text-sm"><code>// 不同类型的图形
+struct Point { int x, y; };
+struct Circle { Point center; int radius; };
+struct Rectangle { Point topLeft; int width, height; };
+
+// 使用联合体存储不同图形
+struct Shape {
+    enum ShapeType { CIRCLE, RECTANGLE } type;
+    union {
+        Circle circle;
+        Rectangle rect;
+    };
+};</code></pre>
+                            </div>
+                        </div>
+                        
+                        <div class="card-hover p-6 bg-gray-50 rounded-xl">
+                            <h3 class="text-lg font-semibold text-gray-800 mb-4">
+                                <i class="fas fa-exchange-alt text-primary-dark mr-2"></i>
+                                类型重解释
+                            </h3>
+                            <p class="mb-3">联合体可以用于在不同数据类型之间进行转换，查看数据的内部表示。</p>
+                            <div class="overflow-x-auto bg-codeBlock rounded-lg p-3">
+                                <pre class="text-gray-100 font-mono text-sm"><code>// 查看浮点数的内部表示
+union FloatIntBits {
+    float f;
+    int i;
+};
+
+FloatIntBits fi;
+fi.f = 3.14f;
+cout << "3.14的整数表示: 0x" 
+     << hex << fi.i << endl;</code></pre>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="card-hover p-6 bg-gray-50 rounded-xl">
+                        <h3 class="text-lg font-semibold text-gray-800 mb-4">
+                            <i class="fas fa-network-wired text-primary-dark mr-2"></i>
+                            网络协议和文件格式
+                        </h3>
+                        <p class="mb-3">联合体常用于处理网络协议或文件格式中的数据，可以方便地访问不同字节位置。</p>
+                        <div class="overflow-x-auto bg-codeBlock rounded-lg p-3">
+                            <pre class="text-gray-100 font-mono text-sm"><code>// IP地址表示
+union IPAddress {
+    uint32_t addr;
+    struct {
+        uint8_t a, b, c, d;
+    } bytes;
+};
+
+IPAddress ip;
+ip.addr = 0x8002030A;  // 128.2.3.10
+
+cout << "IP地址: "
+     << (int)ip.bytes.a << "."
+     << (int)ip.bytes.b << "."
+     << (int)ip.bytes.c << "."
+     << (int)ip.bytes.d << endl;</code></pre>
+                        </div>
+                    </div>
+                    
+                    <div class="p-5 bg-yellow-50 rounded-xl border-l-4 border-yellow-400 mt-6">
+                        <div class="flex items-start">
+                            <i class="fas fa-exclamation-triangle text-yellow-500 mt-1 mr-3"></i>
+                            <div>
+                                <h3 class="text-lg font-semibold text-gray-800 mb-2">使用联合体的注意事项</h3>
+                                <ul class="list-disc pl-5 space-y-1">
+                                    <li>读取非当前活动成员的值是未定义行为，可能导致错误</li>
+                                    <li>使用联合体需要跟踪当前使用的成员</li>
+                                    <li>联合体不能包含带有非平凡构造函数或析构函数的类</li>
+                                    <li>C++11 之前，联合体不能包含具有构造函数、析构函数或赋值运算符的类型</li>
+                                    <li>在类型安全要求较高的代码中应谨慎使用联合体</li>
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+            
+            <!-- 带标签的联合体 Section -->
+            <section class="mb-12 bg-white rounded-2xl shadow-md p-8">
+                <div class="flex items-center mb-6">
+                    <i class="fas fa-tags text-primary text-xl mr-3"></i>
+                    <h2 class="text-2xl font-bold text-gray-800">带标签的联合体</h2>
+                </div>
+                <div class="space-y-4 text-gray-700">
+                    <p>为了解决联合体成员标识的问题，常常使用一个枚举或整型变量来跟踪当前活动的成员类型，这种结构通常称为"带标签的联合体"或"变体记录"。</p>
+                    
+                    <div class="overflow-x-auto bg-codeBlock rounded-lg p-4 mb-4">
+                        <pre class="text-gray-100 font-mono text-sm"><code>// 带标签的联合体
+struct Variant {
+    enum Type { INT, FLOAT, STRING } type;
+    
+    union {
+        int i;
+        float f;
+        char* str;
+    } data;
+    
+    // 构造函数
+    Variant(int val) : type(INT) { data.i = val; }
+    Variant(float val) : type(FLOAT) { data.f = val; }
+    Variant(const char* val) : type(STRING) {
+        data.str = new char[strlen(val) + 1];
+        strcpy(data.str, val);
+    }
+    
+    // 析构函数
+    ~Variant() {
+        if (type == STRING) {
+            delete[] data.str;
+        }
+    }
+    
+    // 打印函数
+    void print() {
+        switch (type) {
+            case INT:
+                cout << "整数: " << data.i << endl;
+                break;
+            case FLOAT:
+                cout << "浮点数: " << data.f << endl;
+                break;
+            case STRING:
+                cout << "字符串: " << data.str << endl;
+                break;
+        }
+    }
+};</code></pre>
+                    </div>
+                    
+                    <div class="p-5 bg-green-50 rounded-xl border-l-4 border-green-400">
+                        <div class="flex items-start">
+                            <i class="fas fa-lightbulb text-green-500 mt-1 mr-3"></i>
+                            <div>
+                                <h3 class="text-lg font-semibold text-gray-800 mb-2">现代 C++ 替代方案</h3>
+                                <p class="text-gray-700 mb-3">
+                                    在现代 C++ 中，通常有更安全、更类型严格的替代方案可以替代联合体：
+                                </p>
+                                <ul class="list-disc pl-5 space-y-1">
+                                    <li><strong>std::variant</strong> (C++17)：提供类型安全的联合体</li>
+                                    <li><strong>std::any</strong> (C++17)：可以存储任意类型的值</li>
+                                    <li><strong>std::optional</strong> (C++17)：表示可能存在或不存在的值</li>
+                                    <li>多态和继承：在很多情况下，使用虚函数和继承是更好的设计选择</li>
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+        </main>
+
+        <!-- Footer -->
+        <footer class="mt-16 text-center text-gray-500 text-sm">
+            <div class="flex justify-center mt-6 space-x-4">
+                <a href="类.html" class="text-primary hover:text-primary-dark transition-colors duration-300">
+                    <i class="fas fa-arrow-left mr-1"></i>类
+                </a>
+                <a href="运算符.html" class="text-primary hover:text-primary-dark transition-colors duration-300">
+                    运算符<i class="fas fa-arrow-right ml-1"></i>
+                </a>
+            </div>
+        </footer>
+    </div>
+
+    <!-- Simple ScrollReveal effect -->
+    <script src="https://unpkg.com/scrollreveal"></script>
+    <script>
+        ScrollReveal().reveal('section', { 
+            delay: 200,
+            distance: '20px',
+            origin: 'bottom',
+            duration: 800,
+            easing: 'ease-in-out'
+        });
+    </script>
+</body>
+</html> 

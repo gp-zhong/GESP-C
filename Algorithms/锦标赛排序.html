@@ -1,0 +1,1515 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>锦标赛排序</title>
+    <!-- TailwindCSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&family=Roboto+Mono&display=swap" rel="stylesheet">
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        primary: {
+                            light: '#a5f3fc',
+                            DEFAULT: '#06b6d4',
+                            dark: '#0891b2',
+                        },
+                        secondary: {
+                            light: '#c7d2fe',
+                            DEFAULT: '#818cf8',
+                            dark: '#6366f1',
+                        },
+                        codeBlock: '#1e293b',
+                    },
+                    fontFamily: {
+                        sans: ['Poppins', 'sans-serif'],
+                        mono: ['Roboto Mono', 'monospace'],
+                    },
+                }
+            }
+        }
+    </script>
+    <style>
+        .card-hover {
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+        }
+        .card-hover:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 25px -5px rgba(6, 182, 212, 0.1), 0 10px 10px -5px rgba(6, 182, 212, 0.04);
+        }
+        .code-block::-webkit-scrollbar {
+            height: 8px;
+        }
+        .code-block::-webkit-scrollbar-thumb {
+            background-color: #06b6d4;
+            border-radius: 4px;
+        }
+        .code-block::-webkit-scrollbar-track {
+            background-color: #e2e8f0;
+            border-radius: 4px;
+        }
+    </style>
+</head>
+<body class="bg-gray-50 font-sans">
+    <div class="min-h-screen max-w-6xl mx-auto px-8 py-10">
+        <!-- Header -->
+        <header class="mb-12 text-center">
+            <div class="inline-block px-3 py-1 bg-primary-light text-primary-dark rounded-full text-sm font-medium mb-4">
+                算法基础
+            </div>
+            <h1 class="text-4xl font-bold text-gray-800 mb-4">锦标赛排序</h1>
+            <p class="text-lg text-gray-600 max-w-3xl mx-auto">一种基于比较的选择排序算法，使用树形结构进行元素比较</p>
+        </header>
+
+        <!-- Main Content -->
+        <main class="space-y-12">
+            <!-- 算法概述 -->
+            <section class="section bg-white rounded-xl p-8 shadow-md">
+                <h2 class="text-2xl font-bold text-gray-800 mb-6 flex items-center">
+                    <i class="fas fa-info-circle text-primary mr-3"></i>算法概述
+                </h2>
+                <div class="space-y-4">
+                    <p class="text-gray-700">锦标赛排序（Tournament Sort）是一种基于比较的排序算法，它使用树形结构（类似体育比赛的锦标赛对阵图）来高效地找出一组元素中的最小元素或最大元素。</p>
+                    <p class="text-gray-700">这种排序算法的思想来源于体育比赛的单淘汰赛制，在每一轮比赛中，两个元素进行比较，较小（或较大）的元素晋级到下一轮。最终，通过一系列的比较，找出数组中的最小（或最大）元素。</p>
+                    
+                    <div class="bg-gray-50 p-4 rounded-lg border-l-4 border-primary mt-4">
+                        <h3 class="font-semibold text-gray-800 mb-2">核心思想</h3>
+                        <p class="text-gray-700">锦标赛排序通过构建一棵完全二叉树，在叶子节点放置原始数据，非叶子节点存储其子节点中的较小（或较大）元素，以此减少比较次数。每次提取出根节点（当前最值）后，重新进行局部比较，更新树的状态，直到所有元素都被排序。</p>
+                    </div>
+                    
+                    <div class="mt-4 flex flex-col md:flex-row gap-4">
+                        <div class="flex-1 bg-gray-50 p-4 rounded-lg">
+                            <h3 class="font-semibold text-gray-800 mb-2">排序类型</h3>
+                            <ul class="list-disc list-inside">
+                                <li>比较排序</li>
+                                <li>选择排序的变种</li>
+                                <li>基于树的排序</li>
+                                <li>非稳定排序</li>
+                            </ul>
+                        </div>
+                        <div class="flex-1 bg-gray-50 p-4 rounded-lg">
+                            <h3 class="font-semibold text-gray-800 mb-2">主要特点</h3>
+                            <ul class="list-disc list-inside">
+                                <li>比较次数是确定的</li>
+                                <li>适合对大量数据进行部分排序</li>
+                                <li>比普通选择排序具有更好的局部性</li>
+                                <li>可并行化实现</li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- 算法工作原理 -->
+            <section class="section bg-white rounded-xl p-8 shadow-md">
+                <h2 class="text-2xl font-bold text-gray-800 mb-6 flex items-center">
+                    <i class="fas fa-cogs text-primary mr-3"></i>工作原理
+                </h2>
+                <div class="space-y-4">
+                    <p class="text-gray-700">锦标赛排序的工作原理基于锦标赛树（又称胜者树或赢者树）的构建和维护：</p>
+                    
+                    <ol class="list-decimal list-inside space-y-3 text-gray-700 ml-4">
+                        <li><span class="font-semibold">构建锦标赛树</span>：将原始数组元素放置在叶子节点上，然后通过比较每对相邻的叶子节点，将较小者（找最小值排序）或较大者（找最大值排序）放入其父节点，递归执行直到构建出完整的树，树的根节点就是当前数组中的最小/最大值。</li>
+                        <li><span class="font-semibold">提取根节点</span>：将根节点的值（最值）提取到结果数组中。</li>
+                        <li><span class="font-semibold">调整锦标赛树</span>：将产生最值的叶子节点设置为一个极大/极小值（通常是∞或-∞），然后重新比较这个节点到根的路径上的所有节点，更新锦标赛树。</li>
+                        <li><span class="font-semibold">重复提取和调整</span>：重复步骤2和步骤3，直到所有元素都被提取出来。</li>
+                    </ol>
+
+                    <div class="mt-6">
+                        <h3 class="font-semibold text-gray-800 mb-4">锦标赛树结构示例：</h3>
+                        
+                        <div class="bg-gray-50 p-4 rounded-lg">
+                            <svg viewBox="0 0 400 250" class="w-full">
+                                <!-- 树的根节点 -->
+                                <circle cx="200" cy="30" r="15" fill="#06b6d4"/>
+                                <text x="200" y="35" font-size="14" text-anchor="middle" fill="white">2</text>
+                                
+                                <!-- 第二层节点 -->
+                                <circle cx="125" cy="80" r="15" fill="#06b6d4"/>
+                                <text x="125" y="85" font-size="14" text-anchor="middle" fill="white">2</text>
+                                
+                                <circle cx="275" cy="80" r="15" fill="#06b6d4"/>
+                                <text x="275" y="85" font-size="14" text-anchor="middle" fill="white">5</text>
+                                
+                                <!-- 第三层节点 -->
+                                <circle cx="75" cy="130" r="15" fill="#06b6d4"/>
+                                <text x="75" y="135" font-size="14" text-anchor="middle" fill="white">2</text>
+                                
+                                <circle cx="175" cy="130" r="15" fill="#06b6d4"/>
+                                <text x="175" y="135" font-size="14" text-anchor="middle" fill="white">8</text>
+                                
+                                <circle cx="225" cy="130" r="15" fill="#06b6d4"/>
+                                <text x="225" y="135" font-size="14" text-anchor="middle" fill="white">5</text>
+                                
+                                <circle cx="325" cy="130" r="15" fill="#06b6d4"/>
+                                <text x="325" y="135" font-size="14" text-anchor="middle" fill="white">7</text>
+                                
+                                <!-- 叶子节点（原始数组） -->
+                                <rect x="35" y="180" width="30" height="30" rx="4" fill="#818cf8"/>
+                                <text x="50" y="200" font-size="14" text-anchor="middle" fill="white">2</text>
+                                
+                                <rect x="85" y="180" width="30" height="30" rx="4" fill="#818cf8"/>
+                                <text x="100" y="200" font-size="14" text-anchor="middle" fill="white">9</text>
+                                
+                                <rect x="135" y="180" width="30" height="30" rx="4" fill="#818cf8"/>
+                                <text x="150" y="200" font-size="14" text-anchor="middle" fill="white">8</text>
+                                
+                                <rect x="185" y="180" width="30" height="30" rx="4" fill="#818cf8"/>
+                                <text x="200" y="200" font-size="14" text-anchor="middle" fill="white">6</text>
+                                
+                                <rect x="235" y="180" width="30" height="30" rx="4" fill="#818cf8"/>
+                                <text x="250" y="200" font-size="14" text-anchor="middle" fill="white">5</text>
+                                
+                                <rect x="285" y="180" width="30" height="30" rx="4" fill="#818cf8"/>
+                                <text x="300" y="200" font-size="14" text-anchor="middle" fill="white">12</text>
+                                
+                                <rect x="335" y="180" width="30" height="30" rx="4" fill="#818cf8"/>
+                                <text x="350" y="200" font-size="14" text-anchor="middle" fill="white">7</text>
+                                
+                                <!-- 连接线 -->
+                                <line x1="200" y1="45" x2="125" y2="65" stroke="#666" stroke-width="1.5"/>
+                                <line x1="200" y1="45" x2="275" y2="65" stroke="#666" stroke-width="1.5"/>
+                                
+                                <line x1="125" y1="95" x2="75" y2="115" stroke="#666" stroke-width="1.5"/>
+                                <line x1="125" y1="95" x2="175" y2="115" stroke="#666" stroke-width="1.5"/>
+                                
+                                <line x1="275" y1="95" x2="225" y2="115" stroke="#666" stroke-width="1.5"/>
+                                <line x1="275" y1="95" x2="325" y2="115" stroke="#666" stroke-width="1.5"/>
+                                
+                                <line x1="75" y1="145" x2="50" y2="180" stroke="#666" stroke-width="1.5"/>
+                                <line x1="75" y1="145" x2="100" y2="180" stroke="#666" stroke-width="1.5"/>
+                                
+                                <line x1="175" y1="145" x2="150" y2="180" stroke="#666" stroke-width="1.5"/>
+                                <line x1="175" y1="145" x2="200" y2="180" stroke="#666" stroke-width="1.5"/>
+                                
+                                <line x1="225" y1="145" x2="250" y2="180" stroke="#666" stroke-width="1.5"/>
+                                <line x1="225" y1="145" x2="300" y2="180" stroke="#666" stroke-width="1.5"/>
+                                
+                                <line x1="325" y1="145" x2="350" y2="180" stroke="#666" stroke-width="1.5"/>
+                            </svg>
+                            <p class="text-gray-700 text-center mt-2">锦标赛树示例（升序排序，较小值胜出）</p>
+                        </div>
+                        
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mt-6">
+                            <div class="bg-blue-50 p-4 rounded-lg">
+                                <h3 class="font-semibold text-blue-800 mb-2">排序过程示例</h3>
+                                <p class="text-gray-700">假设我们有数组 [9, 5, 3, 1, 6, 8, 7, 2]，构建锦标赛树后，根节点值为1（最小值）。提取1后，将其对应的叶子节点置为∞，然后调整树，新的根节点值为2（次小值），以此类推，直到排序完成。</p>
+                            </div>
+                            
+                            <div class="bg-yellow-50 p-4 rounded-lg">
+                                <h3 class="font-semibold text-yellow-800 mb-2">与堆排序的对比</h3>
+                                <p class="text-gray-700">锦标赛排序和堆排序都是树形选择排序，但锦标赛排序使用完全二叉树存储比较结果，而堆排序使用堆结构直接管理元素。锦标赛排序的一个优势是它在每次提取最值后，只需要O(log n)的比较次数来更新树。</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- 代码实现 -->
+            <section class="section bg-white rounded-xl p-8 shadow-md">
+                <h2 class="text-2xl font-bold text-gray-800 mb-6 flex items-center">
+                    <i class="fas fa-code text-primary mr-3"></i>代码实现
+                </h2>
+                
+                <div class="space-y-6">
+                    <p class="text-gray-700">以下是锦标赛排序的C++实现。这里我们实现一个基于最小值的锦标赛树（找出数组中的最小元素），用于升序排序：</p>
+                    
+                    <div class="bg-codeBlock rounded-lg overflow-hidden">
+                        <div class="flex justify-between items-center px-4 py-2 bg-gray-700 text-white">
+                            <span class="font-mono text-sm">C++ 实现</span>
+                            <div class="flex space-x-2">
+                                <div class="w-3 h-3 rounded-full bg-red-500"></div>
+                                <div class="w-3 h-3 rounded-full bg-yellow-500"></div>
+                                <div class="w-3 h-3 rounded-full bg-green-500"></div>
+                            </div>
+                        </div>
+                        <pre class="code-block p-4 text-white font-mono text-sm overflow-x-auto"><code class="language-cpp">#include &lt;iostream&gt;
+#include &lt;vector&gt;
+#include &lt;cmath&gt;
+#include &lt;climits&gt;
+
+class TournamentTree {
+private:
+    std::vector&lt;int&gt; tree;  // 锦标赛树数组
+    std::vector&lt;int&gt; position;  // 存储原数组元素在叶子节点中的位置
+    int n;  // 原数组大小
+    int treeSize;  // 树的大小
+    int leaves;  // 叶子节点起始索引
+    
+public:
+    // 构造函数，初始化锦标赛树
+    TournamentTree(const std::vector&lt;int&gt;& arr) {
+        n = arr.size();
+        
+        // 计算叶子节点数量（向上取整为2的幂）
+        int height = std::ceil(std::log2(n));
+        leaves = 1 << height;
+        
+        // 计算树的总大小
+        treeSize = 2 * leaves - 1;
+        tree.resize(treeSize, INT_MAX);
+        position.resize(n);
+        
+        // 将原数组元素复制到叶子节点
+        for (int i = 0; i < n; ++i) {
+            int leafPos = leaves - 1 + i;
+            tree[leafPos] = arr[i];
+            position[i] = leafPos;
+        }
+        
+        // 构建锦标赛树
+        buildTree();
+    }
+    
+    // 构建锦标赛树
+    void buildTree() {
+        // 从最后一个非叶子节点开始，自底向上构建
+        for (int i = leaves - 2; i >= 0; --i) {
+            int leftChild = 2 * i + 1;
+            int rightChild = 2 * i + 2;
+            
+            // 赢者（较小者）晋级
+            tree[i] = std::min(tree[leftChild], tree[rightChild]);
+        }
+    }
+    
+    // 获取当前最小值
+    int getMin() {
+        return tree[0];  // 根节点存储当前最小值
+    }
+    
+    // 移除当前最小值，重新调整树
+    void removeMin() {
+        int min = getMin();
+        
+        // 找到最小值所在的叶子节点
+        int leafPos = -1;
+        for (int i = 0; i < n; ++i) {
+            if (tree[position[i]] == min) {
+                leafPos = position[i];
+                break;
+            }
+        }
+        
+        // 将该叶子节点的值设为INT_MAX
+        tree[leafPos] = INT_MAX;
+        
+        // 重新调整从叶子到根的路径
+        adjustTree(leafPos);
+    }
+    
+    // 调整树
+    void adjustTree(int pos) {
+        // 如果不是根节点，则继续向上调整
+        if (pos > 0) {
+            int parent = (pos - 1) / 2;
+            int sibling = (pos % 2 == 0) ? pos - 1 : pos + 1;
+            
+            // 更新父节点的值
+            tree[parent] = std::min(tree[pos], tree[sibling]);
+            
+            // 递归调整父节点
+            adjustTree(parent);
+        }
+    }
+};
+
+// 使用锦标赛树进行排序
+std::vector&lt;int&gt; tournamentSort(std::vector&lt;int&gt; arr) {
+    int n = arr.size();
+    std::vector&lt;int&gt; result;
+    
+    // 构建锦标赛树
+    TournamentTree tree(arr);
+    
+    // 依次提取最小值
+    for (int i = 0; i < n; ++i) {
+        result.push_back(tree.getMin());
+        tree.removeMin();
+    }
+    
+    return result;
+}
+
+int main() {
+    std::vector&lt;int&gt; arr = {9, 5, 3, 1, 6, 8, 7, 2};
+    
+    std::cout << "原始数组: ";
+    for (int num : arr) {
+        std::cout << num << " ";
+    }
+    std::cout << std::endl;
+    
+    std::vector&lt;int&gt; sorted = tournamentSort(arr);
+    
+    std::cout << "排序后: ";
+    for (int num : sorted) {
+        std::cout << num << " ";
+    }
+    std::cout << std::endl;
+    
+    return 0;
+}</code></pre>
+                    </div>
+                    
+                    <p class="text-gray-700 mt-6">另外，这里是一个更为简化的Python实现，它更直观地展示了锦标赛排序的基本思想：</p>
+                    
+                    <div class="bg-codeBlock rounded-lg overflow-hidden mt-4">
+                        <div class="flex justify-between items-center px-4 py-2 bg-gray-700 text-white">
+                            <span class="font-mono text-sm">Python 实现</span>
+                            <div class="flex space-x-2">
+                                <div class="w-3 h-3 rounded-full bg-red-500"></div>
+                                <div class="w-3 h-3 rounded-full bg-yellow-500"></div>
+                                <div class="w-3 h-3 rounded-full bg-green-500"></div>
+                            </div>
+                        </div>
+                        <pre class="code-block p-4 text-white font-mono text-sm overflow-x-auto"><code class="language-python">import math
+import sys
+
+class TournamentTree:
+    def __init__(self, arr):
+        self.arr = arr
+        self.n = len(arr)
+        
+        # 计算叶子节点数（向上取整为2的幂）
+        self.height = math.ceil(math.log2(self.n))
+        self.leaves = 2 ** self.height
+        
+        # 计算树的总大小
+        self.tree_size = 2 * self.leaves - 1
+        self.tree = [sys.maxsize] * self.tree_size
+        
+        # 将原数组元素复制到叶子节点
+        for i in range(self.n):
+            leaf_pos = self.leaves - 1 + i
+            self.tree[leaf_pos] = arr[i]
+        
+        # 记录每个原始元素的叶子节点位置
+        self.positions = {}
+        for i in range(self.n):
+            self.positions[self.leaves - 1 + i] = i
+        
+        # 构建锦标赛树
+        self.build_tree()
+    
+    def build_tree(self):
+        # 从最后一个非叶子节点开始，自底向上构建
+        for i in range(self.leaves - 2, -1, -1):
+            left_child = 2 * i + 1
+            right_child = 2 * i + 2
+            
+            # 赢者（较小者）晋级
+            self.tree[i] = min(self.tree[left_child], self.tree[right_child])
+    
+    def get_min(self):
+        return self.tree[0]  # 根节点存储当前最小值
+    
+    def remove_min(self):
+        min_val = self.get_min()
+        
+        # 找到最小值所在的叶子节点
+        leaf_pos = -1
+        for i in range(self.leaves - 1, self.tree_size):
+            if self.tree[i] == min_val and i in self.positions:
+                leaf_pos = i
+                break
+        
+        # 将该叶子节点的值设为最大值
+        self.tree[leaf_pos] = sys.maxsize
+        
+        # 重新调整从叶子到根的路径
+        self.adjust_tree(leaf_pos)
+    
+    def adjust_tree(self, pos):
+        # 如果不是根节点，则继续向上调整
+        if pos > 0:
+            parent = (pos - 1) // 2
+            sibling = pos - 1 if pos % 2 == 0 else pos + 1
+            
+            # 更新父节点的值
+            self.tree[parent] = min(self.tree[pos], self.tree[sibling])
+            
+            # 递归调整父节点
+            self.adjust_tree(parent)
+
+def tournament_sort(arr):
+    n = len(arr)
+    if n <= 1:
+        return arr
+    
+    result = []
+    tree = TournamentTree(arr)
+    
+    # 依次提取最小值
+    for _ in range(n):
+        result.append(tree.get_min())
+        tree.remove_min()
+    
+    return result
+
+# 测试
+if __name__ == "__main__":
+    arr = [9, 5, 3, 1, 6, 8, 7, 2]
+    print("原始数组:", arr)
+    
+    sorted_arr = tournament_sort(arr)
+    print("排序后:", sorted_arr)</code></pre>
+                    </div>
+                    
+                    <div class="bg-yellow-50 border-l-4 border-yellow-400 p-4 rounded-r mt-6">
+                        <div class="flex items-start">
+                            <i class="fas fa-lightbulb text-yellow-500 mt-1 mr-3"></i>
+                            <div>
+                                <h3 class="font-semibold text-gray-800">代码实现说明</h3>
+                                <p class="text-gray-700">
+                                    上述实现使用了完全二叉树的数组表示法，其中：<br>
+                                    - 节点i的左子节点是2i+1<br>
+                                    - 节点i的右子节点是2i+2<br>
+                                    - 节点i的父节点是(i-1)/2<br>
+                                    这种表示方法使得我们可以高效地访问树中的节点，而无需使用指针。
+                                </p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- 算法分析 -->
+            <section class="section bg-white rounded-xl p-8 shadow-md">
+                <h2 class="text-2xl font-bold text-gray-800 mb-6 flex items-center">
+                    <i class="fas fa-chart-line text-primary mr-3"></i>时间复杂度分析
+                </h2>
+                <div class="space-y-4">
+                    <p class="text-gray-700">锦标赛排序的性能特点如下：</p>
+                    
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mt-4">
+                        <div class="bg-gray-50 p-4 rounded-lg">
+                            <h3 class="font-semibold text-gray-800 mb-2">时间复杂度</h3>
+                            <div class="space-y-2">
+                                <p><span class="font-mono font-medium">最坏情况</span>：O(n log n)</p>
+                                <p><span class="font-mono font-medium">最好情况</span>：O(n log n)</p>
+                                <p><span class="font-mono font-medium">平均情况</span>：O(n log n)</p>
+                            </div>
+                            <div class="mt-3 text-sm text-gray-600">
+                                <p>对于n个元素的锦标赛排序：</p>
+                                <ul class="list-disc list-inside mt-1">
+                                    <li>构建锦标赛树需要O(n)次比较</li>
+                                    <li>每次提取最小元素后调整树需要O(log n)次比较</li>
+                                    <li>共需要提取n次，总的时间复杂度为O(n + n log n) = O(n log n)</li>
+                                </ul>
+                            </div>
+                        </div>
+                        
+                        <div class="bg-gray-50 p-4 rounded-lg">
+                            <h3 class="font-semibold text-gray-800 mb-2">空间复杂度</h3>
+                            <p class="font-mono font-medium">O(n)</p>
+                            <div class="mt-3 text-sm text-gray-600">
+                                <p>锦标赛排序需要额外的空间来存储锦标赛树：</p>
+                                <ul class="list-disc list-inside mt-1">
+                                    <li>一棵包含n个叶子节点的完全二叉树共有2n-1个节点</li>
+                                    <li>因此，锦标赛排序的空间复杂度为O(n)</li>
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="mt-6 grid grid-cols-1 md:grid-cols-2 gap-6">
+                        <div class="bg-gray-50 p-4 rounded-lg">
+                            <h3 class="font-semibold text-gray-800 mb-2">比较次数分析</h3>
+                            <p class="text-gray-700">锦标赛排序的一个有趣特点是比较次数是确定的。对于n个元素的数组：</p>
+                            <ul class="list-disc list-inside mt-2 text-gray-700">
+                                <li>构建初始树需要n-1次比较</li>
+                                <li>每次重建树需要log n次比较</li>
+                                <li>总共需要(n-1) + (n-1)×log n = O(n log n)次比较</li>
+                            </ul>
+                        </div>
+                        
+                        <div class="bg-gray-50 p-4 rounded-lg">
+                            <h3 class="font-semibold text-gray-800 mb-2">稳定性</h3>
+                            <p class="text-gray-700">锦标赛排序是<span class="text-red-600 font-medium">不稳定</span>的排序算法，因为相等元素的相对顺序可能会因为树的结构而改变。</p>
+                            <p class="text-gray-700 mt-2">例如，如果有两个值相等的元素，它们在锦标赛树中的位置不同，可能会导致它们在最终排序结果中的顺序与原始顺序不同。</p>
+                        </div>
+                    </div>
+                    
+                    <div class="bg-blue-50 p-4 rounded-lg mt-6">
+                        <h3 class="font-semibold text-blue-800 mb-2">与其他排序算法的比较</h3>
+                        <div class="overflow-x-auto">
+                            <table class="min-w-full bg-white">
+                                <thead>
+                                    <tr class="bg-blue-100">
+                                        <th class="py-2 px-3 text-left">算法</th>
+                                        <th class="py-2 px-3 text-left">时间复杂度</th>
+                                        <th class="py-2 px-3 text-left">空间复杂度</th>
+                                        <th class="py-2 px-3 text-left">稳定性</th>
+                                        <th class="py-2 px-3 text-left">特点</th>
+                                    </tr>
+                                </thead>
+                                <tbody class="divide-y divide-gray-200">
+                                    <tr>
+                                        <td class="py-2 px-3 font-medium">锦标赛排序</td>
+                                        <td class="py-2 px-3">O(n log n)</td>
+                                        <td class="py-2 px-3">O(n)</td>
+                                        <td class="py-2 px-3">不稳定</td>
+                                        <td class="py-2 px-3">比较次数确定，适合部分排序</td>
+                                    </tr>
+                                    <tr>
+                                        <td class="py-2 px-3 font-medium">堆排序</td>
+                                        <td class="py-2 px-3">O(n log n)</td>
+                                        <td class="py-2 px-3">O(1)</td>
+                                        <td class="py-2 px-3">不稳定</td>
+                                        <td class="py-2 px-3">原地排序，空间效率高</td>
+                                    </tr>
+                                    <tr>
+                                        <td class="py-2 px-3 font-medium">快速排序</td>
+                                        <td class="py-2 px-3">O(n log n)</td>
+                                        <td class="py-2 px-3">O(log n)</td>
+                                        <td class="py-2 px-3">不稳定</td>
+                                        <td class="py-2 px-3">通常最快，但最坏情况为O(n²)</td>
+                                    </tr>
+                                    <tr>
+                                        <td class="py-2 px-3 font-medium">归并排序</td>
+                                        <td class="py-2 px-3">O(n log n)</td>
+                                        <td class="py-2 px-3">O(n)</td>
+                                        <td class="py-2 px-3">稳定</td>
+                                        <td class="py-2 px-3">稳定且性能一致</td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- 交互式可视化 -->
+            <section class="section bg-white rounded-xl p-8 shadow-md">
+                <div class="flex items-center mb-6">
+                    <i class="fas fa-chart-bar text-primary text-xl mr-3"></i>
+                    <h2 class="text-2xl font-bold text-gray-800">交互式可视化</h2>
+                </div>
+                <div class="space-y-6">
+                    <p class="text-gray-700">通过这个交互式演示，您可以直观地理解锦标赛排序的工作过程，特别是锦标赛树的构建和调整机制。每个树节点中的值表示该子树中的最小值。</p>
+                    
+                    <!-- 控制面板 -->
+                    <div class="flex flex-wrap gap-4 mb-6 bg-gray-50 p-4 rounded-lg shadow-inner">
+                        <button id="newArrayBtn" class="px-4 py-2 bg-primary hover:bg-primary-dark text-white rounded-lg transition-colors flex items-center shadow-md">
+                            <i class="fas fa-random mr-2"></i>新数组
+                        </button>
+                        <button id="startBtn" class="px-4 py-2 bg-green-500 hover:bg-green-600 text-white rounded-lg transition-colors flex items-center shadow-md">
+                            <i class="fas fa-play mr-2"></i>开始排序
+                        </button>
+                        <button id="stepBtn" class="px-4 py-2 bg-blue-500 hover:bg-blue-600 text-white rounded-lg transition-colors flex items-center shadow-md">
+                            <i class="fas fa-step-forward mr-2"></i>单步执行
+                        </button>
+                        <button id="resetBtn" class="px-4 py-2 bg-red-500 hover:bg-red-600 text-white rounded-lg transition-colors flex items-center shadow-md" disabled>
+                            <i class="fas fa-undo-alt mr-2"></i>重置
+                        </button>
+                        
+                        <div class="flex items-center ml-auto">
+                            <label for="speed" class="mr-2 text-gray-700 font-medium">速度:</label>
+                            <input type="range" id="speed" min="1" max="5" value="3" class="w-24 h-2 bg-gray-300 rounded-lg appearance-none cursor-pointer">
+                            <span id="speedValue" class="ml-2 text-gray-700 min-w-[60px] font-medium">中等</span>
+                        </div>
+                        
+                        <div class="flex items-center ml-4">
+                            <label for="arraySize" class="mr-2 text-gray-700 font-medium">数组大小:</label>
+                            <select id="arraySize" class="px-3 py-1 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary">
+                                <option value="4">4</option>
+                                <option value="8" selected>8</option>
+                                <option value="16">16</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <!-- 步骤说明 -->
+                    <div class="bg-blue-50 border border-blue-200 rounded-lg p-4 shadow-sm">
+                        <h3 class="text-lg font-semibold text-blue-800 mb-2 flex items-center">
+                            <i class="fas fa-info-circle mr-2"></i>当前操作
+                        </h3>
+                        <div id="step-info" class="bg-white p-3 rounded-lg min-h-[60px] border border-blue-100">
+                            准备开始锦标赛排序。点击"开始排序"按钮开始，或使用"单步执行"按钮逐步观察排序过程。
+                        </div>
+                    </div>
+
+                    <!-- 可视化区域 -->
+                    <div class="grid grid-cols-1 lg:grid-cols-4 gap-6">
+                        <!-- 原始数组 -->
+                        <div class="lg:col-span-1 bg-gray-100 rounded-lg p-4 shadow-inner">
+                            <h3 class="text-lg font-semibold text-gray-800 mb-2 flex items-center">
+                                <i class="fas fa-list-ol mr-2 text-primary"></i>当前数组
+                            </h3>
+                            <p class="text-xs text-gray-500 mb-3">紫色表示已提取的元素</p>
+                            <div id="array-container" class="flex items-center justify-center min-h-[100px] gap-1 flex-wrap"></div>
+                        </div>
+                        
+                        <!-- 锦标赛树 -->
+                        <div class="lg:col-span-3 bg-gray-100 rounded-lg p-4 shadow-inner">
+                            <h3 class="text-lg font-semibold text-gray-800 mb-2 flex items-center">
+                                <i class="fas fa-project-diagram mr-2 text-primary"></i>锦标赛树
+                            </h3>
+                            <p class="text-xs text-gray-500 mb-3">树结构展示了每轮比较的胜者，根节点是当前最小值</p>
+                            <div id="tree-container" class="flex justify-center items-center min-h-[350px] w-full bg-white rounded-lg shadow-sm p-2"></div>
+                        </div>
+                    </div>
+                    
+                    <!-- 图例 -->
+                    <div class="mt-4 p-3 bg-gray-50 rounded-lg shadow-sm">
+                        <h3 class="text-sm font-semibold text-gray-700 mb-2">图例说明</h3>
+                        <div class="flex flex-wrap gap-x-6 gap-y-2 justify-center">
+                            <div class="flex items-center">
+                                <div class="w-4 h-4 bg-blue-500 rounded mr-2"></div>
+                                <span class="text-xs text-gray-700">普通节点</span>
+                            </div>
+                            <div class="flex items-center">
+                                <div class="w-4 h-4 bg-yellow-500 rounded mr-2"></div>
+                                <span class="text-xs text-gray-700">当前比较节点</span>
+                            </div>
+                            <div class="flex items-center">
+                                <div class="w-4 h-4 bg-green-500 rounded mr-2"></div>
+                                <span class="text-xs text-gray-700">根节点（当前最小值）</span>
+                            </div>
+                            <div class="flex items-center">
+                                <div class="w-4 h-4 bg-purple-500 rounded mr-2"></div>
+                                <span class="text-xs text-gray-700">已提取节点</span>
+                            </div>
+                            <div class="flex items-center">
+                                <div class="w-4 h-4 bg-red-500 rounded mr-2"></div>
+                                <span class="text-xs text-gray-700">替换节点</span>
+                            </div>
+                            <div class="flex items-center">
+                                <div class="w-4 h-4 bg-indigo-400 rounded mr-2"></div>
+                                <span class="text-xs text-gray-700">叶子节点（原始数组元素）</span>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- 排序过程说明 -->
+                    <div class="bg-yellow-50 border-l-4 border-yellow-400 p-4 rounded-r shadow-sm">
+                        <h3 class="font-semibold text-gray-800 mb-2">排序过程简述</h3>
+                        <ol class="list-decimal list-inside space-y-1 text-sm text-gray-700">
+                            <li>原始数组元素被放置在锦标赛树的<b>叶子节点</b>位置</li>
+                            <li>相邻的两个节点进行比较，较小的值"获胜"并被提升到父节点</li>
+                            <li>比较过程从底层开始逐层向上进行，直到根节点确定为当前数组中的最小值</li>
+                            <li>提取根节点的值（最小值）加入到排序结果中</li>
+                            <li>将产生最小值的叶子节点设置为无穷大（∞）</li>
+                            <li>从被修改的叶子节点开始，重新比较并更新其路径上的所有节点，直到根节点</li>
+                            <li>重复步骤4-6，直到所有元素都被排序</li>
+                        </ol>
+                    </div>
+                </div>
+            </section>
+
+            <!-- 应用场景 -->
+            <section class="section bg-white rounded-xl p-8 shadow-md">
+                <h2 class="text-2xl font-bold text-gray-800 mb-6 flex items-center">
+                    <i class="fas fa-tasks text-primary mr-3"></i>应用场景
+                </h2>
+                
+                <div class="space-y-4">
+                    <p class="text-gray-700">锦标赛排序在某些特定场景中具有明显的优势：</p>
+                    
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mt-4">
+                        <div class="card-hover bg-white p-5 rounded-lg border border-gray-200 shadow-sm">
+                            <div class="flex items-center mb-3">
+                                <i class="fas fa-trophy text-primary mr-3 text-xl"></i>
+                                <h3 class="font-semibold text-gray-800">找出前k小/大元素</h3>
+                            </div>
+                            <p class="text-gray-600">当只需要找出一个大数组中的前k个最小/最大元素时，锦标赛排序非常高效，时间复杂度为O(n + k log n)。</p>
+                        </div>
+                        
+                        <div class="card-hover bg-white p-5 rounded-lg border border-gray-200 shadow-sm">
+                            <div class="flex items-center mb-3">
+                                <i class="fas fa-stream text-primary mr-3 text-xl"></i>
+                                <h3 class="font-semibold text-gray-800">外部排序</h3>
+                            </div>
+                            <p class="text-gray-600">锦标赛排序的树结构使其非常适合外部排序，可以有效地处理不能一次性加载到内存中的大型数据集。</p>
+                        </div>
+                        
+                        <div class="card-hover bg-white p-5 rounded-lg border border-gray-200 shadow-sm">
+                            <div class="flex items-center mb-3">
+                                <i class="fas fa-microchip text-primary mr-3 text-xl"></i>
+                                <h3 class="font-semibold text-gray-800">并行计算</h3>
+                            </div>
+                            <p class="text-gray-600">锦标赛树的结构使得比较操作可以并行化，在多核处理器或分布式系统中能够显著提高性能。</p>
+                        </div>
+                        
+                        <div class="card-hover bg-white p-5 rounded-lg border border-gray-200 shadow-sm">
+                            <div class="flex items-center mb-3">
+                                <i class="fas fa-tachometer-alt text-primary mr-3 text-xl"></i>
+                                <h3 class="font-semibold text-gray-800">事件优先级队列</h3>
+                            </div>
+                            <p class="text-gray-600">在模拟和事件驱动系统中，可以使用锦标赛树高效地管理具有不同优先级的事件或任务。</p>
+                        </div>
+                    </div>
+                    
+                    <div class="bg-blue-50 p-6 rounded-lg mt-6">
+                        <h3 class="text-xl text-blue-700 font-semibold mb-3">实际应用举例</h3>
+                        <ul class="list-disc list-inside space-y-2 text-gray-700">
+                            <li>在某些数据库系统中，用于实现高效的 TOP-K 查询</li>
+                            <li>在大型数据处理系统（如 Hadoop）中实现外部排序</li>
+                            <li>多种类型的计算机游戏中的匹配系统和排名</li>
+                            <li>用于构建优先级队列的基础结构</li>
+                            <li>在机器学习中用于快速选择最相似的元素</li>
+                        </ul>
+                    </div>
+                    
+                    <div class="bg-yellow-50 border-l-4 border-yellow-400 p-4 rounded-r mt-6">
+                        <div class="flex items-start">
+                            <i class="fas fa-lightbulb text-yellow-500 mt-1 mr-3"></i>
+                            <div>
+                                <h3 class="font-semibold text-gray-800">锦标赛排序与直接选择排序的对比</h3>
+                                <p class="text-gray-700">
+                                    锦标赛排序可以看作是对简单选择排序的优化。在简单选择排序中，每次找出最小元素需要O(n)次比较；而在锦标赛排序中，建立树后每次找出最小元素并调整树仅需O(log n)次比较。这使得锦标赛排序的比较次数从O(n²)降低到O(n log n)。
+                                </p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+        </main>
+        
+        <!-- 页脚 -->
+        <footer class="mt-10 p-6 bg-gray-800 text-white flex flex-col md:flex-row justify-between items-center">
+            <div class="mb-4 md:mb-0">
+                <p class="text-sm"> </p>
+            </div>
+            <div class="flex space-x-4">
+                <a href="index.html" class="text-gray-300 hover:text-white transition-colors">首页</a>
+                <a href="桶排序.html" class="text-gray-300 hover:text-white transition-colors">桶排序</a>
+                <a href="希尔排序.html" class="text-gray-300 hover:text-white transition-colors">希尔排序</a>
+                <a href="Tim 排序.html" class="text-gray-300 hover:text-white transition-colors">Tim 排序</a>
+            </div>
+            <button id="back-to-top" class="fixed right-6 bottom-6 p-3 bg-primary rounded-full shadow-lg text-white hidden">
+                <i class="fas fa-arrow-up"></i>
+            </button>
+        </footer>
+        
+        <!-- ScrollReveal -->
+        <script src="https://unpkg.com/scrollreveal"></script>
+        
+        <!-- Highlight.js -->
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.7.0/highlight.min.js"></script>
+        <script>hljs.highlightAll();</script>
+        
+        <script>
+            // ScrollReveal 初始化
+            ScrollReveal().reveal('.section, h2, .bg-white', {
+                distance: '50px',
+                duration: 1000,
+                delay: 200,
+                easing: 'cubic-bezier(0.5, 0, 0, 1)'
+            });
+            
+            // 回到顶部按钮
+            const backToTopButton = document.getElementById('back-to-top');
+            
+            window.addEventListener('scroll', () => {
+                if (window.pageYOffset > 300) {
+                    backToTopButton.classList.remove('hidden');
+                } else {
+                    backToTopButton.classList.add('hidden');
+                }
+            });
+            
+            backToTopButton.addEventListener('click', () => {
+                window.scrollTo({
+                    top: 0,
+                    behavior: 'smooth'
+                });
+            });
+            
+            // 锦标赛排序可视化
+            document.addEventListener('DOMContentLoaded', function() {
+                // 获取DOM元素
+                const arrayContainer = document.getElementById('array-container');
+                const treeContainer = document.getElementById('tree-container');
+                const stepInfo = document.getElementById('step-info');
+                const newArrayBtn = document.getElementById('newArrayBtn');
+                const startBtn = document.getElementById('startBtn');
+                const stepBtn = document.getElementById('stepBtn');
+                const resetBtn = document.getElementById('resetBtn');
+                const speedSlider = document.getElementById('speed');
+                const speedValue = document.getElementById('speedValue');
+                const arraySizeSelect = document.getElementById('arraySize');
+                
+                // 定义常量
+                const MAX_VALUE = 100;
+                const MIN_VALUE = 1;
+                
+                // 定义变量
+                let array = [];
+                let originalArray = [];
+                let sortedArray = [];
+                let tree = [];
+                let treeSize = 0;
+                let leaves = 0;
+                let positions = {};
+                let sortingInProgress = false;
+                let sortingPaused = false;
+                let sortingTimeout = null;
+                let currentStep = -1;
+                let animationStep = -1;
+                let highlightNodes = [];
+                
+                // 样式类
+                const NORMAL = 'bg-blue-500';
+                const COMPARING = 'bg-yellow-500';
+                const WINNER = 'bg-green-500';
+                const EXTRACTED = 'bg-purple-500';
+                const REPLACED = 'bg-red-500';
+                
+                // 初始化
+                initVisualization();
+                
+                // 初始化可视化
+                function initVisualization() {
+                    // 生成随机数组
+                    generateNewArray();
+                    
+                    // 更新速度文本
+                    updateSpeedText();
+                    
+                    // 事件监听器
+                    newArrayBtn.addEventListener('click', generateNewArray);
+                    startBtn.addEventListener('click', toggleSorting);
+                    stepBtn.addEventListener('click', singleStep);
+                    resetBtn.addEventListener('click', resetSorting);
+                    speedSlider.addEventListener('input', updateSpeedText);
+                    arraySizeSelect.addEventListener('change', generateNewArray);
+                }
+                
+                // 生成新的随机数组
+                function generateNewArray() {
+                    resetSorting();
+                    array = [];
+                    originalArray = [];
+                    sortedArray = [];
+                    
+                    const size = parseInt(arraySizeSelect.value);
+                    
+                    // 生成随机数组
+                    for (let i = 0; i < size; i++) {
+                        const value = Math.floor(Math.random() * (MAX_VALUE - MIN_VALUE + 1)) + MIN_VALUE;
+                        array.push(value);
+                        originalArray.push(value);
+                    }
+                    
+                    // 初始化树
+                    initTree();
+                    
+                    // 渲染
+                    renderArray();
+                    renderTree();
+                    
+                    stepInfo.textContent = "生成了新的随机数组。点击\"开始排序\"按钮以开始排序，或使用\"单步执行\"按钮逐步观察排序过程。";
+                }
+                
+                // 初始化锦标赛树
+                function initTree() {
+                    // 计算叶子节点数（向上取整为2的幂）
+                    const n = array.length;
+                    const height = Math.ceil(Math.log2(n));
+                    leaves = 1 << height;
+                    
+                    // 计算树的总大小
+                    treeSize = 2 * leaves - 1;
+                    
+                    // 初始化树和位置映射
+                    tree = new Array(treeSize).fill(Infinity);
+                    positions = {};
+                    
+                    // 将原数组元素复制到叶子节点
+                    for (let i = 0; i < n; i++) {
+                        const leafPos = leaves - 1 + i;
+                        tree[leafPos] = array[i];
+                        positions[i] = leafPos;
+                    }
+                    
+                    // 构建锦标赛树
+                    buildTree();
+                }
+                
+                // 构建锦标赛树
+                function buildTree() {
+                    highlightNodes = [];
+                    
+                    // 从最后一个非叶子节点开始，自底向上构建
+                    for (let i = leaves - 2; i >= 0; i--) {
+                        const leftChild = 2 * i + 1;
+                        const rightChild = 2 * i + 2;
+                        
+                        // 赢者（较小者）晋级
+                        if (tree[leftChild] <= tree[rightChild]) {
+                            tree[i] = tree[leftChild];
+                        } else {
+                            tree[i] = tree[rightChild];
+                        }
+                    }
+                }
+                
+                // 渲染数组
+                function renderArray() {
+                    arrayContainer.innerHTML = '';
+                    
+                    const itemWidth = Math.min(40, Math.floor(arrayContainer.clientWidth / array.length) - 6);
+                    const itemHeight = Math.min(40, itemWidth);
+                    
+                    for (let i = 0; i < array.length; i++) {
+                        const item = document.createElement('div');
+                        
+                        if (sortedArray.includes(i)) {
+                            item.classList.add(EXTRACTED);
+                        } else {
+                            item.classList.add(NORMAL);
+                        }
+                        
+                        item.classList.add('flex', 'items-center', 'justify-center', 'text-white', 'font-medium', 'rounded', 'shadow-md');
+                        item.style.width = `${itemWidth}px`;
+                        item.style.height = `${itemHeight}px`;
+                        item.style.transition = 'all 0.3s ease';
+                        item.textContent = originalArray[i];
+                        
+                        // 添加索引标签
+                        const indexLabel = document.createElement('div');
+                        indexLabel.classList.add('text-xs', 'text-gray-600', 'mt-1', 'text-center');
+                        indexLabel.textContent = i;
+                        
+                        const itemContainer = document.createElement('div');
+                        itemContainer.classList.add('flex', 'flex-col', 'items-center', 'mx-1');
+                        itemContainer.appendChild(item);
+                        itemContainer.appendChild(indexLabel);
+                        
+                        arrayContainer.appendChild(itemContainer);
+                    }
+                }
+                
+                // 渲染树
+                function renderTree() {
+                    treeContainer.innerHTML = '';
+                    
+                    const maxDepth = Math.ceil(Math.log2(array.length + 1));
+                    const depth = Math.max(maxDepth, Math.log2(treeSize + 1));
+                    const height = Math.min(400, treeContainer.clientHeight);
+                    const width = treeContainer.clientWidth;
+                    const levelHeight = height / (depth + 0.5);
+                    
+                    // 创建SVG元素
+                    const svg = document.createElementNS("http://www.w3.org/2000/svg", "svg");
+                    svg.setAttribute("width", "100%");
+                    svg.setAttribute("height", height);
+                    svg.setAttribute("viewBox", `0 0 ${width} ${height}`);
+                    
+                    // 计算每个节点的水平间距
+                    const nodeSpacing = width / (2 ** depth);
+                    const nodeDiameter = Math.min(24, nodeSpacing * 0.8);
+                    const fontSize = Math.max(8, Math.min(12, nodeDiameter * 0.6));
+                    
+                    // 定义连接线的样式
+                    const createLine = (x1, y1, x2, y2, highlight) => {
+                        const line = document.createElementNS("http://www.w3.org/2000/svg", "line");
+                        line.setAttribute("x1", x1);
+                        line.setAttribute("y1", y1);
+                        line.setAttribute("x2", x2);
+                        line.setAttribute("y2", y2);
+                        line.setAttribute("stroke", highlight ? "#f59e0b" : "#94a3b8");
+                        line.setAttribute("stroke-width", highlight ? "2" : "1.5");
+                        return line;
+                    };
+                    
+                    // 定义绘制节点的函数
+                    const createNode = (i, x, y) => {
+                        // 如果是无限值，不绘制
+                        if (tree[i] === Infinity) return;
+                        
+                        // 绘制连接线
+                        if (i > 0) {
+                            const parentIndex = Math.floor((i - 1) / 2);
+                            const parentLevel = Math.floor(Math.log2(parentIndex + 1));
+                            const parentPos = getNodePosition(parentIndex, parentLevel);
+                            
+                            // 检查是否是高亮路径
+                            const isHighlightPath = highlightNodes.includes(i) && highlightNodes.includes(parentIndex);
+                            
+                            svg.appendChild(createLine(x, y, parentPos.x, parentPos.y, isHighlightPath));
+                        }
+                        
+                        // 绘制节点背景 - 添加光晕效果
+                        if (highlightNodes.includes(i)) {
+                            const glow = document.createElementNS("http://www.w3.org/2000/svg", "circle");
+                            glow.setAttribute("cx", x);
+                            glow.setAttribute("cy", y);
+                            glow.setAttribute("r", nodeDiameter * 0.7);
+                            glow.setAttribute("fill", i === 0 ? "#10b981" : "#f59e0b");
+                            glow.setAttribute("filter", "url(#glow)");
+                            svg.appendChild(glow);
+                        }
+                        
+                        // 绘制节点
+                        const circle = document.createElementNS("http://www.w3.org/2000/svg", "circle");
+                        circle.setAttribute("cx", x);
+                        circle.setAttribute("cy", y);
+                        circle.setAttribute("r", nodeDiameter / 2);
+                        
+                        // 设置颜色
+                        let fillColor = "#06b6d4"; // 默认颜色
+                        
+                        if (highlightNodes.includes(i)) {
+                            if (i === 0) fillColor = "#10b981"; // 根节点为绿色
+                            else if (tree[i] === Infinity) fillColor = "#ef4444"; // 被移除的节点为红色
+                            else fillColor = "#f59e0b"; // 比较节点为黄色
+                        } else if (i >= leaves - 1) {
+                            fillColor = "#818cf8"; // 叶子节点颜色
+                        }
+                        
+                        // 添加渐变效果
+                        const gradientId = `gradient-${i}`;
+                        const gradient = document.createElementNS("http://www.w3.org/2000/svg", "linearGradient");
+                        gradient.setAttribute("id", gradientId);
+                        gradient.setAttribute("x1", "0%");
+                        gradient.setAttribute("y1", "0%");
+                        gradient.setAttribute("x2", "100%");
+                        gradient.setAttribute("y2", "100%");
+                        
+                        const stop1 = document.createElementNS("http://www.w3.org/2000/svg", "stop");
+                        stop1.setAttribute("offset", "0%");
+                        stop1.setAttribute("stop-color", fillColor);
+                        
+                        const stop2 = document.createElementNS("http://www.w3.org/2000/svg", "stop");
+                        stop2.setAttribute("offset", "100%");
+                        stop2.setAttribute("stop-color", darkenColor(fillColor, 20));
+                        
+                        gradient.appendChild(stop1);
+                        gradient.appendChild(stop2);
+                        svg.appendChild(gradient);
+                        
+                        circle.setAttribute("fill", `url(#${gradientId})`);
+                        circle.setAttribute("stroke", "#ffffff");
+                        circle.setAttribute("stroke-width", "1");
+                        
+                        // 数值文本
+                        const text = document.createElementNS("http://www.w3.org/2000/svg", "text");
+                        text.setAttribute("x", x);
+                        text.setAttribute("y", y + fontSize/3);
+                        text.setAttribute("text-anchor", "middle");
+                        text.setAttribute("font-size", fontSize);
+                        text.setAttribute("fill", "white");
+                        text.setAttribute("font-weight", "bold");
+                        text.textContent = tree[i] === Infinity ? "∞" : tree[i];
+                        
+                        svg.appendChild(circle);
+                        svg.appendChild(text);
+                    };
+                    
+                    // 获取节点位置的函数
+                    const getNodePosition = (index, level) => {
+                        const totalNodesAtLevel = 2 ** level;
+                        const nodeIndex = index - (2 ** level - 1);
+                        const x = (nodeIndex + 0.5) * (width / totalNodesAtLevel);
+                        const y = level * levelHeight + 40;
+                        return { x, y };
+                    };
+                    
+                    // 颜色处理工具函数
+                    function darkenColor(color, percent) {
+                        if (color.startsWith('#')) {
+                            const r = parseInt(color.slice(1, 3), 16);
+                            const g = parseInt(color.slice(3, 5), 16);
+                            const b = parseInt(color.slice(5, 7), 16);
+                            
+                            const darkenComponent = (c) => Math.max(0, Math.floor(c * (100 - percent) / 100));
+                            
+                            return `#${darkenComponent(r).toString(16).padStart(2, '0')}${darkenComponent(g).toString(16).padStart(2, '0')}${darkenComponent(b).toString(16).padStart(2, '0')}`;
+                        }
+                        return color;
+                    }
+                    
+                    // 添加发光滤镜
+                    const defs = document.createElementNS("http://www.w3.org/2000/svg", "defs");
+                    const filter = document.createElementNS("http://www.w3.org/2000/svg", "filter");
+                    filter.setAttribute("id", "glow");
+                    filter.setAttribute("x", "-50%");
+                    filter.setAttribute("y", "-50%");
+                    filter.setAttribute("width", "200%");
+                    filter.setAttribute("height", "200%");
+                    
+                    const feGaussianBlur = document.createElementNS("http://www.w3.org/2000/svg", "feGaussianBlur");
+                    feGaussianBlur.setAttribute("stdDeviation", "3");
+                    feGaussianBlur.setAttribute("result", "blur");
+                    
+                    filter.appendChild(feGaussianBlur);
+                    defs.appendChild(filter);
+                    svg.appendChild(defs);
+                    
+                    // 遍历所有节点并绘制
+                    for (let level = 0; level <= Math.log2(treeSize + 1); level++) {
+                        const startIndex = 2 ** level - 1;
+                        const endIndex = 2 ** (level + 1) - 2;
+                        
+                        for (let i = startIndex; i <= endIndex && i < treeSize; i++) {
+                            const pos = getNodePosition(i, level);
+                            createNode(i, pos.x, pos.y);
+                        }
+                    }
+                    
+                    treeContainer.appendChild(svg);
+                    
+                    // 添加树状态说明
+                    const treeInfo = document.createElement('div');
+                    treeInfo.classList.add('text-xs', 'text-gray-600', 'mt-2', 'text-center');
+                    treeInfo.textContent = `树高度: ${maxDepth}, 节点总数: ${treeSize}, 叶子节点数: ${leaves}`;
+                    treeContainer.appendChild(treeInfo);
+                }
+                
+                // 更新速度文本
+                function updateSpeedText() {
+                    const speed = speedSlider.value;
+                    let speedText = '';
+                    
+                    switch (parseInt(speed)) {
+                        case 1: speedText = '非常慢'; break;
+                        case 2: speedText = '慢'; break;
+                        case 3: speedText = '中等'; break;
+                        case 4: speedText = '快'; break;
+                        case 5: speedText = '非常快'; break;
+                    }
+                    
+                    speedValue.textContent = speedText;
+                }
+                
+                // 获取延迟时间
+                function getDelay() {
+                    const speed = parseInt(speedSlider.value);
+                    switch (speed) {
+                        case 1: return 2000;
+                        case 2: return 1000;
+                        case 3: return 500;
+                        case 4: return 250;
+                        case 5: return 100;
+                        default: return 500;
+                    }
+                }
+                
+                // 开始/暂停排序
+                function toggleSorting() {
+                    if (!sortingInProgress) {
+                        // 开始排序
+                        sortingInProgress = true;
+                        sortingPaused = false;
+                        startBtn.innerHTML = '<i class="fas fa-pause mr-2"></i>暂停';
+                        startBtn.classList.remove('bg-green-500', 'hover:bg-green-600');
+                        startBtn.classList.add('bg-yellow-500', 'hover:bg-yellow-600');
+                        newArrayBtn.disabled = true;
+                        stepBtn.disabled = true;
+                        resetBtn.disabled = false;
+                        arraySizeSelect.disabled = true;
+                        
+                        // 执行锦标赛排序
+                        tournamentSort();
+                    } else {
+                        // 暂停/继续排序
+                        sortingPaused = !sortingPaused;
+                        startBtn.innerHTML = sortingPaused ? 
+                            '<i class="fas fa-play mr-2"></i>继续' : 
+                            '<i class="fas fa-pause mr-2"></i>暂停';
+                    }
+                }
+                
+                // 单步执行
+                function singleStep() {
+                    if (sortingInProgress) return;
+                    
+                    if (currentStep === -1) {
+                        // 初始化排序
+                        sortingInProgress = true;
+                        currentStep = 0;
+                        animationStep = 0;
+                        
+                        newArrayBtn.disabled = true;
+                        resetBtn.disabled = false;
+                        arraySizeSelect.disabled = true;
+                        
+                        // 构建树并绘制
+                        buildTree();
+                        stepInfo.textContent = "初始化锦标赛树：原始数组元素放入叶子节点，相邻节点进行比较，较小者晋级至父节点。";
+                        renderTree();
+                        return;
+                    }
+                    
+                    const n = array.length;
+                    
+                    if (sortedArray.length >= n) {
+                        stepInfo.textContent = "排序完成！";
+                        return;
+                    }
+                    
+                    switch(animationStep) {
+                        case 0: // 找到当前最小值
+                            highlightNodes = [0]; // 高亮根节点
+                            stepInfo.textContent = `找到当前最小值：${tree[0]}（根节点值）`;
+                            renderTree();
+                            animationStep = 1;
+                            break;
+                            
+                        case 1: // 提取最小值
+                            const min = tree[0];
+                            const minIndex = array.indexOf(min);
+                            sortedArray.push(minIndex);
+                            stepInfo.textContent = `提取最小值：${min}（索引 ${minIndex}），添加到已排序数组中`;
+                            renderArray();
+                            animationStep = 2;
+                            break;
+                            
+                        case 2: // 找到最小值的叶子节点
+                            let leafPos = -1;
+                            for (let i = 0; i < array.length; i++) {
+                                if (array[i] === tree[0] && !sortedArray.includes(i)) {
+                                    leafPos = leaves - 1 + i;
+                                    break;
+                                }
+                            }
+                            
+                            // 标记要替换的叶子节点
+                            highlightNodes = [leafPos];
+                            stepInfo.textContent = `找到最小值对应的叶子节点位置：${leafPos}`;
+                            renderTree();
+                            animationStep = 3;
+                            break;
+                            
+                        case 3: // 替换叶子节点
+                            // 找到最小值的叶子节点
+                            let minLeafPos = -1;
+                            for (let i = 0; i < array.length; i++) {
+                                if (array[i] === tree[0] && !sortedArray.includes(i)) {
+                                    minLeafPos = leaves - 1 + i;
+                                    break;
+                                }
+                            }
+                            
+                            // 替换为无限大
+                            tree[minLeafPos] = Infinity;
+                            stepInfo.textContent = `将该叶子节点替换为∞，表示已提取`;
+                            renderTree();
+                            animationStep = 4;
+                            break;
+                            
+                        case 4: // 重建树
+                            // 从被替换的叶子节点开始向上重建
+                            let rebuiltNodes = [];
+                            
+                            // 找到最小值的叶子节点
+                            let pos = -1;
+                            for (let i = 0; i < array.length; i++) {
+                                if (sortedArray.includes(i) && array[i] === tree[0]) {
+                                    pos = leaves - 1 + i;
+                                    break;
+                                }
+                            }
+                            
+                            if (pos === -1) {
+                                // 查找所有Infinity的叶子节点
+                                for (let i = leaves - 1; i < treeSize; i++) {
+                                    if (tree[i] === Infinity) {
+                                        pos = i;
+                                        break;
+                                    }
+                                }
+                            }
+                            
+                            // 重建树
+                            while (pos > 0) {
+                                const parent = Math.floor((pos - 1) / 2);
+                                const sibling = (pos % 2 === 0) ? pos - 1 : pos + 1;
+                                
+                                rebuiltNodes.push(parent, pos, sibling);
+                                
+                                // 更新父节点
+                                tree[parent] = Math.min(tree[pos], tree[sibling]);
+                                
+                                pos = parent;
+                            }
+                            
+                            highlightNodes = rebuiltNodes;
+                            stepInfo.textContent = `重新构建树：从叶子节点开始，向上更新父节点的值，直到根节点`;
+                            renderTree();
+                            
+                            // 开始下一轮
+                            animationStep = 0;
+                            currentStep++;
+                            break;
+                    }
+                }
+                
+                // 重置排序
+                function resetSorting() {
+                    if (sortingTimeout) {
+                        clearTimeout(sortingTimeout);
+                        sortingTimeout = null;
+                    }
+                    
+                    sortingInProgress = false;
+                    sortingPaused = false;
+                    currentStep = -1;
+                    animationStep = -1;
+                    
+                    startBtn.disabled = false;
+                    startBtn.innerHTML = '<i class="fas fa-play mr-2"></i>开始排序';
+                    startBtn.classList.remove('bg-yellow-500', 'hover:bg-yellow-600');
+                    startBtn.classList.add('bg-green-500', 'hover:bg-green-600');
+                    stepBtn.disabled = false;
+                    newArrayBtn.disabled = false;
+                    resetBtn.disabled = true;
+                    arraySizeSelect.disabled = false;
+                    
+                    sortedArray = [];
+                    
+                    // 重新初始化树
+                    if (array.length > 0) {
+                        initTree();
+                    }
+                    
+                    renderArray();
+                    renderTree();
+                    
+                    stepInfo.textContent = "排序已重置。点击\"开始排序\"按钮重新开始，或使用\"单步执行\"按钮逐步观察排序过程。";
+                }
+                
+                // 锦标赛排序
+                async function tournamentSort() {
+                    const n = array.length;
+                    const delays = getDelay();
+                    
+                    if (currentStep === -1) {
+                        // 初始化
+                        currentStep = 0;
+                        animationStep = 0;
+                        
+                        // 构建树并绘制
+                        buildTree();
+                        stepInfo.textContent = "初始化锦标赛树：原始数组元素放入叶子节点，相邻节点进行比较，较小者晋级至父节点。";
+                        renderTree();
+                        await pause(delays);
+                    }
+                    
+                    // 主循环：提取最小值并调整树
+                    while (sortedArray.length < n) {
+                        if (!sortingInProgress) return;
+                        
+                        // 暂停检查
+                        await checkPause();
+                        
+                        // 找到当前最小值
+                        highlightNodes = [0]; // 高亮根节点
+                        stepInfo.textContent = `找到当前最小值：${tree[0]}（根节点值）`;
+                        renderTree();
+                        await pause(delays);
+                        
+                        // 提取最小值
+                        const min = tree[0];
+                        const minIndex = array.indexOf(min);
+                        sortedArray.push(minIndex);
+                        stepInfo.textContent = `提取最小值：${min}（索引 ${minIndex}），添加到已排序数组中`;
+                        renderArray();
+                        await pause(delays);
+                        
+                        // 找到最小值的叶子节点
+                        let leafPos = -1;
+                        for (let i = 0; i < n; i++) {
+                            if (array[i] === min && !sortedArray.includes(i)) {
+                                leafPos = leaves - 1 + i;
+                                break;
+                            }
+                        }
+                        
+                        if (leafPos === -1) {
+                            // 如果有相同的值，找到第一个未标记为排序的叶子节点
+                            for (let i = 0; i < n; i++) {
+                                if (array[i] === min && sortedArray.indexOf(i) === sortedArray.length - 1) {
+                                    leafPos = leaves - 1 + i;
+                                    break;
+                                }
+                            }
+                        }
+                        
+                        // 标记要替换的叶子节点
+                        highlightNodes = [leafPos];
+                        stepInfo.textContent = `找到最小值对应的叶子节点位置：${leafPos}`;
+                        renderTree();
+                        await pause(delays);
+                        
+                        // 替换为无限大
+                        tree[leafPos] = Infinity;
+                        stepInfo.textContent = `将该叶子节点替换为∞，表示已提取`;
+                        renderTree();
+                        await pause(delays);
+                        
+                        // 重建树
+                        let pos = leafPos;
+                        let rebuiltNodes = [];
+                        
+                        while (pos > 0) {
+                            const parent = Math.floor((pos - 1) / 2);
+                            const sibling = (pos % 2 === 0) ? pos - 1 : pos + 1;
+                            
+                            rebuiltNodes.push(parent, pos, sibling);
+                            
+                            // 更新父节点
+                            tree[parent] = Math.min(tree[pos], tree[sibling]);
+                            
+                            pos = parent;
+                        }
+                        
+                        highlightNodes = rebuiltNodes;
+                        stepInfo.textContent = `重新构建树：从叶子节点开始，向上更新父节点的值，直到根节点`;
+                        renderTree();
+                        await pause(delays);
+                        
+                        currentStep++;
+                    }
+                    
+                    // 排序完成
+                    stepInfo.textContent = "排序完成！";
+                    highlightNodes = [];
+                    renderTree();
+                    
+                    sortingInProgress = false;
+                    startBtn.innerHTML = '<i class="fas fa-play mr-2"></i>开始排序';
+                    startBtn.classList.remove('bg-yellow-500', 'hover:bg-yellow-600');
+                    startBtn.classList.add('bg-green-500', 'hover:bg-green-600');
+                    startBtn.disabled = false;
+                    stepBtn.disabled = false;
+                    newArrayBtn.disabled = false;
+                    arraySizeSelect.disabled = false;
+                }
+                
+                // 检查是否暂停
+                async function checkPause() {
+                    if (sortingPaused) {
+                        return new Promise(resolve => {
+                            function checkAgain() {
+                                if (sortingPaused) {
+                                    sortingTimeout = setTimeout(checkAgain, 100);
+                                } else {
+                                    resolve();
+                                }
+                            }
+                            checkAgain();
+                        });
+                    }
+                }
+                
+                // 暂停函数
+                function pause(ms) {
+                    return new Promise(resolve => {
+                        sortingTimeout = setTimeout(resolve, ms);
+                    });
+                }
+            });
+        </script>
+    </div>
+</body>
+</html> 

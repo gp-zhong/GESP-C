@@ -1,0 +1,1014 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>选择排序</title>
+    <!-- TailwindCSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&family=Roboto+Mono&display=swap" rel="stylesheet">
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        primary: {
+                            light: '#a5f3fc',
+                            DEFAULT: '#06b6d4',
+                            dark: '#0891b2',
+                        },
+                        secondary: {
+                            light: '#c7d2fe',
+                            DEFAULT: '#818cf8',
+                            dark: '#6366f1',
+                        },
+                        codeBlock: '#1e293b',
+                    },
+                    fontFamily: {
+                        sans: ['Poppins', 'sans-serif'],
+                        mono: ['Roboto Mono', 'monospace'],
+                    },
+                }
+            }
+        }
+    </script>
+    <style>
+        .card-hover {
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+        }
+        .card-hover:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 25px -5px rgba(6, 182, 212, 0.1), 0 10px 10px -5px rgba(6, 182, 212, 0.04);
+        }
+        .code-block::-webkit-scrollbar {
+            height: 8px;
+        }
+        .code-block::-webkit-scrollbar-thumb {
+            background-color: #06b6d4;
+            border-radius: 4px;
+        }
+        .code-block::-webkit-scrollbar-track {
+            background-color: #e2e8f0;
+            border-radius: 4px;
+        }
+    </style>
+</head>
+<body class="bg-gray-50 font-sans">
+    <div class="min-h-screen max-w-6xl mx-auto px-8 py-10">
+        <!-- Header -->
+        <header class="mb-12 text-center">
+            <div class="inline-block px-3 py-1 bg-primary-light text-primary-dark rounded-full text-sm font-medium mb-4">
+                算法基础
+            </div>
+            <h1 class="text-4xl font-bold text-gray-800 mb-4">选择排序</h1>
+            <p class="text-lg text-gray-600 max-w-3xl mx-auto">一种简单直观的基础排序算法，通过不断选择最小/最大元素进行排序</p>
+        </header>
+
+        <!-- Main Content -->
+        <main>
+            <!-- 算法原理 Section -->
+            <section class="mb-12 bg-white rounded-2xl shadow-md p-8">
+                <div class="flex items-center mb-6">
+                    <i class="fas fa-info-circle text-primary text-xl mr-3"></i>
+                    <h2 class="text-2xl font-bold text-gray-800">算法原理</h2>
+                </div>
+                <div class="space-y-4 text-gray-700">
+                    <p>选择排序（Selection Sort）是一种简单直观的排序算法。它的工作原理是：</p>
+                    
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-4">
+                        <div class="card-hover p-6 bg-gray-50 rounded-xl">
+                            <h3 class="text-lg font-semibold text-gray-800 mb-3">
+                                <i class="fas fa-check-circle text-primary-dark mr-2"></i>
+                                基本思想
+                            </h3>
+                            <p>每次从未排序区域选出最小（或最大）的元素，将其放到已排序区域的末尾，直到所有元素都排序完成。</p>
+                        </div>
+                        
+                        <div class="card-hover p-6 bg-gray-50 rounded-xl">
+                            <h3 class="text-lg font-semibold text-gray-800 mb-3">
+                                <i class="fas fa-cog text-primary-dark mr-2"></i>
+                                核心特点
+                            </h3>
+                            <ul class="list-disc pl-6 space-y-1">
+                                <li>时间复杂度固定为 O(n²)</li>
+                                <li>空间复杂度为 O(1)</li>
+                                <li>不稳定排序</li>
+                                <li>交换次数最多为 O(n)</li>
+                            </ul>
+                        </div>
+                    </div>
+                    
+                    <div class="p-5 bg-primary-light bg-opacity-10 rounded-lg">
+                        <p>选择排序的优势在于实现简单、交换次数少，适合小型数据集和内存受限场景。其劣势是效率较低，时间复杂度固定为 O(n²)，无法利用输入数据的特性进行优化。</p>
+                    </div>
+
+                    <h3 class="text-xl font-semibold text-gray-800 mt-6 mb-3">排序过程</h3>
+                    <ol class="list-decimal list-inside space-y-2 pl-4">
+                        <li>在未排序序列中找到最小（大）元素</li>
+                        <li>将其与未排序序列的第一个元素交换位置</li>
+                        <li>将该元素划入已排序序列</li>
+                        <li>重复上述步骤，直到所有元素排序完成</li>
+                    </ol>
+                    
+                    <div class="bg-gray-100 p-4 rounded-lg mt-6">
+                        <h3 class="text-lg font-semibold mb-2">算法过程可视化</h3>
+                        <svg viewBox="0 0 400 200" xmlns="http://www.w3.org/2000/svg" class="w-full">
+                            <!-- 初始数组 -->
+                            <g transform="translate(20, 30)">
+                                <text x="0" y="-10" font-size="14" fill="#333">初始数组</text>
+                                <rect x="0" y="0" width="40" height="40" fill="#06b6d4" rx="4"></rect>
+                                <rect x="45" y="0" width="40" height="40" fill="#06b6d4" rx="4"></rect>
+                                <rect x="90" y="0" width="40" height="40" fill="#06b6d4" rx="4"></rect>
+                                <rect x="135" y="0" width="40" height="40" fill="#06b6d4" rx="4"></rect>
+                                <rect x="180" y="0" width="40" height="40" fill="#06b6d4" rx="4"></rect>
+                                
+                                <text x="20" y="25" font-size="16" fill="white" text-anchor="middle">5</text>
+                                <text x="65" y="25" font-size="16" fill="white" text-anchor="middle">3</text>
+                                <text x="110" y="25" font-size="16" fill="white" text-anchor="middle">6</text>
+                                <text x="155" y="25" font-size="16" fill="white" text-anchor="middle">2</text>
+                                <text x="200" y="25" font-size="16" fill="white" text-anchor="middle">8</text>
+                            </g>
+                            
+                            <!-- 第一次迭代后 -->
+                            <g transform="translate(20, 100)">
+                                <text x="0" y="-10" font-size="14" fill="#333">第一次迭代后</text>
+                                <rect x="0" y="0" width="40" height="40" fill="#10B981" rx="4"></rect>
+                                <rect x="45" y="0" width="40" height="40" fill="#06b6d4" rx="4"></rect>
+                                <rect x="90" y="0" width="40" height="40" fill="#06b6d4" rx="4"></rect>
+                                <rect x="135" y="0" width="40" height="40" fill="#06b6d4" rx="4"></rect>
+                                <rect x="180" y="0" width="40" height="40" fill="#06b6d4" rx="4"></rect>
+                                
+                                <text x="20" y="25" font-size="16" fill="white" text-anchor="middle">2</text>
+                                <text x="65" y="25" font-size="16" fill="white" text-anchor="middle">3</text>
+                                <text x="110" y="25" font-size="16" fill="white" text-anchor="middle">6</text>
+                                <text x="155" y="25" font-size="16" fill="white" text-anchor="middle">5</text>
+                                <text x="200" y="25" font-size="16" fill="white" text-anchor="middle">8</text>
+                                
+                                <!-- 交换箭头 -->
+                                <path d="M 20,45 L 20,55 L 155,55 L 155,45" stroke="#EF4444" stroke-width="2" fill="none" marker-end="url(#arrowhead)"></path>
+                            </g>
+                            
+                            <!-- 箭头标记 -->
+                            <defs>
+                                <marker id="arrowhead" markerWidth="10" markerHeight="7" refX="0" refY="3.5" orient="auto">
+                                    <polygon points="0 0, 10 3.5, 0 7" fill="#EF4444"/>
+                                </marker>
+                            </defs>
+                        </svg>
+                    </div>
+                </div>
+            </section>
+
+            <!-- 算法实现 Section -->
+            <section class="mb-12 bg-white rounded-2xl shadow-md p-8">
+                <div class="flex items-center mb-6">
+                    <i class="fas fa-code text-primary text-xl mr-3"></i>
+                    <h2 class="text-2xl font-bold text-gray-800">算法实现</h2>
+                </div>
+                <div class="space-y-4 text-gray-700">
+                    <p>以下是选择排序的C++实现：</p>
+                    
+                    <div class="overflow-x-auto bg-codeBlock rounded-lg p-4 mb-4 code-block">
+                        <pre class="text-gray-100 font-mono text-sm"><code>// 选择排序
+template &lt;typename T&gt;
+void selectionSort(T arr[], int n) {
+    for (int i = 0; i < n - 1; i++) {
+        // 寻找[i, n)中的最小值
+        int minIndex = i;
+        for (int j = i + 1; j < n; j++) {
+            if (arr[j] < arr[minIndex]) {
+                minIndex = j;
+            }
+        }
+        // 将最小元素交换到已排序区域的末尾
+        if (minIndex != i) {
+            std::swap(arr[i], arr[minIndex]);
+        }
+    }
+}</code></pre>
+                    </div>
+                    
+                    <h3 class="text-xl font-semibold text-gray-800 mt-6 mb-3">算法分析</h3>
+                    <table class="min-w-full bg-white border border-gray-200 mb-4">
+                        <thead>
+                            <tr class="bg-gray-100">
+                                <th class="py-3 px-4 border-b text-left">性能指标</th>
+                                <th class="py-3 px-4 border-b text-left">结果</th>
+                                <th class="py-3 px-4 border-b text-left">说明</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td class="py-3 px-4 border-b font-medium">时间复杂度</td>
+                                <td class="py-3 px-4 border-b">O(n²)</td>
+                                <td class="py-3 px-4 border-b">两层嵌套循环，无论输入如何都需要 n(n-1)/2 次比较</td>
+                            </tr>
+                            <tr>
+                                <td class="py-3 px-4 border-b font-medium">空间复杂度</td>
+                                <td class="py-3 px-4 border-b">O(1)</td>
+                                <td class="py-3 px-4 border-b">只需要一个额外变量记录最小值的索引</td>
+                            </tr>
+                            <tr>
+                                <td class="py-3 px-4 border-b font-medium">最优情况</td>
+                                <td class="py-3 px-4 border-b">O(n²)</td>
+                                <td class="py-3 px-4 border-b">即使数组已排序，仍需完整扫描</td>
+                            </tr>
+                            <tr>
+                                <td class="py-3 px-4 border-b font-medium">最差情况</td>
+                                <td class="py-3 px-4 border-b">O(n²)</td>
+                                <td class="py-3 px-4 border-b">与平均情况相同</td>
+                            </tr>
+                            <tr>
+                                <td class="py-3 px-4 border-b font-medium">稳定性</td>
+                                <td class="py-3 px-4 border-b">不稳定</td>
+                                <td class="py-3 px-4 border-b">交换可能改变相等元素的相对位置</td>
+                            </tr>
+                            <tr>
+                                <td class="py-3 px-4 border-b font-medium">原地排序</td>
+                                <td class="py-3 px-4 border-b">是</td>
+                                <td class="py-3 px-4 border-b">不需要额外的数组空间</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                    
+                    <div class="bg-yellow-50 border-l-4 border-yellow-400 p-4 rounded-r mb-4">
+                        <div class="flex items-start">
+                            <i class="fas fa-exclamation-triangle text-yellow-500 mt-1 mr-3"></i>
+                            <p class="text-gray-700">
+                                <strong>注意</strong>：选择排序的时间复杂度在所有情况下都是 O(n²)，这与冒泡排序和插入排序在最优情况下可以达到 O(n) 不同。但其交换操作的次数（最多 n-1 次）远少于冒泡排序。
+                            </p>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- 算法优化 Section -->
+            <section class="mb-12 bg-white rounded-2xl shadow-md p-8">
+                <div class="flex items-center mb-6">
+                    <i class="fas fa-lightbulb text-primary text-xl mr-3"></i>
+                    <h2 class="text-2xl font-bold text-gray-800">算法优化</h2>
+                </div>
+                <div class="space-y-4 text-gray-700">
+                    <p>尽管选择排序的时间复杂度无法优化至 O(n²) 以下，但可以进行一些小改进：</p>
+                    
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-4">
+                        <div class="card-hover p-6 bg-gray-50 rounded-xl">
+                            <h3 class="text-lg font-semibold text-gray-800 mb-3">双向选择排序</h3>
+                            <p>同时寻找最大值和最小值，每轮可以确定两个元素的位置，减少比较次数近一半。</p>
+                            <div class="mt-3">
+                                <p class="text-sm">实现示例：</p>
+                                <div class="overflow-x-auto bg-codeBlock rounded-lg p-3 mt-2 code-block">
+                                    <pre class="text-gray-100 font-mono text-xs"><code>template &lt;typename T&gt;
+void bidirectionalSelectionSort(T arr[], int n) {
+    int left = 0, right = n - 1;
+    
+    while (left < right) {
+        int minIndex = left;
+        int maxIndex = right;
+        
+        // 在一次遍历中同时找最小值和最大值
+        for (int i = left; i <= right; i++) {
+            if (arr[i] < arr[minIndex]) {
+                minIndex = i;
+            }
+            if (arr[i] > arr[maxIndex]) {
+                maxIndex = i;
+            }
+        }
+        
+        // 交换最小值到左边
+        if (minIndex != left) {
+            std::swap(arr[left], arr[minIndex]);
+            
+            // 如果最大值恰好是left，则最大值现在在minIndex位置
+            if (maxIndex == left) {
+                maxIndex = minIndex;
+            }
+        }
+        
+        // 交换最大值到右边
+        if (maxIndex != right) {
+            std::swap(arr[right], arr[maxIndex]);
+        }
+        
+        left++;
+        right--;
+    }
+}</code></pre>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="card-hover p-6 bg-gray-50 rounded-xl">
+                            <h3 class="text-lg font-semibold text-gray-800 mb-3">堆排序</h3>
+                            <p>选择排序的高级变种，通过堆数据结构可以将时间复杂度降至 O(n log n)。</p>
+                            <div class="mt-3">
+                                <p class="text-sm">基本思想：</p>
+                                <ul class="list-disc pl-5 space-y-1 text-sm">
+                                    <li>将数组构建为最大堆</li>
+                                    <li>每次取出堆顶元素（最大值）</li>
+                                    <li>调整剩余元素为最大堆</li>
+                                    <li>重复上述过程直到排序完成</li>
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <h3 class="text-xl font-semibold text-gray-800 mt-6 mb-3">优化对比</h3>
+                    <div class="overflow-x-auto mb-6">
+                        <table class="min-w-full bg-white border border-gray-200">
+                            <thead>
+                                <tr class="bg-gray-100">
+                                    <th class="py-3 px-4 border-b text-left">优化方法</th>
+                                    <th class="py-3 px-4 border-b text-left">时间复杂度</th>
+                                    <th class="py-3 px-4 border-b text-left">空间复杂度</th>
+                                    <th class="py-3 px-4 border-b text-left">优势</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td class="py-3 px-4 border-b">基本选择排序</td>
+                                    <td class="py-3 px-4 border-b">O(n²)</td>
+                                    <td class="py-3 px-4 border-b">O(1)</td>
+                                    <td class="py-3 px-4 border-b">简单直观，交换次数少</td>
+                                </tr>
+                                <tr>
+                                    <td class="py-3 px-4 border-b">双向选择排序</td>
+                                    <td class="py-3 px-4 border-b">O(n²)</td>
+                                    <td class="py-3 px-4 border-b">O(1)</td>
+                                    <td class="py-3 px-4 border-b">比较次数减少近一半</td>
+                                </tr>
+                                <tr>
+                                    <td class="py-3 px-4 border-b">堆排序</td>
+                                    <td class="py-3 px-4 border-b">O(n log n)</td>
+                                    <td class="py-3 px-4 border-b">O(1)</td>
+                                    <td class="py-3 px-4 border-b">时间复杂度优秀，仍保持原地排序</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </section>
+
+            <!-- 算法应用与示例 Section -->
+            <section class="mb-12 bg-white rounded-2xl shadow-md p-8">
+                <div class="flex items-center mb-6">
+                    <i class="fas fa-flask text-primary text-xl mr-3"></i>
+                    <h2 class="text-2xl font-bold text-gray-800">算法应用与示例</h2>
+                </div>
+                <div class="space-y-4 text-gray-700">
+                    <h3 class="text-xl font-semibold text-gray-800 mb-3">1. 成绩排序</h3>
+                    <p>选择排序常用于小型数据集的排序任务，如学生成绩排名：</p>
+                    
+                    <div class="overflow-x-auto bg-codeBlock rounded-lg p-4 mb-4 code-block">
+                        <pre class="text-gray-100 font-mono text-sm"><code>#include &lt;iostream&gt;
+#include &lt;string&gt;
+
+struct Student {
+    std::string name;
+    int score;
+};
+
+void sortStudentsByScore(Student students[], int n) {
+    for (int i = 0; i < n - 1; i++) {
+        int maxIndex = i;
+        for (int j = i + 1; j < n; j++) {
+            if (students[j].score > students[maxIndex].score) {
+                maxIndex = j;
+            }
+        }
+        if (maxIndex != i) {
+            std::swap(students[i], students[maxIndex]);
+        }
+    }
+}
+
+int main() {
+    Student students[5] = {
+        {"张三", 85},
+        {"李四", 92},
+        {"王五", 78},
+        {"赵六", 96},
+        {"钱七", 88}
+    };
+    
+    sortStudentsByScore(students, 5);
+    
+    std::cout << "成绩排名：" << std::endl;
+    for (int i = 0; i < 5; i++) {
+        std::cout << i+1 << ". " << students[i].name 
+                  << " - " << students[i].score << "分" << std::endl;
+    }
+    
+    return 0;
+}</code></pre>
+                    </div>
+                    <p>输出结果：</p>
+                    <div class="bg-gray-100 p-4 rounded-lg mb-6">
+                        <pre class="font-mono text-sm">成绩排名：
+1. 赵六 - 96分
+2. 李四 - 92分
+3. 钱七 - 88分
+4. 张三 - 85分
+5. 王五 - 78分</pre>
+                    </div>
+                    
+                    <h3 class="text-xl font-semibold text-gray-800 mt-6 mb-3">2. 适用场景</h3>
+                    <div class="p-5 bg-gray-50 rounded-xl">
+                        <ul class="list-disc list-inside space-y-3 pl-4">
+                            <li><strong>小型数据集</strong>：对于少量元素的数组，选择排序可能比复杂算法更高效</li>
+                            <li><strong>内存受限环境</strong>：由于空间复杂度为 O(1)，适用于内存有限的场景</li>
+                            <li><strong>写入成本高的场景</strong>：选择排序的交换次数是最优的，最多进行 n-1 次交换</li>
+                            <li><strong>嵌入式系统</strong>：选择排序实现简单，适合资源受限的嵌入式系统</li>
+                            <li><strong>教学场景</strong>：作为基础排序算法，选择排序是算法教学的重要内容</li>
+                        </ul>
+                    </div>
+
+                    <h3 class="text-xl font-semibold text-gray-800 mt-6 mb-3">3. 实际应用的考虑因素</h3>
+                    <div class="bg-yellow-50 border-l-4 border-yellow-400 p-4 rounded-r mt-6">
+                        <div class="flex items-start">
+                            <i class="fas fa-lightbulb text-yellow-500 mt-1 mr-3"></i>
+                            <div>
+                                <h4 class="font-semibold text-gray-800 mb-2">选择排序的权衡</h4>
+                                <ul class="list-disc pl-5 space-y-1 text-gray-700">
+                                    <li>对于大型数据集，选择排序不是最佳选择，应考虑快速排序、归并排序等</li>
+                                    <li>如果交换操作代价高昂但比较操作代价低廉，选择排序可能具有优势</li>
+                                    <li>如果需要保持相等元素的相对顺序（稳定性），应选择其他稳定排序算法</li>
+                                    <li>在某些混合排序算法中，选择排序可以作为小规模数据的处理方法</li>
+                                    <li>现代编程语言的标准库通常不使用选择排序作为默认排序实现</li>
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- 算法比较 Section -->
+            <section class="mb-12 bg-white rounded-2xl shadow-md p-8">
+                <div class="flex items-center mb-6">
+                    <i class="fas fa-balance-scale text-primary text-xl mr-3"></i>
+                    <h2 class="text-2xl font-bold text-gray-800">算法比较</h2>
+                </div>
+                <div class="space-y-4 text-gray-700">
+                    <p>选择排序与其他常见排序算法的比较：</p>
+                    
+                    <div class="overflow-x-auto mb-6">
+                        <table class="min-w-full bg-white border border-gray-200">
+                            <thead>
+                                <tr class="bg-gray-100">
+                                    <th class="py-3 px-4 border-b text-left">算法</th>
+                                    <th class="py-3 px-4 border-b text-left">最好时间复杂度</th>
+                                    <th class="py-3 px-4 border-b text-left">平均时间复杂度</th>
+                                    <th class="py-3 px-4 border-b text-left">最差时间复杂度</th>
+                                    <th class="py-3 px-4 border-b text-left">空间复杂度</th>
+                                    <th class="py-3 px-4 border-b text-left">稳定性</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr class="bg-primary-light bg-opacity-20">
+                                    <td class="py-3 px-4 border-b font-semibold">选择排序</td>
+                                    <td class="py-3 px-4 border-b">O(n²)</td>
+                                    <td class="py-3 px-4 border-b">O(n²)</td>
+                                    <td class="py-3 px-4 border-b">O(n²)</td>
+                                    <td class="py-3 px-4 border-b">O(1)</td>
+                                    <td class="py-3 px-4 border-b">不稳定</td>
+                                </tr>
+                                <tr>
+                                    <td class="py-3 px-4 border-b">冒泡排序</td>
+                                    <td class="py-3 px-4 border-b">O(n)</td>
+                                    <td class="py-3 px-4 border-b">O(n²)</td>
+                                    <td class="py-3 px-4 border-b">O(n²)</td>
+                                    <td class="py-3 px-4 border-b">O(1)</td>
+                                    <td class="py-3 px-4 border-b">稳定</td>
+                                </tr>
+                                <tr>
+                                    <td class="py-3 px-4 border-b">插入排序</td>
+                                    <td class="py-3 px-4 border-b">O(n)</td>
+                                    <td class="py-3 px-4 border-b">O(n²)</td>
+                                    <td class="py-3 px-4 border-b">O(n²)</td>
+                                    <td class="py-3 px-4 border-b">O(1)</td>
+                                    <td class="py-3 px-4 border-b">稳定</td>
+                                </tr>
+                                <tr>
+                                    <td class="py-3 px-4 border-b">快速排序</td>
+                                    <td class="py-3 px-4 border-b">O(n log n)</td>
+                                    <td class="py-3 px-4 border-b">O(n log n)</td>
+                                    <td class="py-3 px-4 border-b">O(n²)</td>
+                                    <td class="py-3 px-4 border-b">O(log n)</td>
+                                    <td class="py-3 px-4 border-b">不稳定</td>
+                                </tr>
+                                <tr>
+                                    <td class="py-3 px-4 border-b">归并排序</td>
+                                    <td class="py-3 px-4 border-b">O(n log n)</td>
+                                    <td class="py-3 px-4 border-b">O(n log n)</td>
+                                    <td class="py-3 px-4 border-b">O(n log n)</td>
+                                    <td class="py-3 px-4 border-b">O(n)</td>
+                                    <td class="py-3 px-4 border-b">稳定</td>
+                                </tr>
+                                <tr>
+                                    <td class="py-3 px-4 border-b">堆排序</td>
+                                    <td class="py-3 px-4 border-b">O(n log n)</td>
+                                    <td class="py-3 px-4 border-b">O(n log n)</td>
+                                    <td class="py-3 px-4 border-b">O(n log n)</td>
+                                    <td class="py-3 px-4 border-b">O(1)</td>
+                                    <td class="py-3 px-4 border-b">不稳定</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                    
+                    <h3 class="text-xl font-semibold text-gray-800 mt-6 mb-3">各算法的优缺点对比</h3>
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-4">
+                        <div class="card-hover p-6 bg-gray-50 rounded-xl">
+                            <h4 class="text-lg font-semibold text-gray-800 mb-3">选择排序的优点</h4>
+                            <ul class="list-disc pl-6 space-y-1">
+                                <li>实现简单直观</li>
+                                <li>交换次数最少，最多 n-1 次</li>
+                                <li>原地排序，不需要额外内存</li>
+                                <li>对输入数据不敏感，性能稳定</li>
+                            </ul>
+                        </div>
+                        
+                        <div class="card-hover p-6 bg-gray-50 rounded-xl">
+                            <h4 class="text-lg font-semibold text-gray-800 mb-3">选择排序的缺点</h4>
+                            <ul class="list-disc pl-6 space-y-1">
+                                <li>时间复杂度固定为 O(n²)</li>
+                                <li>不稳定，可能改变相等元素的相对顺序</li>
+                                <li>对大型数据集效率低下</li>
+                                <li>无法利用输入数据的部分有序性</li>
+                            </ul>
+                        </div>
+                    </div>
+                    
+                    <div class="p-5 bg-primary-light bg-opacity-10 rounded-lg mt-6">
+                        <p class="font-semibold mb-2">为什么选择排序在实际应用中较少使用？</p>
+                        <p>尽管选择排序实现简单，但其固定的 O(n²) 时间复杂度使其在处理大规模数据时效率低下。现代应用通常优先选择更高效的排序算法，如快速排序、归并排序或堆排序。不过，选择排序在教学中仍然重要，且在某些特定场景（如内存受限、交换成本高）下仍有应用价值。</p>
+                    </div>
+                </div>
+            </section>
+
+            <!-- 完整排序过程 Section -->
+            <section class="mb-12 bg-white rounded-lg shadow-md p-6 transition-all duration-300 hover:shadow-lg">
+                <h2 class="text-2xl font-bold mb-4 text-primary-dark flex items-center">
+                    <i class="fas fa-sync-alt mr-2"></i>完整排序过程
+                </h2>
+                <p class="mb-4">以下是选择排序的完整过程演示：</p>
+                
+                <!-- 注意：交互式可视化已移至下方专门的节 -->
+                <div class="p-5 bg-primary-light bg-opacity-10 rounded-lg mt-6 text-center">
+                    <div class="flex items-start justify-center">
+                        <i class="fas fa-arrow-down text-primary-dark mt-1 mr-3 text-xl"></i>
+                        <p class="text-gray-700 font-medium">
+                            请查看下方"交互式可视化"部分以体验选择排序的动态演示。
+                        </p>
+                    </div>
+                </div>
+            </section>
+
+            <!-- 交互式可视化 Section -->
+            <section class="mb-12 bg-white rounded-2xl shadow-md p-8">
+                <div class="flex items-center mb-6">
+                    <i class="fas fa-chart-bar text-primary text-xl mr-3"></i>
+                    <h2 class="text-2xl font-bold text-gray-800">交互式可视化</h2>
+                </div>
+                <div class="space-y-6 text-gray-700">
+                    <p>通过下面的交互式演示，您可以亲自体验选择排序的运行过程。观察每一步比较和交换操作，理解算法的工作原理。</p>
+                    
+                    <div class="flex flex-col items-center p-6 bg-gray-50 rounded-xl">
+                        <!-- 数组可视化区域 -->
+                        <div id="array-container" class="w-full h-64 bg-white rounded-lg shadow-inner p-4 mb-6 flex items-end justify-center">
+                            <!-- 柱状图将在这里动态生成 -->
+                        </div>
+                        
+                        <!-- 控制按钮 -->
+                        <div class="flex flex-wrap gap-4 justify-center mb-6">
+                            <button id="new-array" class="px-4 py-2 bg-primary hover:bg-primary-dark text-white rounded-lg transition duration-300 flex items-center">
+                                <i class="fas fa-random mr-2"></i> 生成新数组
+                            </button>
+                            <button id="start" class="px-4 py-2 bg-green-500 hover:bg-green-600 text-white rounded-lg transition duration-300 flex items-center">
+                                <i class="fas fa-play mr-2"></i> 开始演示
+                            </button>
+                            <button id="pause" class="px-4 py-2 bg-yellow-500 hover:bg-yellow-600 text-white rounded-lg transition duration-300 flex items-center" disabled>
+                                <i class="fas fa-pause mr-2"></i> 暂停
+                            </button>
+                            <button id="reset" class="px-4 py-2 bg-red-500 hover:bg-red-600 text-white rounded-lg transition duration-300 flex items-center" disabled>
+                                <i class="fas fa-undo mr-2"></i> 重置
+                            </button>
+                        </div>
+                        
+                        <!-- 速度控制 -->
+                        <div class="w-full max-w-md flex items-center mb-6">
+                            <span class="mr-3 text-sm font-medium text-gray-700">速度:</span>
+                            <input id="speed-slider" type="range" min="1" max="5" value="3" class="w-full h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer">
+                            <span class="ml-3 text-sm font-medium text-gray-700" id="speed-value">中等</span>
+                        </div>
+                        
+                        <!-- 当前状态显示 -->
+                        <div class="w-full grid grid-cols-1 md:grid-cols-3 gap-4 mb-4">
+                            <div class="p-3 bg-blue-100 rounded-lg">
+                                <div class="flex items-center">
+                                    <div class="w-4 h-4 bg-blue-500 rounded-sm mr-2"></div>
+                                    <span class="text-sm text-gray-700">当前位置</span>
+                                </div>
+                            </div>
+                            <div class="p-3 bg-red-100 rounded-lg">
+                                <div class="flex items-center">
+                                    <div class="w-4 h-4 bg-red-500 rounded-sm mr-2"></div>
+                                    <span class="text-sm text-gray-700">当前最小值</span>
+                                </div>
+                            </div>
+                            <div class="p-3 bg-green-100 rounded-lg">
+                                <div class="flex items-center">
+                                    <div class="w-4 h-4 bg-green-500 rounded-sm mr-2"></div>
+                                    <span class="text-sm text-gray-700">已排序元素</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <h3 class="text-xl font-semibold text-gray-800 mt-8 mb-4">算法实现</h3>
+                    <pre class="code-block bg-codeBlock text-white p-4 rounded-lg overflow-x-auto">
+<code class="language-cpp">void selectionSort(int arr[], int n) {
+    for (int i = 0; i < n - 1; i++) {
+        // 寻找[i, n)中的最小值
+        int minIndex = i;
+        for (int j = i + 1; j < n; j++) {
+            if (arr[j] < arr[minIndex]) {
+                minIndex = j;
+            }
+        }
+        // 将最小元素交换到已排序区域的末尾
+        if (minIndex != i) {
+            swap(arr[i], arr[minIndex]);
+        }
+    }
+}</code>
+                    </pre>
+                </div>
+                
+                <!-- JavaScript 实现可视化 -->
+                <script>
+                    // 元素样式类
+                    const NORMAL = 'bg-gray-300';
+                    const CURRENT = 'bg-blue-500';
+                    const MIN_VALUE = 'bg-red-500';
+                    const SORTED = 'bg-green-500';
+                    const COMPARING = 'bg-yellow-500';
+                    
+                    // 全局变量
+                    let array = [];
+                    let arrayBars = [];
+                    let sortingInProgress = false;
+                    let sortingPaused = false;
+                    let sortingTimeout = null;
+                    let sortedCount = 0;
+                    
+                    // DOM 元素
+                    const arrayContainer = document.getElementById('array-container');
+                    const newArrayBtn = document.getElementById('new-array');
+                    const startBtn = document.getElementById('start');
+                    const pauseBtn = document.getElementById('pause');
+                    const resetBtn = document.getElementById('reset');
+                    const speedSlider = document.getElementById('speed-slider');
+                    const speedValue = document.getElementById('speed-value');
+                    
+                    // 初始化
+                    function init() {
+                        generateNewArray();
+                        updateSpeedText();
+                        
+                        // 事件监听器
+                        newArrayBtn.addEventListener('click', generateNewArray);
+                        startBtn.addEventListener('click', startSorting);
+                        pauseBtn.addEventListener('click', togglePause);
+                        resetBtn.addEventListener('click', resetSorting);
+                        speedSlider.addEventListener('input', updateSpeedText);
+                    }
+                    
+                    // 生成新数组
+                    function generateNewArray() {
+                        resetSorting();
+                        array = [];
+                        arrayContainer.innerHTML = '';
+                        arrayBars = [];
+                        
+                        // 生成随机数组
+                        const size = 15; // 数组大小
+                        const maxValue = 100;
+                        for (let i = 0; i < size; i++) {
+                            array.push(Math.floor(Math.random() * maxValue) + 5);
+                        }
+                        
+                        // 创建可视化柱状图
+                        const maxHeight = arrayContainer.clientHeight - 20;
+                        const barWidth = Math.floor((arrayContainer.clientWidth - size * 4) / size);
+                        
+                        for (let i = 0; i < array.length; i++) {
+                            const barHeight = Math.floor((array[i] / maxValue) * maxHeight);
+                            const bar = document.createElement('div');
+                            bar.classList.add(NORMAL, 'mx-1', 'rounded-t-sm', 'flex', 'items-end', 'justify-center', 'transition-all', 'duration-200');
+                            bar.style.height = `${barHeight}px`;
+                            bar.style.width = `${barWidth}px`;
+                            
+                            const label = document.createElement('span');
+                            label.textContent = array[i];
+                            label.classList.add('text-xs', 'font-medium', 'text-white', 'mb-1');
+                            bar.appendChild(label);
+                            
+                            arrayContainer.appendChild(bar);
+                            arrayBars.push(bar);
+                        }
+                    }
+                    
+                    // 更新速度文本
+                    function updateSpeedText() {
+                        const speed = speedSlider.value;
+                        let speedText = '';
+                        
+                        switch (parseInt(speed)) {
+                            case 1: speedText = '非常慢'; break;
+                            case 2: speedText = '慢'; break;
+                            case 3: speedText = '中等'; break;
+                            case 4: speedText = '快'; break;
+                            case 5: speedText = '非常快'; break;
+                        }
+                        
+                        speedValue.textContent = speedText;
+                    }
+                    
+                    // 获取当前速度的毫秒延迟
+                    function getDelay() {
+                        const speed = parseInt(speedSlider.value);
+                        switch (speed) {
+                            case 1: return 1000;
+                            case 2: return 500;
+                            case 3: return 250;
+                            case 4: return 100;
+                            case 5: return 50;
+                            default: return 250;
+                        }
+                    }
+                    
+                    // 启动排序
+                    function startSorting() {
+                        if (sortingInProgress) return;
+                        
+                        sortingInProgress = true;
+                        sortingPaused = false;
+                        startBtn.disabled = true;
+                        newArrayBtn.disabled = true;
+                        pauseBtn.disabled = false;
+                        resetBtn.disabled = false;
+                        
+                        // 开始选择排序
+                        selectionSort();
+                    }
+                    
+                    // 暂停/继续排序
+                    function togglePause() {
+                        sortingPaused = !sortingPaused;
+                        pauseBtn.innerHTML = sortingPaused ? 
+                            '<i class="fas fa-play mr-2"></i> 继续' : 
+                            '<i class="fas fa-pause mr-2"></i> 暂停';
+                    }
+                    
+                    // 重置排序
+                    function resetSorting() {
+                        if (sortingTimeout) {
+                            clearTimeout(sortingTimeout);
+                            sortingTimeout = null;
+                        }
+                        
+                        sortingInProgress = false;
+                        sortingPaused = false;
+                        sortedCount = 0;
+                        
+                        startBtn.disabled = false;
+                        newArrayBtn.disabled = false;
+                        pauseBtn.disabled = true;
+                        resetBtn.disabled = true;
+                        pauseBtn.innerHTML = '<i class="fas fa-pause mr-2"></i> 暂停';
+                        
+                        // 重置所有柱状图样式
+                        if (arrayBars.length > 0) {
+                            arrayBars.forEach(bar => {
+                                bar.className = '';
+                                bar.classList.add(NORMAL, 'mx-1', 'rounded-t-sm', 'flex', 'items-end', 'justify-center', 'transition-all', 'duration-200');
+                            });
+                        }
+                    }
+                    
+                    // 选择排序可视化实现
+                    async function selectionSort() {
+                        const delay = getDelay();
+                        const n = array.length;
+                        
+                        // 外层循环
+                        for (let i = 0; i < n - 1; i++) {
+                            // 标记当前正在处理的位置
+                            arrayBars[i].classList.remove(NORMAL);
+                            arrayBars[i].classList.add(CURRENT);
+                            
+                            // 寻找最小值
+                            let minIndex = i;
+                            arrayBars[minIndex].classList.remove(CURRENT);
+                            arrayBars[minIndex].classList.add(MIN_VALUE);
+                            
+                            // 内层循环查找最小值
+                            for (let j = i + 1; j < n; j++) {
+                                // 暂停检查
+                                if (sortingPaused) {
+                                    await new Promise(resolve => {
+                                        function checkPauseStatus() {
+                                            if (sortingPaused) {
+                                                sortingTimeout = setTimeout(checkPauseStatus, 100);
+                                            } else {
+                                                resolve();
+                                            }
+                                        }
+                                        checkPauseStatus();
+                                    });
+                                }
+                                
+                                if (!sortingInProgress) return;
+                                
+                                // 高亮当前比较的元素
+                                arrayBars[j].classList.remove(NORMAL);
+                                arrayBars[j].classList.add(COMPARING);
+                                
+                                await new Promise(resolve => setTimeout(resolve, delay));
+                                
+                                if (!sortingInProgress) return;
+                                
+                                // 如果找到更小的元素
+                                if (array[j] < array[minIndex]) {
+                                    // 恢复之前的最小值样式
+                                    arrayBars[minIndex].classList.remove(MIN_VALUE);
+                                    if (minIndex !== i) {
+                                        arrayBars[minIndex].classList.add(NORMAL);
+                                    } else {
+                                        arrayBars[minIndex].classList.add(CURRENT);
+                                    }
+                                    
+                                    // 更新最小值索引
+                                    minIndex = j;
+                                    arrayBars[minIndex].classList.remove(COMPARING);
+                                    arrayBars[minIndex].classList.add(MIN_VALUE);
+                                } else {
+                                    // 恢复正常样式
+                                    arrayBars[j].classList.remove(COMPARING);
+                                    arrayBars[j].classList.add(NORMAL);
+                                }
+                            }
+                            
+                            // 交换最小值到当前位置
+                            if (minIndex !== i) {
+                                await new Promise(resolve => setTimeout(resolve, delay));
+                                
+                                if (!sortingInProgress) return;
+                                
+                                // 交换柱状图高度和标签
+                                const tempHeight = arrayBars[i].style.height;
+                                arrayBars[i].style.height = arrayBars[minIndex].style.height;
+                                arrayBars[minIndex].style.height = tempHeight;
+                                
+                                const tempText = arrayBars[i].firstChild.textContent;
+                                arrayBars[i].firstChild.textContent = arrayBars[minIndex].firstChild.textContent;
+                                arrayBars[minIndex].firstChild.textContent = tempText;
+                                
+                                // 交换数组元素
+                                [array[i], array[minIndex]] = [array[minIndex], array[i]];
+                                
+                                // 恢复最小值的样式
+                                arrayBars[minIndex].classList.remove(MIN_VALUE);
+                                arrayBars[minIndex].classList.add(NORMAL);
+                            }
+                            
+                            // 标记当前元素为已排序
+                            arrayBars[i].classList.remove(CURRENT, MIN_VALUE);
+                            arrayBars[i].classList.add(SORTED);
+                            
+                            await new Promise(resolve => setTimeout(resolve, delay));
+                        }
+                        
+                        // 最后一个元素也标记为已排序
+                        if (arrayBars.length > 0) {
+                            arrayBars[n-1].classList.remove(NORMAL);
+                            arrayBars[n-1].classList.add(SORTED);
+                        }
+                        
+                        // 排序完成
+                        sortingInProgress = false;
+                        startBtn.disabled = true;
+                        newArrayBtn.disabled = false;
+                        pauseBtn.disabled = true;
+                        resetBtn.disabled = false;
+                    }
+                    
+                    // 页面加载完成后初始化
+                    window.addEventListener('load', init);
+                </script>
+            </section>
+
+            <!-- 练习题 Section -->
+            <section class="mb-12 bg-white rounded-2xl shadow-md p-8">
+                <div class="flex items-center mb-6">
+                    <i class="fas fa-graduation-cap text-primary text-xl mr-3"></i>
+                    <h2 class="text-2xl font-bold text-gray-800">练习题</h2>
+                </div>
+                <div class="space-y-6 text-gray-700">
+                    <p>以下是一些练习题，帮助你巩固对选择排序的理解：</p>
+                    
+                    <div class="card-hover border border-gray-300 rounded-lg p-5">
+                        <h3 class="text-lg font-semibold mb-2">练习 1：手动模拟</h3>
+                        <p class="mb-4">手动模拟选择排序过程，对数组 [42, 17, 93, 29, 8, 54] 进行从小到大排序，写出每一轮后的数组状态。</p>
+                        <div class="bg-gray-100 p-4 rounded-lg">
+                            <details>
+                                <summary class="cursor-pointer font-semibold text-primary">查看答案</summary>
+                                <div class="mt-3 space-y-1">
+                                    <p>初始数组: [42, 17, 93, 29, 8, 54]</p>
+                                    <p>第一轮: [8, 17, 93, 29, 42, 54]（交换 42 和 8）</p>
+                                    <p>第二轮: [8, 17, 93, 29, 42, 54]（17 已经是最小，不用交换）</p>
+                                    <p>第三轮: [8, 17, 29, 93, 42, 54]（交换 93 和 29）</p>
+                                    <p>第四轮: [8, 17, 29, 42, 93, 54]（交换 93 和 42）</p>
+                                    <p>第五轮: [8, 17, 29, 42, 54, 93]（交换 93 和 54）</p>
+                                    <p>最终排序结果: [8, 17, 29, 42, 54, 93]</p>
+                                </div>
+                            </details>
+                        </div>
+                    </div>
+                    
+                    <div class="card-hover border border-gray-300 rounded-lg p-5">
+                        <h3 class="text-lg font-semibold mb-2">练习 2：算法分析</h3>
+                        <p class="mb-4">分析选择排序的时间复杂度和稳定性，并解释为何选择排序无法像冒泡排序那样在最好情况下达到O(n)的复杂度。</p>
+                        <div class="bg-gray-100 p-4 rounded-lg">
+                            <details>
+                                <summary class="cursor-pointer font-semibold text-primary">查看答案</summary>
+                                <div class="mt-3 space-y-1">
+                                    <p>选择排序的时间复杂度在所有情况下都是 O(n²)，因为无论输入如何，都需要进行 n(n-1)/2 次比较。</p>
+                                    <p>选择排序的稳定性取决于交换操作。如果交换操作代价高昂但比较操作代价低廉，选择排序可能具有优势。</p>
+                                    <p>选择排序无法像冒泡排序那样在最好情况下达到O(n)的复杂度，因为冒泡排序可以通过在第一次遍历后检测到数组已经有序并提前退出循环来实现O(n)的复杂度。</p>
+                                </div>
+                            </details>
+                        </div>
+                    </div>
+                </div>
+            </section>
+        </main>
+
+        <!-- 页脚 -->
+        <footer class="mt-10 p-6 bg-gray-800 text-white flex flex-col md:flex-row justify-between items-center">
+            <div class="mb-4 md:mb-0">
+                <p class="text-sm"></p>
+            </div>
+            <div class="flex space-x-4">
+                <a href="index.html" class="text-gray-300 hover:text-white transition-colors">首页</a>
+                <a href="计数排序.html" class="text-gray-300 hover:text-white transition-colors">计数排序</a>
+                <a href="快速排序.html" class="text-gray-300 hover:text-white transition-colors">快速排序</a>
+                <a href="归并排序.html" class="text-gray-300 hover:text-white transition-colors">归并排序</a>
+            </div>
+        </footer>
+    </div>
+
+    <!-- Back to top button -->
+    <button id="backToTop" class="fixed bottom-6 right-6 bg-primary hover:bg-primary-dark text-white rounded-full p-3 shadow-lg transition-all duration-300 opacity-0 invisible">
+        <i class="fas fa-arrow-up"></i>
+    </button>
+
+    <!-- JavaScript for Back to top button -->
+    <script>
+        const backToTop = document.getElementById('backToTop');
+        
+        window.addEventListener('scroll', () => {
+            if (window.scrollY > 300) {
+                backToTop.classList.remove('opacity-0', 'invisible');
+                backToTop.classList.add('opacity-100', 'visible');
+            } else {
+                backToTop.classList.remove('opacity-100', 'visible');
+                backToTop.classList.add('opacity-0', 'invisible');
+            }
+        });
+        
+        backToTop.addEventListener('click', () => {
+            window.scrollTo({
+                top: 0,
+                behavior: 'smooth'
+            });
+        });
+    </script>
+    <!-- Simple ScrollReveal effect -->
+    <script src="https://unpkg.com/scrollreveal"></script>
+    <script>
+        ScrollReveal().reveal('section', { 
+            delay: 200,
+            distance: '20px',
+            origin: 'bottom',
+            duration: 800,
+            easing: 'ease-in-out'
+        });
+    </script>
+</body>
+</html> 

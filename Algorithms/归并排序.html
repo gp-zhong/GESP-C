@@ -1,0 +1,1016 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>归并排序</title>
+    <!-- TailwindCSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&family=Roboto+Mono&display=swap" rel="stylesheet">
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        primary: {
+                            light: '#a5f3fc',
+                            DEFAULT: '#06b6d4',
+                            dark: '#0891b2',
+                        },
+                        secondary: {
+                            light: '#c7d2fe',
+                            DEFAULT: '#818cf8',
+                            dark: '#6366f1',
+                        },
+                        codeBlock: '#1e293b',
+                    },
+                    fontFamily: {
+                        sans: ['Poppins', 'sans-serif'],
+                        mono: ['Roboto Mono', 'monospace'],
+                    },
+                }
+            }
+        }
+    </script>
+    <style>
+        .card-hover {
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+        }
+        .card-hover:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 25px -5px rgba(6, 182, 212, 0.1), 0 10px 10px -5px rgba(6, 182, 212, 0.04);
+        }
+        .code-block::-webkit-scrollbar {
+            height: 8px;
+        }
+        .code-block::-webkit-scrollbar-thumb {
+            background-color: #06b6d4;
+            border-radius: 4px;
+        }
+        .code-block::-webkit-scrollbar-track {
+            background-color: #e2e8f0;
+            border-radius: 4px;
+        }
+    </style>
+</head>
+<body class="bg-gray-50 font-sans">
+    <div class="min-h-screen max-w-6xl mx-auto px-8 py-10">
+        <!-- Header -->
+        <header class="mb-12 text-center">
+            <div class="inline-block px-3 py-1 bg-primary-light text-primary-dark rounded-full text-sm font-medium mb-4">
+                算法基础
+            </div>
+            <h1 class="text-4xl font-bold text-gray-800 mb-4">归并排序</h1>
+            <p class="text-lg text-gray-600 max-w-3xl mx-auto">一种稳定高效的分治排序算法，通过不断划分与合并实现有序排列</p>
+        </header>
+
+        <!-- Main Content -->
+        <main class="space-y-12">
+            <!-- 算法简介 -->
+            <section id="intro">
+                <h2 class="text-2xl font-semibold text-gray-800 mb-4 flex items-center">
+                    <i class="fas fa-info-circle text-primary mr-3"></i>算法简介
+                </h2>
+                <div class="bg-white p-6 rounded-lg shadow-md">
+                    <p class="text-gray-700 mb-4">归并排序（Merge Sort）是一种基于分治法的排序算法，由冯·诺伊曼在1945年发明。它的基本思想是：</p>
+                    <ul class="list-disc list-inside space-y-2 text-gray-700 mb-4 ml-4">
+                        <li>将待排序的数组递归地分成两个规模大致相等的子数组</li>
+                        <li>分别对这两个子数组进行排序</li>
+                        <li>将排序好的子数组合并为一个有序的数组</li>
+                    </ul>
+                    <p class="text-gray-700">归并排序是一种稳定的排序算法，其时间复杂度在最好、平均和最坏情况下均为 O(n log n)，但它需要额外的存储空间来存放临时数组。</p>
+                </div>
+            </section>
+            
+            <!-- 算法特点 -->
+            <section id="characteristics">
+                <h2 class="text-2xl font-semibold text-gray-800 mb-4 flex items-center">
+                    <i class="fas fa-star text-primary mr-3"></i>算法特点
+                </h2>
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <div class="bg-white p-6 rounded-lg shadow-md card-hover">
+                        <h3 class="text-xl font-medium text-gray-800 mb-3 flex items-center">
+                            <i class="fas fa-check-circle text-green-500 mr-2"></i>优点
+                        </h3>
+                        <ul class="list-disc list-inside space-y-2 text-gray-700 ml-4">
+                            <li>稳定的排序算法，相同元素的相对位置不会改变</li>
+                            <li>时间复杂度稳定为 O(n log n)，不会出现最坏情况</li>
+                            <li>适合处理大规模数据和外部排序</li>
+                            <li>对于链表排序特别有效，可以达到 O(n log n) 时间和 O(1) 空间</li>
+                        </ul>
+                    </div>
+                    <div class="bg-white p-6 rounded-lg shadow-md card-hover">
+                        <h3 class="text-xl font-medium text-gray-800 mb-3 flex items-center">
+                            <i class="fas fa-exclamation-circle text-red-500 mr-2"></i>缺点
+                        </h3>
+                        <ul class="list-disc list-inside space-y-2 text-gray-700 ml-4">
+                            <li>需要额外的 O(n) 空间复杂度</li>
+                            <li>对于小规模数据，可能比简单排序算法（如插入排序）慢</li>
+                            <li>递归实现可能导致栈溢出（虽然可以通过非递归实现避免）</li>
+                            <li>相比快速排序，常数因子更大，在实际应用中可能稍慢</li>
+                        </ul>
+                    </div>
+                </div>
+            </section>
+
+            <!-- 算法原理 -->
+            <section id="principle">
+                <h2 class="text-2xl font-semibold text-gray-800 mb-4 flex items-center">
+                    <i class="fas fa-lightbulb text-primary mr-3"></i>算法原理
+                </h2>
+                <div class="bg-white p-6 rounded-lg shadow-md">
+                    <p class="text-gray-700 mb-4">归并排序基于分治法，其核心步骤如下：</p>
+                    <ol class="list-decimal list-inside space-y-3 text-gray-700 mb-6 ml-4">
+                        <li><span class="font-medium">分解：</span>将待排序的数组递归地分成两个规模大致相等的子数组</li>
+                        <li><span class="font-medium">解决：</span>递归地对两个子数组进行排序</li>
+                        <li><span class="font-medium">合并：</span>将两个已排序的子数组合并为一个有序数组</li>
+                    </ol>
+                    
+                    <div class="bg-gray-100 p-5 rounded-lg">
+                        <h3 class="text-lg font-medium text-gray-800 mb-3">合并操作核心</h3>
+                        <p class="text-gray-700 mb-3">归并排序的关键在于合并两个已排序数组的操作：</p>
+                        <ul class="list-disc list-inside space-y-2 text-gray-700 ml-4">
+                            <li>创建一个临时数组来存储合并结果</li>
+                            <li>比较两个数组的头部元素，将较小的元素添加到临时数组中</li>
+                            <li>当一个数组为空时，将另一个数组的剩余元素全部添加到临时数组</li>
+                            <li>将临时数组中的所有元素复制回原始数组</li>
+                        </ul>
+                    </div>
+                </div>
+            </section>
+
+            <!-- 算法演示 -->
+            <section id="demo">
+                <h2 class="text-2xl font-semibold text-gray-800 mb-4 flex items-center">
+                    <i class="fas fa-play-circle text-primary mr-3"></i>算法演示
+                </h2>
+                <div class="bg-white p-6 rounded-lg shadow-md">
+                    <p class="text-gray-700 mb-4">以数组 [38, 27, 43, 3, 9, 82, 10] 为例，展示归并排序的执行过程：</p>
+                    
+                    <div class="space-y-8 my-6">
+                        <!-- 步骤 1 -->
+                        <div>
+                            <h3 class="text-lg font-medium text-gray-800 mb-2">步骤 1：递归分解</h3>
+                            <p class="text-gray-700 mb-3">将数组不断分解为两部分，直到每个部分只有一个元素</p>
+                            <div class="flex flex-col items-center justify-center space-y-4 my-4">
+                                <!-- 第一层：原始数组 -->
+                                <div class="flex items-center justify-center space-x-2 flex-wrap">
+                                    <div class="w-10 h-10 flex items-center justify-center bg-gray-200 text-gray-800 font-medium rounded">38</div>
+                                    <div class="w-10 h-10 flex items-center justify-center bg-gray-200 text-gray-800 font-medium rounded">27</div>
+                                    <div class="w-10 h-10 flex items-center justify-center bg-gray-200 text-gray-800 font-medium rounded">43</div>
+                                    <div class="w-10 h-10 flex items-center justify-center bg-gray-200 text-gray-800 font-medium rounded">3</div>
+                                    <div class="w-10 h-10 flex items-center justify-center bg-gray-200 text-gray-800 font-medium rounded">9</div>
+                                    <div class="w-10 h-10 flex items-center justify-center bg-gray-200 text-gray-800 font-medium rounded">82</div>
+                                    <div class="w-10 h-10 flex items-center justify-center bg-gray-200 text-gray-800 font-medium rounded">10</div>
+                                </div>
+                                
+                                <!-- 连接线 -->
+                                <div class="w-1 h-8 bg-primary"></div>
+                                
+                                <!-- 第二层：分为两部分 -->
+                                <div class="flex items-center justify-center space-x-10">
+                                    <div class="flex items-center justify-center space-x-2">
+                                        <div class="w-10 h-10 flex items-center justify-center bg-primary-light text-gray-800 font-medium rounded">38</div>
+                                        <div class="w-10 h-10 flex items-center justify-center bg-primary-light text-gray-800 font-medium rounded">27</div>
+                                        <div class="w-10 h-10 flex items-center justify-center bg-primary-light text-gray-800 font-medium rounded">43</div>
+                                        <div class="w-10 h-10 flex items-center justify-center bg-primary-light text-gray-800 font-medium rounded">3</div>
+                                    </div>
+                                    <div class="flex items-center justify-center space-x-2">
+                                        <div class="w-10 h-10 flex items-center justify-center bg-secondary-light text-gray-800 font-medium rounded">9</div>
+                                        <div class="w-10 h-10 flex items-center justify-center bg-secondary-light text-gray-800 font-medium rounded">82</div>
+                                        <div class="w-10 h-10 flex items-center justify-center bg-secondary-light text-gray-800 font-medium rounded">10</div>
+                                    </div>
+                                </div>
+                                
+                                <!-- 连接线 -->
+                                <div class="flex items-center justify-center space-x-40">
+                                    <div class="w-1 h-8 bg-primary"></div>
+                                    <div class="w-1 h-8 bg-primary"></div>
+                                </div>
+                                
+                                <!-- 第三层：继续分解 -->
+                                <div class="flex items-center justify-center space-x-20">
+                                    <div class="flex items-center justify-center space-x-2">
+                                        <div class="w-10 h-10 flex items-center justify-center bg-green-100 text-gray-800 font-medium rounded">38</div>
+                                        <div class="w-10 h-10 flex items-center justify-center bg-green-100 text-gray-800 font-medium rounded">27</div>
+                                    </div>
+                                    <div class="flex items-center justify-center space-x-2">
+                                        <div class="w-10 h-10 flex items-center justify-center bg-red-100 text-gray-800 font-medium rounded">43</div>
+                                        <div class="w-10 h-10 flex items-center justify-center bg-red-100 text-gray-800 font-medium rounded">3</div>
+                                    </div>
+                                    <div class="flex items-center justify-center space-x-2">
+                                        <div class="w-10 h-10 flex items-center justify-center bg-yellow-100 text-gray-800 font-medium rounded">9</div>
+                                        <div class="w-10 h-10 flex items-center justify-center bg-yellow-100 text-gray-800 font-medium rounded">82</div>
+                                    </div>
+                                    <div class="flex items-center justify-center">
+                                        <div class="w-10 h-10 flex items-center justify-center bg-purple-100 text-gray-800 font-medium rounded">10</div>
+                                    </div>
+                                </div>
+                                
+                                <p class="text-gray-700 text-sm italic mt-2">继续递归分解，直到每个子数组只有一个元素</p>
+                            </div>
+                        </div>
+                        
+                        <!-- 步骤 2 -->
+                        <div>
+                            <h3 class="text-lg font-medium text-gray-800 mb-2">步骤 2：合并子数组</h3>
+                            <p class="text-gray-700 mb-3">从最小的子数组开始合并，保持元素有序</p>
+                            <div class="flex flex-col items-center justify-center space-y-4 my-4">
+                                <!-- 第一层：单元素数组 -->
+                                <div class="flex items-center justify-center space-x-6 flex-wrap">
+                                    <div class="w-10 h-10 flex items-center justify-center bg-green-100 text-gray-800 font-medium rounded">38</div>
+                                    <div class="w-10 h-10 flex items-center justify-center bg-green-100 text-gray-800 font-medium rounded">27</div>
+                                    <div class="w-10 h-10 flex items-center justify-center bg-red-100 text-gray-800 font-medium rounded">43</div>
+                                    <div class="w-10 h-10 flex items-center justify-center bg-red-100 text-gray-800 font-medium rounded">3</div>
+                                    <div class="w-10 h-10 flex items-center justify-center bg-yellow-100 text-gray-800 font-medium rounded">9</div>
+                                    <div class="w-10 h-10 flex items-center justify-center bg-yellow-100 text-gray-800 font-medium rounded">82</div>
+                                    <div class="w-10 h-10 flex items-center justify-center bg-purple-100 text-gray-800 font-medium rounded">10</div>
+                                </div>
+                                
+                                <!-- 连接线 -->
+                                <div class="flex items-center justify-center space-x-16">
+                                    <div class="w-1 h-8 bg-primary transform rotate-180"></div>
+                                    <div class="w-1 h-8 bg-primary transform rotate-180"></div>
+                                    <div class="w-1 h-8 bg-primary transform rotate-180"></div>
+                                </div>
+                                
+                                <!-- 第二层：两两合并 -->
+                                <div class="flex items-center justify-center space-x-20">
+                                    <div class="flex items-center justify-center space-x-2">
+                                        <div class="w-10 h-10 flex items-center justify-center bg-green-200 text-gray-800 font-medium rounded">27</div>
+                                        <div class="w-10 h-10 flex items-center justify-center bg-green-200 text-gray-800 font-medium rounded">38</div>
+                                    </div>
+                                    <div class="flex items-center justify-center space-x-2">
+                                        <div class="w-10 h-10 flex items-center justify-center bg-red-200 text-gray-800 font-medium rounded">3</div>
+                                        <div class="w-10 h-10 flex items-center justify-center bg-red-200 text-gray-800 font-medium rounded">43</div>
+                                    </div>
+                                    <div class="flex items-center justify-center space-x-2">
+                                        <div class="w-10 h-10 flex items-center justify-center bg-yellow-200 text-gray-800 font-medium rounded">9</div>
+                                        <div class="w-10 h-10 flex items-center justify-center bg-yellow-200 text-gray-800 font-medium rounded">82</div>
+                                    </div>
+                                    <div class="flex items-center justify-center">
+                                        <div class="w-10 h-10 flex items-center justify-center bg-purple-200 text-gray-800 font-medium rounded">10</div>
+                                    </div>
+                                </div>
+                                
+                                <!-- 连接线 -->
+                                <div class="flex items-center justify-center space-x-40">
+                                    <div class="w-1 h-8 bg-primary transform rotate-180"></div>
+                                    <div class="w-1 h-8 bg-primary transform rotate-180"></div>
+                                </div>
+                                
+                                <!-- 第三层：进一步合并 -->
+                                <div class="flex items-center justify-center space-x-16">
+                                    <div class="flex items-center justify-center space-x-2">
+                                        <div class="w-10 h-10 flex items-center justify-center bg-primary-light text-gray-800 font-medium rounded">3</div>
+                                        <div class="w-10 h-10 flex items-center justify-center bg-primary-light text-gray-800 font-medium rounded">27</div>
+                                        <div class="w-10 h-10 flex items-center justify-center bg-primary-light text-gray-800 font-medium rounded">38</div>
+                                        <div class="w-10 h-10 flex items-center justify-center bg-primary-light text-gray-800 font-medium rounded">43</div>
+                                    </div>
+                                    <div class="flex items-center justify-center space-x-2">
+                                        <div class="w-10 h-10 flex items-center justify-center bg-secondary-light text-gray-800 font-medium rounded">9</div>
+                                        <div class="w-10 h-10 flex items-center justify-center bg-secondary-light text-gray-800 font-medium rounded">10</div>
+                                        <div class="w-10 h-10 flex items-center justify-center bg-secondary-light text-gray-800 font-medium rounded">82</div>
+                                    </div>
+                                </div>
+                                
+                                <!-- 连接线 -->
+                                <div class="w-1 h-8 bg-primary transform rotate-180"></div>
+                                
+                                <!-- 第四层：最终合并结果 -->
+                                <div class="flex items-center justify-center space-x-2 flex-wrap">
+                                    <div class="w-10 h-10 flex items-center justify-center bg-green-500 text-white font-medium rounded">3</div>
+                                    <div class="w-10 h-10 flex items-center justify-center bg-green-500 text-white font-medium rounded">9</div>
+                                    <div class="w-10 h-10 flex items-center justify-center bg-green-500 text-white font-medium rounded">10</div>
+                                    <div class="w-10 h-10 flex items-center justify-center bg-green-500 text-white font-medium rounded">27</div>
+                                    <div class="w-10 h-10 flex items-center justify-center bg-green-500 text-white font-medium rounded">38</div>
+                                    <div class="w-10 h-10 flex items-center justify-center bg-green-500 text-white font-medium rounded">43</div>
+                                    <div class="w-10 h-10 flex items-center justify-center bg-green-500 text-white font-medium rounded">82</div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- 交互式可视化 -->
+            <section id="visualization">
+                <h2 class="text-2xl font-semibold text-gray-800 mb-4 flex items-center">
+                    <i class="fas fa-chart-bar text-primary mr-3"></i>交互式可视化
+                </h2>
+                <div class="bg-white p-6 rounded-lg shadow-md">
+                    <p class="text-gray-700 mb-4">以下是归并排序算法的交互式可视化演示，您可以生成新的随机数组并观察归并排序的执行过程。</p>
+                    
+                    <div class="flex flex-wrap gap-2 mb-4">
+                        <button id="newArray" class="px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600 transition">
+                            <i class="fas fa-random mr-2"></i>生成新数组
+                        </button>
+                        <button id="startSort" class="px-4 py-2 bg-green-500 text-white rounded hover:bg-green-600 transition">
+                            <i class="fas fa-play mr-2"></i>开始排序
+                        </button>
+                        <button id="pauseSort" class="px-4 py-2 bg-yellow-500 text-white rounded hover:bg-yellow-600 transition hidden">
+                            <i class="fas fa-pause mr-2"></i>暂停排序
+                        </button>
+                        <button id="resetSort" class="px-4 py-2 bg-red-500 text-white rounded hover:bg-red-600 transition">
+                            <i class="fas fa-redo mr-2"></i>重置排序
+                        </button>
+                    </div>
+                    
+                    <div class="mb-4">
+                        <label for="speed" class="block text-sm font-medium text-gray-700 mb-1">速度调节：</label>
+                        <input type="range" id="speed" min="1" max="10" value="5" class="w-full md:w-1/2">
+                    </div>
+                    
+                    <div class="flex flex-wrap items-center mb-4 text-sm">
+                        <div class="flex items-center mr-4 mb-2">
+                            <div class="w-4 h-4 bg-primary mr-1"></div>
+                            <span>当前处理</span>
+                        </div>
+                        <div class="flex items-center mr-4 mb-2">
+                            <div class="w-4 h-4 bg-yellow-200 mr-1"></div>
+                            <span>左子数组</span>
+                        </div>
+                        <div class="flex items-center mr-4 mb-2">
+                            <div class="w-4 h-4 bg-red-200 mr-1"></div>
+                            <span>右子数组</span>
+                        </div>
+                        <div class="flex items-center mr-4 mb-2">
+                            <div class="w-4 h-4 bg-green-500 mr-1"></div>
+                            <span>已排序</span>
+                        </div>
+                    </div>
+                    
+                    <div id="array-container" class="h-64 flex items-end justify-center border-b border-gray-300"></div>
+                    
+                    <div id="info-container" class="mt-4 text-gray-700">
+                        <p id="current-step">准备开始归并排序...</p>
+                    </div>
+                </div>
+            </section>
+            
+            <!-- 代码实现 -->
+            <section id="implementation">
+                <h2 class="text-2xl font-semibold text-gray-800 mb-4 flex items-center">
+                    <i class="fas fa-code text-primary mr-3"></i>代码实现
+                </h2>
+                <div class="bg-white p-6 rounded-lg shadow-md">
+                    <div class="mb-6">
+                        <h3 class="text-xl font-medium text-gray-800 mb-3">C++ 实现</h3>
+                        <pre class="bg-gray-800 text-white p-4 rounded-lg overflow-x-auto code-block"><code class="language-cpp">// 归并排序 - C++ 实现
+#include &lt;iostream&gt;
+#include &lt;vector&gt;
+
+// 合并两个已排序的子数组
+void merge(std::vector&lt;int&gt;& arr, int left, int mid, int right) {
+    // 计算左右子数组的大小
+    int n1 = mid - left + 1;
+    int n2 = right - mid;
+    
+    // 创建临时数组存储子数组
+    std::vector&lt;int&gt; L(n1), R(n2);
+    
+    // 将数据复制到临时数组
+    for (int i = 0; i < n1; i++)
+        L[i] = arr[left + i];
+    for (int j = 0; j < n2; j++)
+        R[j] = arr[mid + 1 + j];
+    
+    // 合并临时数组回到原数组 arr[left...right]
+    int i = 0;    // 左子数组的索引
+    int j = 0;    // 右子数组的索引
+    int k = left; // 合并后数组的索引
+    
+    while (i < n1 && j < n2) {
+        if (L[i] <= R[j]) {
+            arr[k] = L[i];
+            i++;
+        } else {
+            arr[k] = R[j];
+            j++;
+        }
+        k++;
+    }
+    
+    // 复制左子数组的剩余元素
+    while (i < n1) {
+        arr[k] = L[i];
+        i++;
+        k++;
+    }
+    
+    // 复制右子数组的剩余元素
+    while (j < n2) {
+        arr[k] = R[j];
+        j++;
+        k++;
+    }
+}
+
+// 递归实现归并排序
+void mergeSort(std::vector&lt;int&gt;& arr, int left, int right) {
+    if (left < right) {
+        // 找到中间点
+        int mid = left + (right - left) / 2;
+        
+        // 对左右两部分递归排序
+        mergeSort(arr, left, mid);
+        mergeSort(arr, mid + 1, right);
+        
+        // 合并已排序的子数组
+        merge(arr, left, mid, right);
+    }
+}
+
+// 归并排序函数封装
+void mergeSort(std::vector&lt;int&gt;& arr) {
+    if (arr.size() > 1) {
+        mergeSort(arr, 0, arr.size() - 1);
+    }
+}
+
+// 示例使用
+int main() {
+    std::vector&lt;int&gt; arr = {38, 27, 43, 3, 9, 82, 10};
+    
+    std::cout &lt;&lt; "排序前: ";
+    for (int num : arr) {
+        std::cout &lt;&lt; num &lt;&lt; " ";
+    }
+    std::cout &lt;&lt; std::endl;
+    
+    mergeSort(arr);
+    
+    std::cout &lt;&lt; "排序后: ";
+    for (int num : arr) {
+        std::cout &lt;&lt; num &lt;&lt; " ";
+    }
+    std::cout &lt;&lt; std::endl;
+    
+    return 0;
+}</code></pre>
+                    </div>
+                    
+                    <div class="mb-6">
+                        <h3 class="text-xl font-medium text-gray-800 mb-3">迭代实现</h3>
+                        <pre class="bg-gray-800 text-white p-4 rounded-lg overflow-x-auto code-block"><code class="language-cpp">// 归并排序的迭代实现
+void mergeSortIterative(std::vector&lt;int&gt;& arr) {
+    int n = arr.size();
+    
+    // 当前子数组大小，从 1 开始，每次加倍
+    for (int currSize = 1; currSize < n; currSize = 2 * currSize) {
+        // 遍历数组，合并所有大小为 currSize 的子数组
+        for (int leftStart = 0; leftStart < n - 1; leftStart += 2 * currSize) {
+            // 确定中间点和右边界
+            int mid = std::min(leftStart + currSize - 1, n - 1);
+            int rightEnd = std::min(leftStart + 2 * currSize - 1, n - 1);
+            
+            // 合并子数组 arr[leftStart...mid] 和 arr[mid+1...rightEnd]
+            merge(arr, leftStart, mid, rightEnd);
+        }
+    }
+}</code></pre>
+                    </div>
+                    
+                    <div>
+                        <h3 class="text-xl font-medium text-gray-800 mb-3">优化技巧</h3>
+                        <ul class="list-disc list-inside space-y-2 text-gray-700 ml-4">
+                            <li><span class="font-medium">小数组优化：</span>对于小规模数组（通常小于10-15个元素），使用插入排序可以更高效</li>
+                            <li><span class="font-medium">原地归并：</span>虽然常规归并排序需要 O(n) 的额外空间，但存在原地归并的高级实现</li>
+                            <li><span class="font-medium">缓存优化：</span>通过合理设计临时数组的使用，可以减少内存分配和提高缓存命中率</li>
+                            <li><span class="font-medium">多线程并行：</span>归并排序的分治特性非常适合并行计算，可以通过多线程实现加速</li>
+                            <li><span class="font-medium">避免重复复制：</span>通过交替使用两个数组作为输入和输出，可以减少部分复制操作</li>
+                        </ul>
+                    </div>
+                </div>
+            </section>
+            
+            <!-- 时间复杂度分析 -->
+            <section id="complexity">
+                <h2 class="text-2xl font-semibold text-gray-800 mb-4 flex items-center">
+                    <i class="fas fa-clock text-primary mr-3"></i>时间复杂度分析
+                </h2>
+                <div class="bg-white p-6 rounded-lg shadow-md">
+                    <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+                        <div class="p-4 border border-green-200 rounded-lg bg-green-50">
+                            <h3 class="text-lg font-medium text-gray-800 mb-2">最佳情况</h3>
+                            <p class="text-2xl font-bold text-green-600 mb-2">O(n log n)</p>
+                            <p class="text-gray-700 text-sm">即使数组已经有序，归并排序仍然会执行完整的分割和合并过程</p>
+                        </div>
+                        <div class="p-4 border border-blue-200 rounded-lg bg-blue-50">
+                            <h3 class="text-lg font-medium text-gray-800 mb-2">平均情况</h3>
+                            <p class="text-2xl font-bold text-blue-600 mb-2">O(n log n)</p>
+                            <p class="text-gray-700 text-sm">归并排序的时间复杂度在所有情况下都保持稳定</p>
+                        </div>
+                        <div class="p-4 border border-blue-200 rounded-lg bg-blue-50">
+                            <h3 class="text-lg font-medium text-gray-800 mb-2">最差情况</h3>
+                            <p class="text-2xl font-bold text-blue-600 mb-2">O(n log n)</p>
+                            <p class="text-gray-700 text-sm">即使是最不利的数据分布，归并排序也能保持稳定的时间复杂度</p>
+                        </div>
+                    </div>
+                    
+                    <div class="mt-6">
+                        <h3 class="text-lg font-medium text-gray-800 mb-3">空间复杂度</h3>
+                        <p class="text-gray-700 mb-4">归并排序的空间复杂度取决于合并操作中使用的临时数组：</p>
+                        <ul class="list-disc list-inside space-y-2 text-gray-700 ml-4">
+                            <li><span class="font-medium">递归实现：</span>O(n + log n) - 需要 O(n) 的临时数组空间和 O(log n) 的递归调用栈空间</li>
+                            <li><span class="font-medium">迭代实现：</span>O(n) - 只需要额外的临时数组空间</li>
+                            <li><span class="font-medium">链表实现：</span>O(log n) - 仅需要递归栈空间，无需额外的临时空间</li>
+                        </ul>
+                    </div>
+                </div>
+            </section>
+            
+            <!-- 应用场景 -->
+            <section id="applications">
+                <h2 class="text-2xl font-semibold text-gray-800 mb-4 flex items-center">
+                    <i class="fas fa-briefcase text-primary mr-3"></i>应用场景
+                </h2>
+                <div class="bg-white p-6 rounded-lg shadow-md">
+                    <p class="text-gray-700 mb-4">归并排序因其稳定性和可预测的性能，广泛应用于各种场景：</p>
+                    
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                        <div class="border-l-4 border-primary pl-4">
+                            <h3 class="text-lg font-medium text-gray-800 mb-2">外部排序</h3>
+                            <p class="text-gray-700">当数据太大无法全部加载到内存时，归并排序是处理外部排序的理想选择</p>
+                        </div>
+                        <div class="border-l-4 border-primary pl-4">
+                            <h3 class="text-lg font-medium text-gray-800 mb-2">链表排序</h3>
+                            <p class="text-gray-700">归并排序是链表的首选排序算法，可以实现 O(n log n) 时间和 O(1) 额外空间复杂度</p>
+                        </div>
+                        <div class="border-l-4 border-primary pl-4">
+                            <h3 class="text-lg font-medium text-gray-800 mb-2">稳定性要求高的应用</h3>
+                            <p class="text-gray-700">当需要保持相等元素的相对顺序时，归并排序的稳定性特别有价值</p>
+                        </div>
+                        <div class="border-l-4 border-primary pl-4">
+                            <h3 class="text-lg font-medium text-gray-800 mb-2">并行计算</h3>
+                            <p class="text-gray-700">归并排序易于并行化，常用于多核和分布式系统中的大规模数据排序</p>
+                        </div>
+                    </div>
+                </div>
+            </section>
+            
+            <!-- 经典问题 -->
+            <section id="problems">
+                <h2 class="text-2xl font-semibold text-gray-800 mb-4 flex items-center">
+                    <i class="fas fa-puzzle-piece text-primary mr-3"></i>经典问题
+                </h2>
+                <div class="bg-white p-6 rounded-lg shadow-md">
+                    <p class="text-gray-700 mb-6">以下是一些应用归并排序思想的经典算法问题：</p>
+                    
+                    <div class="space-y-6">
+                        <div class="p-4 bg-gray-50 rounded-lg">
+                            <h3 class="text-lg font-medium text-gray-800 mb-2">求数组中的逆序对数量</h3>
+                            <p class="text-gray-700 mb-2">逆序对是指数组中满足 i < j 但 A[i] > A[j] 的元素对 (A[i], A[j])。</p>
+                            <p class="text-gray-700 mb-3">归并排序在合并阶段可以有效计算逆序对数量，时间复杂度为 O(n log n)。</p>
+                            <div class="bg-gray-100 p-3 rounded">
+                                <h4 class="font-medium text-gray-800 mb-2">代码示例：</h4>
+                                <pre class="bg-gray-800 text-white p-3 rounded-lg overflow-x-auto code-block"><code class="language-cpp">int countInversions(std::vector&lt;int&gt;& arr, int left, int mid, int right) {
+    std::vector&lt;int&gt; temp(right - left + 1);
+    int inversions = 0;
+    
+    int i = left, j = mid + 1, k = 0;
+    
+    while (i <= mid && j <= right) {
+        if (arr[i] <= arr[j]) {
+            temp[k++] = arr[i++];
+        } else {
+            // 当右半部分的元素小于左半部分时，
+            // 形成了 (mid - i + 1) 个逆序对
+            temp[k++] = arr[j++];
+            inversions += (mid - i + 1);
+        }
+    }
+    
+    while (i <= mid) temp[k++] = arr[i++];
+    while (j <= right) temp[k++] = arr[j++];
+    
+    for (i = left, k = 0; i <= right; i++, k++) {
+        arr[i] = temp[k];
+    }
+    
+    return inversions;
+}</code></pre>
+                            </div>
+                        </div>
+                        
+                        <div class="p-4 bg-gray-50 rounded-lg">
+                            <h3 class="text-lg font-medium text-gray-800 mb-2">合并 K 个有序数组</h3>
+                            <p class="text-gray-700 mb-3">给定 K 个已排序的数组，如何高效地将它们合并为一个有序数组？</p>
+                            <p class="text-gray-700 mb-3">可以使用归并排序的思想，采用分治策略两两合并数组，时间复杂度为 O(n log k)，其中 n 是所有数组的总元素数。</p>
+                        </div>
+                    </div>
+                </div>
+            </section>
+            
+            <!-- 归并排序与其他排序算法比较 -->
+            <section id="comparison">
+                <h2 class="text-2xl font-semibold text-gray-800 mb-4 flex items-center">
+                    <i class="fas fa-balance-scale text-primary mr-3"></i>与其他排序算法比较
+                </h2>
+                <div class="bg-white p-6 rounded-lg shadow-md overflow-x-auto">
+                    <table class="min-w-full bg-white">
+                        <thead>
+                            <tr>
+                                <th class="py-3 px-4 border-b border-gray-200 bg-gray-50 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">算法</th>
+                                <th class="py-3 px-4 border-b border-gray-200 bg-gray-50 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">最佳时间</th>
+                                <th class="py-3 px-4 border-b border-gray-200 bg-gray-50 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">平均时间</th>
+                                <th class="py-3 px-4 border-b border-gray-200 bg-gray-50 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">最差时间</th>
+                                <th class="py-3 px-4 border-b border-gray-200 bg-gray-50 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">空间复杂度</th>
+                                <th class="py-3 px-4 border-b border-gray-200 bg-gray-50 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">稳定性</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td class="py-2 px-4 border-b border-gray-200 text-sm font-medium">归并排序</td>
+                                <td class="py-2 px-4 border-b border-gray-200 text-sm">O(n log n)</td>
+                                <td class="py-2 px-4 border-b border-gray-200 text-sm">O(n log n)</td>
+                                <td class="py-2 px-4 border-b border-gray-200 text-sm">O(n log n)</td>
+                                <td class="py-2 px-4 border-b border-gray-200 text-sm">O(n)</td>
+                                <td class="py-2 px-4 border-b border-gray-200 text-sm">稳定</td>
+                            </tr>
+                            <tr class="bg-gray-100">
+                                <td class="py-2 px-4 border-b border-gray-200 text-sm font-medium">快速排序</td>
+                                <td class="py-2 px-4 border-b border-gray-200 text-sm">O(n log n)</td>
+                                <td class="py-2 px-4 border-b border-gray-200 text-sm">O(n log n)</td>
+                                <td class="py-2 px-4 border-b border-gray-200 text-sm">O(n²)</td>
+                                <td class="py-2 px-4 border-b border-gray-200 text-sm">O(log n)</td>
+                                <td class="py-2 px-4 border-b border-gray-200 text-sm">不稳定</td>
+                            </tr>
+                            <tr>
+                                <td class="py-2 px-4 border-b border-gray-200 text-sm font-medium">堆排序</td>
+                                <td class="py-2 px-4 border-b border-gray-200 text-sm">O(n log n)</td>
+                                <td class="py-2 px-4 border-b border-gray-200 text-sm">O(n log n)</td>
+                                <td class="py-2 px-4 border-b border-gray-200 text-sm">O(n log n)</td>
+                                <td class="py-2 px-4 border-b border-gray-200 text-sm">O(1)</td>
+                                <td class="py-2 px-4 border-b border-gray-200 text-sm">不稳定</td>
+                            </tr>
+                            <tr class="bg-gray-100">
+                                <td class="py-2 px-4 border-b border-gray-200 text-sm font-medium">冒泡排序</td>
+                                <td class="py-2 px-4 border-b border-gray-200 text-sm">O(n)</td>
+                                <td class="py-2 px-4 border-b border-gray-200 text-sm">O(n²)</td>
+                                <td class="py-2 px-4 border-b border-gray-200 text-sm">O(n²)</td>
+                                <td class="py-2 px-4 border-b border-gray-200 text-sm">O(1)</td>
+                                <td class="py-2 px-4 border-b border-gray-200 text-sm">稳定</td>
+                            </tr>
+                            <tr>
+                                <td class="py-2 px-4 border-b border-gray-200 text-sm font-medium">选择排序</td>
+                                <td class="py-2 px-4 border-b border-gray-200 text-sm">O(n²)</td>
+                                <td class="py-2 px-4 border-b border-gray-200 text-sm">O(n²)</td>
+                                <td class="py-2 px-4 border-b border-gray-200 text-sm">O(n²)</td>
+                                <td class="py-2 px-4 border-b border-gray-200 text-sm">O(1)</td>
+                                <td class="py-2 px-4 border-b border-gray-200 text-sm">不稳定</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </section>
+        </main>
+        
+        <!-- 页脚 -->
+        <footer class="mt-10 p-6 bg-gray-800 text-white flex flex-col md:flex-row justify-between items-center">
+            <div class="mb-4 md:mb-0">
+                <p class="text-sm"> </p>
+            </div>
+            <div class="flex space-x-4">
+                <a href="index.html" class="text-gray-300 hover:text-white transition-colors">首页</a>
+                <a href="选择排序.html" class="text-gray-300 hover:text-white transition-colors">选择排序</a>
+                <a href="冒泡排序.html" class="text-gray-300 hover:text-white transition-colors">冒泡排序</a>
+                <a href="快速排序.html" class="text-gray-300 hover:text-white transition-colors">快速排序</a>
+            </div>
+            <button id="back-to-top" class="fixed right-6 bottom-6 p-3 bg-primary rounded-full shadow-lg text-white hidden">
+                <i class="fas fa-arrow-up"></i>
+            </button>
+        </footer>
+        
+        <!-- ScrollReveal -->
+        <script src="https://unpkg.com/scrollreveal"></script>
+        
+        <!-- Highlight.js -->
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.7.0/highlight.min.js"></script>
+        <script>hljs.highlightAll();</script>
+        
+        <script>
+            // ScrollReveal 初始化
+            ScrollReveal().reveal('.section, h2, .bg-white', {
+                distance: '50px',
+                duration: 1000,
+                delay: 200,
+                easing: 'cubic-bezier(0.5, 0, 0, 1)'
+            });
+            
+            // 回到顶部按钮
+            const backToTopButton = document.getElementById('back-to-top');
+            
+            window.addEventListener('scroll', () => {
+                if (window.pageYOffset > 300) {
+                    backToTopButton.classList.remove('hidden');
+                } else {
+                    backToTopButton.classList.add('hidden');
+                }
+            });
+            
+            backToTopButton.addEventListener('click', () => {
+                window.scrollTo({
+                    top: 0,
+                    behavior: 'smooth'
+                });
+            });
+            
+            // 归并排序交互式可视化
+            document.addEventListener('DOMContentLoaded', function() {
+                // 获取DOM元素
+                const arrayContainer = document.getElementById('array-container');
+                const infoContainer = document.getElementById('current-step');
+                const newArrayBtn = document.getElementById('newArray');
+                const startSortBtn = document.getElementById('startSort');
+                const pauseSortBtn = document.getElementById('pauseSort');
+                const resetSortBtn = document.getElementById('resetSort');
+                const speedSlider = document.getElementById('speed');
+                
+                // 初始化变量
+                let array = [];
+                const arraySize = 12; // 数组大小
+                const maxValue = 100; // 最大值
+                const minValue = 5;   // 最小值
+                let animationSpeed = 1000 / parseInt(speedSlider.value);
+                let animations = [];
+                let animationInterval;
+                let isPaused = false;
+                let currentAnimationStep = 0;
+                
+                // 创建新的随机数组
+                function generateRandomArray() {
+                    array = [];
+                    for (let i = 0; i < arraySize; i++) {
+                        array.push(Math.floor(Math.random() * (maxValue - minValue + 1)) + minValue);
+                    }
+                    renderArray(array);
+                    resetAnimationState();
+                    infoContainer.textContent = "准备开始归并排序...";
+                }
+                
+                // 渲染数组
+                function renderArray(arr, leftStart = -1, rightStart = -1, sortedIndices = []) {
+                    arrayContainer.innerHTML = '';
+                    const maxArrVal = Math.max(...arr);
+                    
+                    arr.forEach((val, idx) => {
+                        const bar = document.createElement('div');
+                        const height = (val / maxArrVal) * 100;
+                        
+                        bar.style.height = `${height}%`;
+                        bar.style.width = `${80 / arraySize}%`;
+                        bar.style.margin = '0 0.2%';
+                        bar.style.position = 'relative';
+                        
+                        // 设置颜色
+                        if (sortedIndices.includes(idx)) {
+                            bar.style.backgroundColor = '#10B981'; // 已排序
+                        } else if (idx >= leftStart && idx < rightStart) {
+                            bar.style.backgroundColor = '#FEF08A'; // 左子数组
+                        } else if (idx >= rightStart && rightStart != -1) {
+                            bar.style.backgroundColor = '#FECACA'; // 右子数组
+                        } else {
+                            bar.style.backgroundColor = '#93C5FD'; // 默认
+                        }
+                        
+                        // 添加数值标签
+                        const label = document.createElement('div');
+                        label.textContent = val;
+                        label.style.position = 'absolute';
+                        label.style.bottom = '-25px';
+                        label.style.width = '100%';
+                        label.style.textAlign = 'center';
+                        label.style.fontSize = '12px';
+                        bar.appendChild(label);
+                        
+                        arrayContainer.appendChild(bar);
+                    });
+                }
+                
+                // 生成归并排序的动画步骤
+                function generateMergeSortAnimations(arr) {
+                    const auxArray = [...arr];
+                    const mainArray = [...arr];
+                    const animations = [];
+                    
+                    function mergeSortHelper(mainArray, auxArray, left, right, animations) {
+                        if (left === right) return;
+                        
+                        const mid = Math.floor((left + right) / 2);
+                        
+                        // 将分解过程添加到动画中
+                        animations.push({
+                            type: 'split',
+                            left: left,
+                            mid: mid,
+                            right: right,
+                            message: `分解数组从 ${left} 到 ${right} 为两部分: [${left}...${mid}] 和 [${mid + 1}...${right}]`
+                        });
+                        
+                        // 递归排序左半部分
+                        mergeSortHelper(auxArray, mainArray, left, mid, animations);
+                        
+                        // 递归排序右半部分
+                        mergeSortHelper(auxArray, mainArray, mid + 1, right, animations);
+                        
+                        // 合并两个已排序的子数组
+                        merge(mainArray, auxArray, left, mid, right, animations);
+                    }
+                    
+                    function merge(mainArray, auxArray, left, mid, right, animations) {
+                        // 将合并过程添加到动画中
+                        animations.push({
+                            type: 'merge-start',
+                            left: left,
+                            mid: mid,
+                            right: right,
+                            message: `开始合并 [${left}...${mid}] 和 [${mid + 1}...${right}]`
+                        });
+                        
+                        let i = left;
+                        let j = mid + 1;
+                        let k = left;
+                        
+                        const sortedIndices = [];
+                        
+                        while (i <= mid && j <= right) {
+                            // 比较元素添加到动画中
+                            animations.push({
+                                type: 'compare',
+                                i: i,
+                                j: j,
+                                message: `比较元素 ${auxArray[i]} 和 ${auxArray[j]}`
+                            });
+                            
+                            if (auxArray[i] <= auxArray[j]) {
+                                // 添加从左子数组复制的动画
+                                animations.push({
+                                    type: 'overwrite',
+                                    index: k,
+                                    value: auxArray[i],
+                                    message: `将 ${auxArray[i]} 放入位置 ${k}`,
+                                    sortedIndices: [...sortedIndices, k]
+                                });
+                                
+                                mainArray[k++] = auxArray[i++];
+                            } else {
+                                // 添加从右子数组复制的动画
+                                animations.push({
+                                    type: 'overwrite',
+                                    index: k,
+                                    value: auxArray[j],
+                                    message: `将 ${auxArray[j]} 放入位置 ${k}`,
+                                    sortedIndices: [...sortedIndices, k]
+                                });
+                                
+                                mainArray[k++] = auxArray[j++];
+                            }
+                            sortedIndices.push(k - 1);
+                        }
+                        
+                        while (i <= mid) {
+                            // 添加剩余左子数组元素的动画
+                            animations.push({
+                                type: 'overwrite',
+                                index: k,
+                                value: auxArray[i],
+                                message: `复制剩余左侧元素 ${auxArray[i]} 到位置 ${k}`,
+                                sortedIndices: [...sortedIndices, k]
+                            });
+                            
+                            mainArray[k++] = auxArray[i++];
+                            sortedIndices.push(k - 1);
+                        }
+                        
+                        while (j <= right) {
+                            // 添加剩余右子数组元素的动画
+                            animations.push({
+                                type: 'overwrite',
+                                index: k,
+                                value: auxArray[j],
+                                message: `复制剩余右侧元素 ${auxArray[j]} 到位置 ${k}`,
+                                sortedIndices: [...sortedIndices, k]
+                            });
+                            
+                            mainArray[k++] = auxArray[j++];
+                            sortedIndices.push(k - 1);
+                        }
+                        
+                        // 合并完成的动画
+                        animations.push({
+                            type: 'merge-complete',
+                            left: left,
+                            right: right,
+                            array: [...mainArray],
+                            message: `合并完成 [${left}...${right}]`,
+                            sortedIndices: Array.from({length: right - left + 1}, (_, i) => left + i)
+                        });
+                    }
+                    
+                    mergeSortHelper(mainArray, auxArray, 0, arr.length - 1, animations);
+                    return animations;
+                }
+                
+                // 开始排序动画
+                function startSortAnimation() {
+                    if (animations.length === 0 || currentAnimationStep >= animations.length) {
+                        // 为当前数组生成动画
+                        const arrCopy = [...array];
+                        animations = generateMergeSortAnimations(arrCopy);
+                        currentAnimationStep = 0;
+                    }
+                    
+                    startSortBtn.classList.add('hidden');
+                    pauseSortBtn.classList.remove('hidden');
+                    isPaused = false;
+                    
+                    animationInterval = setInterval(() => {
+                        if (currentAnimationStep < animations.length) {
+                            const step = animations[currentAnimationStep];
+                            
+                            if (step.type === 'split' || step.type === 'merge-start') {
+                                renderArray(
+                                    array,
+                                    step.left,
+                                    step.mid + 1,
+                                    []
+                                );
+                            } else if (step.type === 'overwrite') {
+                                // 更新数组
+                                array[step.index] = step.value;
+                                renderArray(
+                                    array,
+                                    -1,
+                                    -1,
+                                    step.sortedIndices || []
+                                );
+                            } else if (step.type === 'merge-complete') {
+                                renderArray(
+                                    array,
+                                    -1,
+                                    -1,
+                                    step.sortedIndices || []
+                                );
+                            }
+                            
+                            infoContainer.textContent = step.message;
+                            currentAnimationStep++;
+                        } else {
+                            clearInterval(animationInterval);
+                            infoContainer.textContent = "排序完成!";
+                            pauseSortBtn.classList.add('hidden');
+                            startSortBtn.classList.remove('hidden');
+                            
+                            // 显示全部排序完成
+                            renderArray(array, -1, -1, Array.from({length: array.length}, (_, i) => i));
+                        }
+                    }, animationSpeed);
+                }
+                
+                // 暂停排序动画
+                function pauseSortAnimation() {
+                    clearInterval(animationInterval);
+                    isPaused = true;
+                    pauseSortBtn.classList.add('hidden');
+                    startSortBtn.classList.remove('hidden');
+                }
+                
+                // 重置动画状态
+                function resetAnimationState() {
+                    clearInterval(animationInterval);
+                    animations = [];
+                    currentAnimationStep = 0;
+                    isPaused = false;
+                    pauseSortBtn.classList.add('hidden');
+                    startSortBtn.classList.remove('hidden');
+                }
+                
+                // 事件监听器
+                newArrayBtn.addEventListener('click', generateRandomArray);
+                startSortBtn.addEventListener('click', startSortAnimation);
+                pauseSortBtn.addEventListener('click', pauseSortAnimation);
+                resetSortBtn.addEventListener('click', () => {
+                    resetAnimationState();
+                    renderArray(array);
+                    infoContainer.textContent = "排序已重置";
+                });
+                
+                speedSlider.addEventListener('input', function() {
+                    animationSpeed = 1000 / parseInt(this.value);
+                    if (!isPaused && animationInterval) {
+                        clearInterval(animationInterval);
+                        startSortAnimation();
+                    }
+                });
+                
+                // 初始化
+                generateRandomArray();
+            });
+        </script>
+    </div>
+</body>
+</html> 

@@ -1,0 +1,709 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>倍增法</title>
+    <!-- TailwindCSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&family=Roboto+Mono&display=swap" rel="stylesheet">
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        primary: {
+                            light: '#a5f3fc',
+                            DEFAULT: '#06b6d4',
+                            dark: '#0891b2',
+                        },
+                        secondary: {
+                            light: '#c7d2fe',
+                            DEFAULT: '#818cf8',
+                            dark: '#6366f1',
+                        },
+                        codeBlock: '#1e293b',
+                    },
+                    fontFamily: {
+                        sans: ['Poppins', 'sans-serif'],
+                        mono: ['Roboto Mono', 'monospace'],
+                    },
+                }
+            }
+        }
+    </script>
+    <style>
+        .card-hover {
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+        }
+        .card-hover:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 25px -5px rgba(6, 182, 212, 0.1), 0 10px 10px -5px rgba(6, 182, 212, 0.04);
+        }
+        .code-block::-webkit-scrollbar {
+            height: 8px;
+        }
+        .code-block::-webkit-scrollbar-thumb {
+            background-color: #06b6d4;
+            border-radius: 4px;
+        }
+        .code-block::-webkit-scrollbar-track {
+            background-color: #e2e8f0;
+            border-radius: 4px;
+        }
+    </style>
+</head>
+<body class="bg-gray-50 font-sans">
+    <div class="min-h-screen max-w-6xl mx-auto px-8 py-10">
+        <!-- Header -->
+        <header class="mb-12 text-center">
+            <div class="inline-block px-3 py-1 bg-primary-light text-primary-dark rounded-full text-sm font-medium mb-4">
+                算法基础
+            </div>
+            <h1 class="text-4xl font-bold text-gray-800 mb-4">倍增法</h1>
+            <p class="text-lg text-gray-600 max-w-3xl mx-auto">高效处理跳跃查询与区间问题的技巧</p>
+        </header>
+
+        <!-- Main Content -->
+        <main>
+            <!-- 倍增法概念 Section -->
+            <section class="mb-12 bg-white rounded-2xl shadow-md p-8">
+                <div class="flex items-center mb-6">
+                    <i class="fas fa-rocket text-primary text-xl mr-3"></i>
+                    <h2 class="text-2xl font-bold text-gray-800">倍增法概念</h2>
+                </div>
+                <div class="space-y-4 text-gray-700">
+                    <p>倍增法（Binary Lifting）是一种用于解决各种跳跃查询问题的技术，其核心思想是预处理出从每个点开始跳 2^i 步能够到达的位置，从而能够以 O(log n) 的时间复杂度快速求解长度为 n 的跳跃路径。</p>
+                    
+                    <div class="p-5 bg-primary-light bg-opacity-10 rounded-lg">
+                        <p>通过预处理出以 2 的整次幂为单位的跳跃结果，在查询时将跳跃距离按二进制分解，我们只需要 O(log n) 步就能完成原本需要 O(n) 步的操作。</p>
+                    </div>
+                    
+                    <h3 class="text-xl font-semibold text-gray-800 mt-6 mb-3">基本原理</h3>
+                    <p>倍增法的基本思想是"拆分"。任何一个正整数都可以用 2 的幂的和来表示，即二进制拆分：</p>
+                    <div class="flex justify-center my-4">
+                        <div class="px-4 py-2 bg-gray-50 rounded-lg">
+                            <span class="font-mono">n = 2^k<sub>1</sub> + 2^k<sub>2</sub> + ... + 2^k<sub>m</sub>，其中 k<sub>1</sub> > k<sub>2</sub> > ... > k<sub>m</sub></span>
+                        </div>
+                    </div>
+                    <p>例如，13 = 8 + 4 + 1 = 2<sup>3</sup> + 2<sup>2</sup> + 2<sup>0</sup>，其二进制表示为 1101。</p>
+                </div>
+            </section>
+            
+            <!-- 倍增法应用 Section -->
+            <section class="mb-12 bg-white rounded-2xl shadow-md p-8">
+                <div class="flex items-center mb-6">
+                    <i class="fas fa-puzzle-piece text-primary text-xl mr-3"></i>
+                    <h2 class="text-2xl font-bold text-gray-800">倍增法应用</h2>
+                </div>
+                <div class="space-y-4 text-gray-700">
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-8 mb-6">
+                        <div class="card-hover p-6 bg-gray-50 rounded-xl">
+                            <h3 class="text-lg font-semibold text-gray-800 mb-4">
+                                <i class="fas fa-table text-primary-dark mr-2"></i>
+                                RMQ 问题
+                            </h3>
+                            <p class="mb-3">区间最值查询（Range Minimum/Maximum Query）</p>
+                            <div class="text-sm">
+                                <p>预处理出区间长度为 2<sup>i</sup> 的最值，查询时将区间拆分成两个预处理过的子区间。</p>
+                                <p class="mt-2">时间复杂度：预处理 O(n log n)，查询 O(1)</p>
+                            </div>
+                        </div>
+                        
+                        <div class="card-hover p-6 bg-gray-50 rounded-xl">
+                            <h3 class="text-lg font-semibold text-gray-800 mb-4">
+                                <i class="fas fa-tree text-primary-dark mr-2"></i>
+                                树上倍增求 LCA
+                            </h3>
+                            <p class="mb-3">最近公共祖先（Lowest Common Ancestor）</p>
+                            <div class="text-sm">
+                                <p>预处理出每个节点向上跳 2<sup>i</sup> 步到达的祖先，查询时先跳到同一深度，然后共同向上跳跃寻找LCA。</p>
+                                <p class="mt-2">时间复杂度：预处理 O(n log n)，查询 O(log n)</p>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="card-hover p-6 bg-gray-50 rounded-xl">
+                        <div class="flex items-center mb-3">
+                            <i class="fas fa-info-circle text-secondary mr-2"></i>
+                            <h4 class="font-semibold">倍增法的其他应用</h4>
+                        </div>
+                        <ul class="list-disc list-inside space-y-2 text-gray-700 pl-4">
+                            <li>快速幂计算</li>
+                            <li>快速求斐波那契数列</li>
+                            <li>带权并查集</li>
+                            <li>快速寻找链表中环的入口</li>
+                            <li>字符串的周期查询</li>
+                        </ul>
+                    </div>
+                </div>
+            </section>
+            
+            <!-- 倍增法示例 Section -->
+            <section class="mb-12 bg-white rounded-2xl shadow-md p-8">
+                <div class="flex items-center mb-6">
+                    <i class="fas fa-code text-primary text-xl mr-3"></i>
+                    <h2 class="text-2xl font-bold text-gray-800">示例：循环移位问题</h2>
+                </div>
+                <div class="space-y-4 text-gray-700">
+                    <p>考虑一个长度为 n 的环形序列，初始在位置 1。每次操作可以顺时针移动 k 步。给定一个长度为 m 的操作序列，要求计算最终停留位置的点权和。</p>
+                    
+                    <div class="overflow-x-auto bg-codeBlock rounded-lg p-4 mb-4">
+                        <pre class="text-gray-100 font-mono text-sm"><code>#include &lt;cstdio&gt;
+using namespace std;
+
+constexpr int mod = 1000000007;
+
+int modadd(int a, int b) {
+    if (a + b >= mod) return a + b - mod;  // 减法代替取模，加快运算
+    return a + b;
+}
+
+int vi[1000005];
+int go[75][1000005];  // go[i][j] 表示从位置j开始走2^i步后的位置
+int sum[75][1000005]; // sum[i][j] 表示从位置j开始走2^i步的权值和
+
+int main() {
+    int n, k;
+    scanf("%d%d", &n, &k);
+    for (int i = 1; i <= n; ++i) {
+        scanf("%d", vi + i);
+    }
+    
+    // 预处理2^0步的情况
+    for (int i = 1; i <= n; ++i) {
+        go[0][i] = (i + k) % n + 1;
+        sum[0][i] = vi[i];
+    }
+    
+    // 倍增计算
+    int logn = 31 - __builtin_clz(n);  // 计算log n
+    for (int i = 1; i <= logn; ++i) {
+        for (int j = 1; j <= n; ++j) {
+            go[i][j] = go[i-1][go[i-1][j]];  // 从j开始先跳2^(i-1)步，再跳2^(i-1)步
+            sum[i][j] = modadd(sum[i-1][j], sum[i-1][go[i-1][j]]);  // 权值和等于前一半路径的权值和加后一半路径的权值和
+        }
+    }
+    
+    long long m;
+    scanf("%lld", &m);
+    int ans = 0;
+    int curx = 1;  // 当前位置，初始为1
+    
+    // 按照m的二进制位来跳跃
+    for (int i = 0; m; ++i) {
+        if (m & (1ll << i)) {  // 如果m的第i位为1
+            ans = modadd(ans, sum[i][curx]);  // 累加权值
+            curx = go[i][curx];  // 更新当前位置
+            m ^= 1ll << i;  // 将第i位置0
+        }
+    }
+    
+    printf("%d\n", ans);
+}</code></pre>
+                    </div>
+                    
+                    <div class="p-5 bg-gray-50 rounded-xl mt-4">
+                        <h4 class="font-semibold mb-3">代码解析</h4>
+                        <ul class="list-disc list-inside space-y-2 pl-4">
+                            <li>预处理 <code>go[i][j]</code> 表示从位置 j 开始走 2<sup>i</sup> 步后的位置</li>
+                            <li>预处理 <code>sum[i][j]</code> 表示从位置 j 开始走 2<sup>i</sup> 步路径上的点权和</li>
+                            <li>通过递推关系计算更大的跳跃：<code>go[i][j] = go[i-1][go[i-1][j]]</code></li>
+                            <li>权值和递推：<code>sum[i][j] = sum[i-1][j] + sum[i-1][go[i-1][j]]</code></li>
+                            <li>查询时根据 m 的二进制表示选择相应的已预处理路径</li>
+                        </ul>
+                    </div>
+                </div>
+            </section>
+            
+            <!-- 树上倍增求LCA Section -->
+            <section class="mb-12 bg-white rounded-2xl shadow-md p-8">
+                <div class="flex items-center mb-6">
+                    <i class="fas fa-tree text-primary text-xl mr-3"></i>
+                    <h2 class="text-2xl font-bold text-gray-800">树上倍增求LCA</h2>
+                </div>
+                <div class="space-y-4 text-gray-700">
+                    <p>最近公共祖先（Lowest Common Ancestor, LCA）是树上两个节点的最深公共祖先。使用倍增法可以高效求解LCA问题：</p>
+                    
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
+                        <div class="p-6 bg-gray-50 rounded-xl">
+                            <h3 class="text-lg font-semibold text-gray-800 mb-3">预处理阶段</h3>
+                            <ol class="list-decimal list-inside space-y-2 pl-4">
+                                <li>DFS遍历树，计算每个节点的深度</li>
+                                <li>记录每个节点的2<sup>0</sup>级祖先（即父节点）</li>
+                                <li>递推计算每个节点的2<sup>i</sup>级祖先</li>
+                            </ol>
+                        </div>
+                        
+                        <div class="p-6 bg-gray-50 rounded-xl">
+                            <h3 class="text-lg font-semibold text-gray-800 mb-3">查询阶段</h3>
+                            <ol class="list-decimal list-inside space-y-2 pl-4">
+                                <li>如果两节点深度不同，将较深的节点先上调至同一深度</li>
+                                <li>两节点同时向上跳跃，每次尝试尽可能大的2<sup>i</sup>级祖先</li>
+                                <li>直到两节点相同或找到它们的父节点相同的情况</li>
+                            </ol>
+                        </div>
+                    </div>
+                    
+                    <div class="overflow-x-auto bg-codeBlock rounded-lg p-4 mb-4">
+                        <pre class="text-gray-100 font-mono text-sm"><code>#include &lt;bits/stdc++.h&gt;
+using namespace std;
+
+const int MAXN = 100005;
+const int LOGN = 20;  // log2(MAXN)
+
+vector&lt;int&gt; tree[MAXN];
+int depth[MAXN];
+int fa[MAXN][LOGN];  // fa[i][j] 表示节点i向上走2^j步到达的祖先
+
+// DFS预处理每个节点的深度和直接父节点
+void dfs(int u, int parent) {
+    depth[u] = depth[parent] + 1;
+    fa[u][0] = parent;  // 记录直接父节点
+    
+    // 预处理所有2^j级祖先
+    for (int j = 1; j < LOGN; ++j) {
+        fa[u][j] = fa[fa[u][j-1]][j-1];
+    }
+    
+    // 继续DFS子节点
+    for (int v : tree[u]) {
+        if (v != parent) {
+            dfs(v, u);
+        }
+    }
+}
+
+// 查询节点u和v的LCA
+int lca(int u, int v) {
+    // 保证u的深度不小于v
+    if (depth[u] < depth[v]) {
+        swap(u, v);
+    }
+    
+    // 将u上调至与v同深度
+    int diff = depth[u] - depth[v];
+    for (int j = 0; j < LOGN; ++j) {
+        if (diff & (1 << j)) {
+            u = fa[u][j];
+        }
+    }
+    
+    // 如果调整后u和v相同，则v是u的祖先
+    if (u == v) {
+        return u;
+    }
+    
+    // 一起向上跳，找到LCA的前一步
+    for (int j = LOGN - 1; j >= 0; --j) {
+        if (fa[u][j] != fa[v][j]) {
+            u = fa[u][j];
+            v = fa[v][j];
+        }
+    }
+    
+    // 此时u和v的父节点即为LCA
+    return fa[u][0];
+}
+
+int main() {
+    int n, m;
+    scanf("%d", &n);  // 节点数
+    
+    // 读入树的边
+    for (int i = 1; i < n; ++i) {
+        int u, v;
+        scanf("%d %d", &u, &v);
+        tree[u].push_back(v);
+        tree[v].push_back(u);
+    }
+    
+    // 初始化深度为0的虚拟根节点
+    depth[0] = 0;
+    for (int j = 0; j < LOGN; ++j) {
+        fa[0][j] = 0;
+    }
+    
+    // 从根节点1开始DFS预处理
+    dfs(1, 0);
+    
+    // 处理询问
+    scanf("%d", &m);  // 询问数
+    for (int i = 0; i < m; ++i) {
+        int u, v;
+        scanf("%d %d", &u, &v);
+        printf("%d\n", lca(u, v));
+    }
+    
+    return 0;
+}</code></pre>
+                    </div>
+                    
+                    <div class="p-5 bg-blue-50 rounded-xl border-l-4 border-blue-400">
+                        <div class="flex items-start">
+                            <i class="fas fa-info-circle text-blue-500 mt-1 mr-3"></i>
+                            <div>
+                                <h3 class="text-lg font-semibold text-gray-800 mb-2">时间复杂度分析</h3>
+                                <p class="text-gray-700">
+                                    树上倍增求LCA的时间复杂度：
+                                </p>
+                                <ul class="mt-2 list-disc list-inside pl-4 space-y-1">
+                                    <li>预处理阶段：O(n log n)，其中n是节点数</li>
+                                    <li>每次查询：O(log n)</li>
+                                </ul>
+                                <p class="mt-2 text-gray-700">
+                                    相比于朴素的LCA算法，倍增法极大提高了查询效率，特别适合处理大量查询的情况。
+                                </p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+            
+            <!-- 倍增法例题解析 Section -->
+            <section class="mb-12 bg-white rounded-2xl shadow-md p-8">
+                <div class="flex items-center mb-6">
+                    <i class="fas fa-book text-primary text-xl mr-3"></i>
+                    <h2 class="text-2xl font-bold text-gray-800">倍增法例题解析</h2>
+                </div>
+                <div class="space-y-4 text-gray-700">
+                    <p>以下是一些利用倍增思想解决的经典问题，通过这些例题可以加深对倍增法的理解和掌握：</p>
+                    
+                    <div class="card-hover p-6 bg-gray-50 rounded-xl mt-6">
+                        <h3 class="text-xl font-semibold text-gray-800 mb-4">
+                            <i class="fas fa-puzzle-piece text-primary-dark mr-2"></i>
+                            循环跳跃问题
+                        </h3>
+                        <p class="mb-4">问题描述：给定一个长度为 n 的环形序列，每个节点有一个权值。从位置 1 出发，每次可以顺时针移动 k 步，求经过 m 次操作后的总权值和。</p>
+                        
+                        <div class="p-5 bg-blue-50 rounded-xl mb-4">
+                            <h4 class="font-semibold mb-2 text-gray-800">解题思路</h4>
+                            <ol class="list-decimal list-inside space-y-2 pl-4">
+                                <li>如果直接模拟 m 次操作，时间复杂度为 O(m)，当 m 很大时无法接受</li>
+                                <li>利用倍增思想，预处理出从每个点出发跳 2<sup>i</sup> 步后到达的位置与累计权值</li>
+                                <li>将 m 表示为二进制形式，只需要 O(log m) 次操作即可得到答案</li>
+                            </ol>
+                        </div>
+                        
+                        <div class="overflow-x-auto bg-codeBlock rounded-lg p-4 mb-4">
+                            <pre class="text-gray-100 font-mono text-sm"><code>#include &lt;iostream&gt;
+#include &lt;vector&gt;
+using namespace std;
+
+const int MAXN = 1000005;
+const int MAXLOG = 31; // log₂(10^9)
+const int MOD = 1000000007;
+
+int n, k;
+int values[MAXN]; // 每个节点的权值
+int go[MAXLOG][MAXN]; // go[i][j]: 从j开始走2^i步后的位置
+int sum[MAXLOG][MAXN]; // sum[i][j]: 从j开始走2^i步的权值和
+
+// 两数相加并取模
+int add(int a, int b) {
+    return (a + b) % MOD;
+}
+
+int main() {
+    cin >> n >> k;
+    
+    // 读入每个位置的权值
+    for (int i = 1; i <= n; i++) {
+        cin >> values[i];
+    }
+    
+    // 预处理跳一步的情况
+    for (int i = 1; i <= n; i++) {
+        go[0][i] = (i + k) % n;
+        if (go[0][i] == 0) go[0][i] = n; // 处理0位置
+        sum[0][i] = values[i];
+    }
+    
+    // 倍增预处理
+    for (int i = 1; i < MAXLOG; i++) {
+        for (int j = 1; j <= n; j++) {
+            go[i][j] = go[i-1][go[i-1][j]]; // 先跳2^(i-1)步，再跳2^(i-1)步
+            sum[i][j] = add(sum[i-1][j], sum[i-1][go[i-1][j]]); // 权值和累加
+        }
+    }
+    
+    long long m;
+    cin >> m;
+    
+    int pos = 1; // 起始位置
+    int ans = 0; // 总权值和
+    
+    // 按二进制位处理m
+    for (int i = 0; m > 0; i++) {
+        if (m & 1) { // 如果m的第i位为1
+            ans = add(ans, sum[i][pos]); // 累加权值
+            pos = go[i][pos]; // 更新位置
+        }
+        m >>= 1; // m右移一位
+    }
+    
+    cout << ans << endl;
+    return 0;
+}</code></pre>
+                        </div>
+                        
+                        <div class="p-4 bg-gray-100 rounded-lg">
+                            <h4 class="font-semibold mb-2 text-gray-800">复杂度分析</h4>
+                            <ul class="list-disc list-inside space-y-1 pl-4">
+                                <li>时间复杂度：预处理 O(n log m)，查询 O(log m)</li>
+                                <li>空间复杂度：O(n log m)</li>
+                            </ul>
+                        </div>
+                    </div>
+                    
+                    <div class="card-hover p-6 bg-gray-50 rounded-xl mt-6">
+                        <h3 class="text-xl font-semibold text-gray-800 mb-4">
+                            <i class="fas fa-puzzle-piece text-primary-dark mr-2"></i>
+                            K次祖先查询
+                        </h3>
+                        <p class="mb-4">问题描述：给定一棵树，每个节点有一个父节点（根节点的父节点为自己）。要求支持多次询问：节点 x 的第 k 个祖先是谁？</p>
+                        
+                        <div class="p-5 bg-blue-50 rounded-xl mb-4">
+                            <h4 class="font-semibold mb-2 text-gray-800">解题思路</h4>
+                            <ol class="list-decimal list-inside space-y-2 pl-4">
+                                <li>直接向上跳 k 次的时间复杂度为 O(k)，当 k 很大时效率低下</li>
+                                <li>使用倍增法预处理每个节点的 2<sup>i</sup> 级祖先</li>
+                                <li>将 k 表示为二进制形式，只需要 O(log k) 次跳跃即可找到第 k 个祖先</li>
+                            </ol>
+                        </div>
+                        
+                        <div class="overflow-x-auto bg-codeBlock rounded-lg p-4 mb-4">
+                            <pre class="text-gray-100 font-mono text-sm"><code>#include &lt;iostream&gt;
+#include &lt;vector&gt;
+using namespace std;
+
+const int MAXN = 500005;
+const int LOGN = 20; // log₂(5*10^5)
+
+int n, q;
+int parent[MAXN]; // 每个节点的直接父节点
+int ancestor[LOGN][MAXN]; // ancestor[i][j]: 节点j的2^i级祖先
+
+int main() {
+    cin >> n >> q;
+    
+    // 读入每个节点的父节点
+    for (int i = 1; i <= n; i++) {
+        cin >> parent[i];
+    }
+    
+    // 预处理每个节点的2^i级祖先
+    for (int i = 1; i <= n; i++) {
+        ancestor[0][i] = parent[i]; // 2^0 = 1级祖先
+    }
+    
+    for (int i = 1; i < LOGN; i++) {
+        for (int j = 1; j <= n; j++) {
+            ancestor[i][j] = ancestor[i-1][ancestor[i-1][j]]; // 2^i级祖先 = 2^(i-1)级祖先的2^(i-1)级祖先
+        }
+    }
+    
+    // 处理查询
+    while (q--) {
+        int x, k;
+        cin >> x >> k;
+        
+        // 利用k的二进制表示跳跃
+        for (int i = 0; i < LOGN; i++) {
+            if (k & (1 << i)) { // 如果k的第i位为1
+                x = ancestor[i][x]; // 向上跳2^i级
+            }
+        }
+        
+        cout << x << endl;
+    }
+    
+    return 0;
+}</code></pre>
+                        </div>
+                        
+                        <div class="p-4 bg-gray-100 rounded-lg">
+                            <h4 class="font-semibold mb-2 text-gray-800">复杂度分析</h4>
+                            <ul class="list-disc list-inside space-y-1 pl-4">
+                                <li>时间复杂度：预处理 O(n log n)，每次查询 O(log k)</li>
+                                <li>空间复杂度：O(n log n)</li>
+                            </ul>
+                        </div>
+                    </div>
+                    
+                    <div class="card-hover p-6 bg-gray-50 rounded-xl mt-6">
+                        <h3 class="text-xl font-semibold text-gray-800 mb-4">
+                            <i class="fas fa-puzzle-piece text-primary-dark mr-2"></i>
+                            跳跃游戏优化
+                        </h3>
+                        <p class="mb-4">问题描述：有一个长度为 n 的数组，每个位置有一个跳跃值 a[i]。从位置 i 可以跳到位置 i + a[i]（如果越界则无法跳跃）。求从位置 1 出发，最少需要几次跳跃才能到达位置 n。</p>
+                        
+                        <div class="p-5 bg-blue-50 rounded-xl mb-4">
+                            <h4 class="font-semibold mb-2 text-gray-800">解题思路</h4>
+                            <ol class="list-decimal list-inside space-y-2 pl-4">
+                                <li>传统的BFS方法时间复杂度为O(n)，当n很大时效率低</li>
+                                <li>使用倍增法，预处理从每个位置开始跳2<sup>i</sup>次后能到达的最远位置</li>
+                                <li>通过二进制分解最小跳跃次数，实现O(n log n)的算法</li>
+                            </ol>
+                        </div>
+                        
+                        <div class="overflow-x-auto bg-codeBlock rounded-lg p-4 mb-4">
+                            <pre class="text-gray-100 font-mono text-sm"><code>#include &lt;iostream&gt;
+#include &lt;vector&gt;
+using namespace std;
+
+const int MAXN = 1000005;
+const int LOGN = 21; // log₂(10^6)
+
+int n;
+int a[MAXN]; // 每个位置的跳跃值
+int jump[LOGN][MAXN]; // jump[i][j]: 从位置j开始跳2^i次能到达的位置
+
+int main() {
+    cin >> n;
+    for (int i = 1; i <= n; i++) {
+        cin >> a[i];
+    }
+    
+    // 预处理跳一次的情况
+    for (int i = 1; i <= n; i++) {
+        jump[0][i] = min(n, i + a[i]); // 防止越界
+    }
+    
+    // 倍增预处理
+    for (int i = 1; i < LOGN; i++) {
+        for (int j = 1; j <= n; j++) {
+            jump[i][j] = jump[i-1][jump[i-1][j]]; // 先跳2^(i-1)次，再跳2^(i-1)次
+        }
+    }
+    
+    // 计算最少跳跃次数
+    int pos = 1; // 起始位置
+    int steps = 0; // 跳跃次数
+    
+    for (int i = LOGN - 1; i >= 0; i--) {
+        if (jump[i][pos] < n) { // 如果跳2^i次后仍未到达终点
+            pos = jump[i][pos]; // 更新位置
+            steps += (1 << i); // 增加跳跃次数
+        }
+    }
+    
+    // 检查是否需要最后一步
+    if (pos < n) {
+        steps++;
+    }
+    
+    cout << steps << endl;
+    return 0;
+}</code></pre>
+                        </div>
+                        
+                        <div class="p-4 bg-gray-100 rounded-lg">
+                            <h4 class="font-semibold mb-2 text-gray-800">复杂度分析</h4>
+                            <ul class="list-disc list-inside space-y-1 pl-4">
+                                <li>时间复杂度：预处理 O(n log n)，查询 O(log n)</li>
+                                <li>空间复杂度：O(n log n)</li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+            </section>
+            
+            <!-- 优化与注意事项 Section -->
+            <section class="bg-white rounded-2xl shadow-md p-8">
+                <div class="flex items-center mb-6">
+                    <i class="fas fa-exclamation-circle text-primary text-xl mr-3"></i>
+                    <h2 class="text-2xl font-bold text-gray-800">优化与注意事项</h2>
+                </div>
+                <div class="space-y-4 text-gray-700">
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
+                        <div class="card-hover p-6 bg-gray-50 rounded-xl">
+                            <h3 class="text-lg font-semibold text-gray-800 mb-3">内存优化</h3>
+                            <p>当 n 很大时，二维数组 <code>go[LOGN][MAXN]</code> 可能导致内存溢出。可以考虑：</p>
+                            <ul class="list-disc list-inside space-y-1 pl-4 text-sm">
+                                <li>使用 <code>vector</code> 动态分配内存</li>
+                                <li>利用问题特性减少存储（如稀疏图）</li>
+                                <li>对于某些特定问题，可以采用滚动数组</li>
+                            </ul>
+                        </div>
+                        
+                        <div class="card-hover p-6 bg-gray-50 rounded-xl">
+                            <h3 class="text-lg font-semibold text-gray-800 mb-3">计算优化</h3>
+                            <ul class="list-disc list-inside space-y-2 pl-4">
+                                <li>快速计算 log n：<code>31 - __builtin_clz(n)</code></li>
+                                <li>优化模运算：使用减法代替取模</li>
+                                <li>减少不必要的计算，缓存中间结果</li>
+                            </ul>
+                        </div>
+                    </div>
+                    
+                    <div class="p-5 bg-yellow-50 rounded-lg border-l-4 border-yellow-400">
+                        <div class="flex items-start">
+                            <i class="fas fa-exclamation-triangle text-yellow-500 mt-1 mr-3"></i>
+                            <p class="text-gray-700">
+                                <strong>注意事项：</strong> 在实现倍增法时，数组大小的定义要合理，对于大数据量问题，注意整数溢出问题。在预处理阶段，确保边界条件处理正确，如虚拟根节点的设置、特殊情况的处理等。
+                            </p>
+                        </div>
+                    </div>
+                </div>
+            </section>
+        </main>
+
+        <!-- Footer -->
+        <footer class="mt-16 text-center text-gray-500 text-sm">
+            <div class="flex justify-center mt-6 space-x-4">
+                <a href="简介.html" class="text-primary hover:text-primary-dark transition-colors duration-300">
+                    <i class="fas fa-home mr-1"></i>首页
+                </a>
+                <a href="二分查找.html" class="text-primary hover:text-primary-dark transition-colors duration-300">
+                    <i class="fas fa-arrow-left ml-1"></i>二分查找
+                </a>
+                <a href="构造题.html" class="text-primary hover:text-primary-dark transition-colors duration-300">
+                    构造题<i class="fas fa-arrow-right ml-1"></i>
+                </a>
+            </div>
+        </footer>
+    </div>
+
+    <!-- Back to top button -->
+    <button id="backToTop" class="fixed bottom-6 right-6 bg-primary hover:bg-primary-dark text-white rounded-full p-3 shadow-lg transition-all duration-300 opacity-0 invisible">
+        <i class="fas fa-arrow-up"></i>
+    </button>
+
+    <!-- JavaScript for Back to top button -->
+    <script>
+        const backToTop = document.getElementById('backToTop');
+        
+        window.addEventListener('scroll', () => {
+            if (window.scrollY > 300) {
+                backToTop.classList.remove('opacity-0', 'invisible');
+                backToTop.classList.add('opacity-100', 'visible');
+            } else {
+                backToTop.classList.remove('opacity-100', 'visible');
+                backToTop.classList.add('opacity-0', 'invisible');
+            }
+        });
+        
+        backToTop.addEventListener('click', () => {
+            window.scrollTo({
+                top: 0,
+                behavior: 'smooth'
+            });
+        });
+    </script>
+    <!-- Simple ScrollReveal effect -->
+    <script src="https://unpkg.com/scrollreveal"></script>
+    <script>
+        ScrollReveal().reveal('section', { 
+            delay: 200,
+            distance: '20px',
+            origin: 'bottom',
+            duration: 800,
+            easing: 'ease-in-out'
+        });
+    </script>
+</body>
+</html> 

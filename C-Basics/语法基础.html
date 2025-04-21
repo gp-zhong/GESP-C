@@ -1,0 +1,406 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>C++ 语法基础</title>
+    <!-- TailwindCSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&family=Roboto+Mono&display=swap" rel="stylesheet">
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        primary: {
+                            light: '#a5f3fc',
+                            DEFAULT: '#06b6d4',
+                            dark: '#0891b2',
+                        },
+                        secondary: {
+                            light: '#c7d2fe',
+                            DEFAULT: '#818cf8',
+                            dark: '#6366f1',
+                        },
+                        codeBlock: '#1e293b',
+                    },
+                    fontFamily: {
+                        sans: ['Poppins', 'sans-serif'],
+                        mono: ['Roboto Mono', 'monospace'],
+                    },
+                }
+            }
+        }
+    </script>
+    <style>
+        .card-hover {
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+        }
+        .card-hover:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 25px -5px rgba(6, 182, 212, 0.1), 0 10px 10px -5px rgba(6, 182, 212, 0.04);
+        }
+        .code-block::-webkit-scrollbar {
+            height: 8px;
+        }
+        .code-block::-webkit-scrollbar-thumb {
+            background-color: #06b6d4;
+            border-radius: 4px;
+        }
+        .code-block::-webkit-scrollbar-track {
+            background-color: #e2e8f0;
+            border-radius: 4px;
+        }
+    </style>
+</head>
+<body class="bg-gray-50 font-sans">
+    <div class="min-h-screen max-w-6xl mx-auto px-8 py-10">
+        <!-- Header -->
+        <header class="mb-12 text-center">
+            <div class="inline-block px-3 py-1 bg-primary-light text-primary-dark rounded-full text-sm font-medium mb-4">
+                C++ 编程入门
+            </div>
+            <h1 class="text-4xl font-bold text-gray-800 mb-4">C++ 语法基础</h1>
+            <p class="text-lg text-gray-600 max-w-3xl mx-auto">掌握 C++ 编程的核心语法知识，为算法编程打下坚实基础</p>
+        </header>
+
+        <!-- Main Content -->
+        <main>
+            <!-- 代码框架 Section -->
+            <section class="mb-12 bg-white rounded-2xl shadow-md p-8">
+                <div class="flex items-center mb-6">
+                    <i class="fas fa-code text-primary text-xl mr-3"></i>
+                    <h2 class="text-2xl font-bold text-gray-800">代码框架</h2>
+                </div>
+                <div class="space-y-4 text-gray-700">
+                    <p>如果你不想深究背后的原理，初学时可以直接将这个「框架」背下来：</p>
+                    
+                    <div class="overflow-x-auto bg-codeBlock rounded-lg p-4 mb-4">
+                        <pre class="text-gray-100 font-mono text-sm"><code>#include &lt;iostream&gt;
+
+int main() {
+    // 这里是主函数内部
+    
+    return 0;
+}</code></pre>
+                    </div>
+                    
+                    <div class="p-5 bg-primary-light bg-opacity-10 rounded-lg">
+                        <p>OI 中，程序的目的是完成题目所要求的任务，接受输入，进行计算，之后输出结果。源代码的基本内容是引入必须的库（头文件）、定义主函数、读入数据、计算、输出，最后结束。</p>
+                    </div>
+                </div>
+            </section>
+            
+            <!-- 注释 Section -->
+            <section class="mb-12 bg-white rounded-2xl shadow-md p-8">
+                <div class="flex items-center mb-6">
+                    <i class="fas fa-comment-alt text-primary text-xl mr-3"></i>
+                    <h2 class="text-2xl font-bold text-gray-800">注释</h2>
+                </div>
+                <div class="space-y-4 text-gray-700">
+                    <p>注释是程序中用于解释和说明的文字，编译器会忽略这些内容。C++ 支持两种注释方式：</p>
+                    
+                    <div class="overflow-x-auto bg-codeBlock rounded-lg p-4 mb-4">
+                        <pre class="text-gray-100 font-mono text-sm"><code>// 这是单行注释
+
+/*
+这是多行注释
+可以跨越多行
+*/
+
+#include &lt;iostream&gt;
+
+int main() {
+    // 这是程序的主函数
+    std::cout << "Hello, World!" << std::endl; // 输出 Hello, World!
+    return 0; // 返回 0 表示程序正常结束
+}</code></pre>
+                    </div>
+                    
+                    <div class="card-hover p-6 bg-gray-50 rounded-xl">
+                        <h3 class="text-lg font-semibold text-gray-800 mb-3">良好的注释习惯</h3>
+                        <ul class="list-disc pl-5 space-y-2 text-gray-700">
+                            <li>在代码的关键部分添加注释，解释算法思路</li>
+                            <li>注释应当简洁明了，避免过多的废话</li>
+                            <li>对于复杂的函数，在函数开头添加功能说明</li>
+                            <li>在大型项目中，保持注释风格的一致性</li>
+                        </ul>
+                    </div>
+                </div>
+            </section>
+            
+            <!-- 输入与输出 Section -->
+            <section class="mb-12 bg-white rounded-2xl shadow-md p-8">
+                <div class="flex items-center mb-6">
+                    <i class="fas fa-exchange-alt text-primary text-xl mr-3"></i>
+                    <h2 class="text-2xl font-bold text-gray-800">输入与输出</h2>
+                </div>
+                <div class="space-y-4 text-gray-700">
+                    <p>C++ 提供了多种输入输出方式，以下介绍两种常用的方法：</p>
+                    
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-8 mb-6">
+                        <div class="card-hover p-6 bg-gray-50 rounded-xl">
+                            <h3 class="text-lg font-semibold text-gray-800 mb-4">
+                                <i class="fas fa-stream text-primary-dark mr-2"></i>
+                                cin 与 cout
+                            </h3>
+                            <p class="mb-3">C++ 标准库提供的输入输出流对象，需要包含 <code>&lt;iostream&gt;</code> 头文件：</p>
+                            <div class="overflow-x-auto bg-codeBlock rounded-lg p-3">
+                                <pre class="text-gray-100 font-mono text-sm"><code>#include &lt;iostream&gt;
+
+int main() {
+    int a, b;
+    std::cin >> a >> b;         // 从标准输入读取两个整数
+    std::cout << a + b << std::endl;  // 将两个整数的和输出到标准输出
+    return 0;
+}</code></pre>
+                            </div>
+                            <div class="mt-3">
+                                <p class="text-sm text-gray-600">也可以使用 <code>using namespace std;</code> 来简化代码，但这在较大的项目中可能导致命名冲突</p>
+                            </div>
+                        </div>
+                        
+                        <div class="card-hover p-6 bg-gray-50 rounded-xl">
+                            <h3 class="text-lg font-semibold text-gray-800 mb-4">
+                                <i class="fas fa-print text-primary-dark mr-2"></i>
+                                scanf 与 printf
+                            </h3>
+                            <p class="mb-3">C 语言的输入输出函数，C++ 也可以使用它们，通常比 cin 和 cout 执行速度更快：</p>
+                            <div class="overflow-x-auto bg-codeBlock rounded-lg p-3">
+                                <pre class="text-gray-100 font-mono text-sm"><code>#include &lt;cstdio&gt;  // 或 #include &lt;stdio.h&gt;
+
+int main() {
+    int a, b;
+    scanf("%d%d", &a, &b);       // 从标准输入读取两个整数
+    printf("%d\n", a + b);       // 将两个整数的和输出到标准输出
+    return 0;
+}</code></pre>
+                            </div>
+                            <div class="mt-3">
+                                <p class="text-sm text-gray-600">格式说明符：%d（整数）、%f（浮点数）、%c（字符）、%s（字符串）、%lld（长整数）</p>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="p-5 bg-blue-50 rounded-xl border-l-4 border-blue-400">
+                        <div class="flex items-start">
+                            <i class="fas fa-info-circle text-blue-500 mt-1 mr-3"></i>
+                            <div>
+                                <h3 class="text-lg font-semibold text-gray-800 mb-2">性能提示</h3>
+                                <p class="text-gray-700">
+                                    在 OI 竞赛中，使用 scanf/printf 通常比 cin/cout 更高效。如果必须使用 cin/cout，可以使用以下代码来加速：
+                                </p>
+                                <div class="mt-2 p-3 bg-white rounded-md">
+                                    <pre class="font-mono text-sm"><code>std::ios::sync_with_stdio(false);
+std::cin.tie(nullptr);</code></pre>
+                                </div>
+                                <p class="mt-2 text-gray-700">但是，使用这段代码后就不能再使用 scanf/printf 了。</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+            
+            <!-- 扩展内容 Section -->
+            <section class="mb-12 bg-white rounded-2xl shadow-md p-8">
+                <div class="flex items-center mb-6">
+                    <i class="fas fa-puzzle-piece text-primary text-xl mr-3"></i>
+                    <h2 class="text-2xl font-bold text-gray-800">扩展内容</h2>
+                </div>
+                
+                <!-- 空白字符 Subsection -->
+                <div class="mb-10">
+                    <h3 class="text-xl font-semibold text-gray-800 mb-4">C++ 中的空白字符</h3>
+                    <p class="mb-4 text-gray-700">在 C++ 中，空格、制表符和换行符统称为空白字符。C++ 编译器通常会忽略空白字符，除非它们出现在字符串常量中。</p>
+                    
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-4">
+                        <div class="overflow-x-auto bg-codeBlock rounded-lg p-4">
+                            <div class="text-xs text-gray-400 mb-2">// 规范的代码</div>
+                            <pre class="text-gray-100 font-mono text-sm"><code>#include &lt;iostream&gt;
+
+int main() {
+    int x, y;
+    std::cin >> x >> y;
+    std::cout << y << std::endl << x;
+    return 0;
+}</code></pre>
+                        </div>
+                        
+                        <div class="overflow-x-auto bg-codeBlock rounded-lg p-4">
+                            <div class="text-xs text-gray-400 mb-2">// 不规范但合法的代码</div>
+                            <pre class="text-gray-100 font-mono text-sm"><code>#include &lt;iostream&gt;
+int      main(){
+int/**/x, y;
+std::cin >> x >>y;
+std::cout <<           y  <<std::endl         << x;
+return       0;
+}</code></pre>
+                        </div>
+                    </div>
+                    
+                    <div class="p-5 bg-yellow-50 rounded-lg border-l-4 border-yellow-400">
+                        <div class="flex items-start">
+                            <i class="fas fa-exclamation-triangle text-yellow-500 mt-1 mr-3"></i>
+                            <p class="text-gray-700">
+                                虽然第二种写法是合法的，但不推荐这样编写代码，因为它降低了代码的可读性。优秀的代码风格有助于团队协作和维护。
+                            </p>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- #define 命令 Subsection -->
+                <div>
+                    <h3 class="text-xl font-semibold text-gray-800 mb-4">#define 命令</h3>
+                    <p class="mb-4 text-gray-700">#define 是一种预处理命令，用于定义宏，本质上是文本替换：</p>
+                    
+                    <div class="overflow-x-auto bg-codeBlock rounded-lg p-4 mb-4">
+                        <pre class="text-gray-100 font-mono text-sm"><code>#include &lt;iostream&gt;
+#define n 233  // n 不是变量，而是编译器会将代码中所有 n 文本替换为 233
+
+int main() {
+    std::cout << n;  // 输出 233
+    return 0;
+}</code></pre>
+                    </div>
+                    
+                    <p class="mb-4 text-gray-700">需要注意的是，作为标识符一部分的 n 不会被替换，如 fn 不会被替换成 f233，同样，字符串内的也不会被替换。</p>
+                    
+                    <div class="card-hover p-6 bg-gray-50 rounded-xl mb-6">
+                        <div class="flex items-center mb-3">
+                            <i class="fas fa-info-circle text-secondary mr-2"></i>
+                            <h4 class="font-semibold">什么是标识符？</h4>
+                        </div>
+                        <p class="text-gray-700">
+                            标识符就是可以用作变量名的一组字符。例如，<code>abcd</code> 和 <code>abc1</code> 都是合法的标识符，而 <code>1a</code> 和 <code>c+b</code> 都不是合法的标识符。
+                        </p>
+                        <p class="mt-2 text-gray-700">
+                            标识符由英文字母、下划线开头，中间只允许出现英文字母、下划线和数字。值得注意的是，关键字（如 <code>int</code>, <code>for</code>, <code>if</code>）不能用作标识符。
+                        </p>
+                    </div>
+                    
+                    <p class="mb-4 text-gray-700">宏可以带参数，带参数的宏可以像函数一样使用：</p>
+                    
+                    <div class="overflow-x-auto bg-codeBlock rounded-lg p-4 mb-6">
+                        <pre class="text-gray-100 font-mono text-sm"><code>#include &lt;iostream&gt;
+#define sum(x, y) ((x) + (y))
+#define square(x) ((x) * (x))
+
+int main() {
+    std::cout << sum(1, 2) << ' ' << 2 * sum(3, 5) << std::endl;  // 输出 3 16
+    return 0;
+}</code></pre>
+                    </div>
+                    
+                    <div class="p-5 bg-red-50 rounded-xl border-l-4 border-red-400 mb-6">
+                        <div class="flex items-start">
+                            <i class="fas fa-exclamation-circle text-red-500 mt-1 mr-3"></i>
+                            <div>
+                                <h3 class="text-lg font-semibold text-gray-800 mb-2">警告</h3>
+                                <p class="text-gray-700 mb-3">
+                                    带参数的宏和函数有区别。因为宏是文本替换，所以会引发许多问题：
+                                </p>
+                                <div class="p-3 bg-white rounded-md overflow-x-auto">
+                                    <pre class="font-mono text-sm"><code>#include &lt;iostream&gt;
+#define sum(x, y) x + y  // 这里应当为 #define sum(x, y) ((x) + (y))
+#define square(x) ((x) * (x))
+
+int main() {
+    std::cout << sum(1, 2) << ' ' << 2 * sum(3, 5) << std::endl;
+    // 输出为 3 11，因为 #define 是文本替换，后面的语句被替换为了 2 * 3 + 5
+    
+    int i = 1;
+    std::cout << square(++i) << ' ' << i;
+    // 输出未定义，因为 ++i 被执行了两遍
+    // 而同一个语句中多次修改同一个变量是未定义行为（有例外）
+    return 0;
+}</code></pre>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <p class="mb-4 text-gray-700">使用 #define 是有风险的（由于 #define 作用域是整个程序，因此可能导致文本被意外地替换，需要使用 #undef 及时取消定义），因此应谨慎使用。较为推荐的做法是：使用 const 限定符声明常量，使用函数代替宏。</p>
+                    
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-8 mb-6">
+                        <div class="card-hover p-6 bg-gray-50 rounded-xl">
+                            <h4 class="text-lg font-medium text-gray-800 mb-4">OI 中的常见用法</h4>
+                            <ul class="list-disc pl-5 space-y-2 text-gray-700">
+                                <li>
+                                    <code>#define int long long</code> + <code>signed main()</code><br>
+                                    <span class="text-sm text-gray-600">避免忘记开 long long 导致的错误</span>
+                                </li>
+                                <li>
+                                    <code>#define For(i, l, r) for (int i = (l); i <= (r); ++i)</code><br>
+                                    <span class="text-sm text-gray-600">用于减短代码长度</span>
+                                </li>
+                                <li>
+                                    <code>#define pb push_back</code><br>
+                                    <span class="text-sm text-gray-600">简化常用操作</span>
+                                </li>
+                                <li>
+                                    <code>#define mid ((l + r) / 2)</code><br>
+                                    <span class="text-sm text-gray-600">简化二分搜索等算法</span>
+                                </li>
+                            </ul>
+                            <p class="mt-3 text-sm text-yellow-600">
+                                <i class="fas fa-info-circle mr-1"></i> 以上用法虽然在 OI 中常见，但不被推荐，会降低代码的规范性
+                            </p>
+                        </div>
+                        
+                        <div class="card-hover p-6 bg-gray-50 rounded-xl">
+                            <h4 class="text-lg font-medium text-gray-800 mb-4">条件编译</h4>
+                            <div class="overflow-x-auto bg-codeBlock rounded-lg p-3 mb-3">
+                                <pre class="text-gray-100 font-mono text-sm"><code>#ifdef LINUX
+// code for linux
+#else
+// code for other OS
+#endif</code></pre>
+                            </div>
+                            <p class="text-gray-700">
+                                可以在编译的时候通过 <code>-DLINUX</code> 来控制编译出的代码，而无需修改源文件。
+                            </p>
+                            <p class="mt-2 text-gray-700">
+                                优点：通过 <code>-DLINUX</code> 编译出的可执行文件里并没有其他操作系统的代码，那些代码在预处理的时候就已经被删除了。
+                            </p>
+                        </div>
+                    </div>
+                </div>
+            </section>
+        </main>
+
+        <!-- Footer -->
+        <footer class="mt-16 text-center text-gray-500 text-sm">
+            <div class="flex justify-center mt-6 space-x-4">
+                <a href="简介.html" class="text-primary hover:text-primary-dark transition-colors duration-300">
+                    <i class="fas fa-home mr-1"></i>首页
+                </a>
+                <a href="变量.html" class="text-primary hover:text-primary-dark transition-colors duration-300">
+                    变量<i class="fas fa-arrow-right ml-1"></i>
+                </a>
+            </div>
+        </footer>
+    </div>
+
+    <!-- Simple ScrollReveal effect -->
+    <script src="https://unpkg.com/scrollreveal"></script>
+    <script>
+        ScrollReveal().reveal('section', { 
+            delay: 200,
+            distance: '20px',
+            origin: 'bottom',
+            duration: 800,
+            easing: 'ease-in-out'
+        });
+    </script>
+</body>
+</html>
+
+
+
+
+
+
+        

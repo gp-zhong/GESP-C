@@ -1,0 +1,1151 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>基数排序</title>
+    <!-- TailwindCSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&family=Roboto+Mono&display=swap" rel="stylesheet">
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        primary: {
+                            light: '#a5f3fc',
+                            DEFAULT: '#06b6d4',
+                            dark: '#0891b2',
+                        },
+                        secondary: {
+                            light: '#c7d2fe',
+                            DEFAULT: '#818cf8',
+                            dark: '#6366f1',
+                        },
+                        codeBlock: '#1e293b',
+                    },
+                    fontFamily: {
+                        sans: ['Poppins', 'sans-serif'],
+                        mono: ['Roboto Mono', 'monospace'],
+                    },
+                }
+            }
+        }
+    </script>
+    <style>
+        .card-hover {
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+        }
+        .card-hover:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 25px -5px rgba(6, 182, 212, 0.1), 0 10px 10px -5px rgba(6, 182, 212, 0.04);
+        }
+        .code-block::-webkit-scrollbar {
+            height: 8px;
+        }
+        .code-block::-webkit-scrollbar-thumb {
+            background-color: #06b6d4;
+            border-radius: 4px;
+        }
+        .code-block::-webkit-scrollbar-track {
+            background-color: #e2e8f0;
+            border-radius: 4px;
+        }
+    </style>
+</head>
+<body class="bg-gray-50 font-sans">
+    <div class="min-h-screen max-w-6xl mx-auto px-8 py-10">
+        <!-- Header -->
+        <header class="mb-12 text-center">
+            <div class="inline-block px-3 py-1 bg-primary-light text-primary-dark rounded-full text-sm font-medium mb-4">
+                算法基础
+            </div>
+            <h1 class="text-4xl font-bold text-gray-800 mb-4">基数排序</h1>
+            <p class="text-lg text-gray-600 max-w-3xl mx-auto">一种非比较型整数排序算法，通过按位排序实现高效的数据排序</p>
+        </header>
+
+        <!-- Main Content -->
+        <main class="space-y-12">
+            <!-- 算法简介 -->
+            <section id="intro">
+                <h2 class="text-2xl font-semibold text-gray-800 mb-4 flex items-center">
+                    <i class="fas fa-info-circle text-primary mr-3"></i>算法简介
+                </h2>
+                <div class="bg-white p-6 rounded-lg shadow-md">
+                    <p class="text-gray-700 mb-4">基数排序（Radix Sort）是一种非比较型整数排序算法，其基本思想是：</p>
+                    <ul class="list-disc list-inside space-y-2 text-gray-700 mb-4 ml-4">
+                        <li>按照数字的位数进行排序，从最低位（个位）开始，逐位向最高位排序</li>
+                        <li>对每一位上的数字排序采用稳定的排序算法，如计数排序</li>
+                        <li>通过多轮按位排序，最终实现整个数组的排序</li>
+                    </ul>
+                    <p class="text-gray-700">基数排序是一种稳定的排序算法，避开了比较操作，适用于整数或可转换为整数的数据，如字符串排序。其时间复杂度为 O(nk)，其中 n 是数组长度，k 是数字位数。</p>
+                </div>
+            </section>
+            
+            <!-- 算法特点 -->
+            <section id="characteristics">
+                <h2 class="text-2xl font-semibold text-gray-800 mb-4 flex items-center">
+                    <i class="fas fa-star text-primary mr-3"></i>算法特点
+                </h2>
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <div class="bg-white p-6 rounded-lg shadow-md card-hover">
+                        <h3 class="text-xl font-medium text-gray-800 mb-3 flex items-center">
+                            <i class="fas fa-check-circle text-green-500 mr-2"></i>优点
+                        </h3>
+                        <ul class="list-disc list-inside space-y-2 text-gray-700 ml-4">
+                            <li>对于特定范围的整数排序速度快，避免了元素比较操作</li>
+                            <li>是一种稳定的排序算法，保持相同元素的相对顺序</li>
+                            <li>适合排序位数少的数字和字符串</li>
+                            <li>可以轻松处理负数和小数（通过预处理）</li>
+                        </ul>
+                    </div>
+                    <div class="bg-white p-6 rounded-lg shadow-md card-hover">
+                        <h3 class="text-xl font-medium text-gray-800 mb-3 flex items-center">
+                            <i class="fas fa-exclamation-circle text-red-500 mr-2"></i>缺点
+                        </h3>
+                        <ul class="list-disc list-inside space-y-2 text-gray-700 ml-4">
+                            <li>需要额外的空间用于存储临时数组</li>
+                            <li>当数字位数较多时，排序效率可能下降</li>
+                            <li>对于不同位数的数字，需要额外的处理</li>
+                            <li>相比比较型排序，实现相对复杂些</li>
+                        </ul>
+                    </div>
+                </div>
+            </section>
+            
+            <!-- 算法原理 -->
+            <section id="principle">
+                <h2 class="text-2xl font-semibold text-gray-800 mb-4 flex items-center">
+                    <i class="fas fa-lightbulb text-primary mr-3"></i>算法原理
+                </h2>
+                <div class="bg-white p-6 rounded-lg shadow-md">
+                    <p class="text-gray-700 mb-4">基数排序的基本原理是按照数字的位数进行分类，具体步骤如下：</p>
+                    <ol class="list-decimal list-inside space-y-3 text-gray-700 mb-6 ml-4">
+                        <li><span class="font-medium">确定最大位数：</span>找出数组中最大的数，并确定其位数</li>
+                        <li><span class="font-medium">按位排序：</span>从最低位（个位）开始，对每一位上的数字进行排序</li>
+                        <li><span class="font-medium">收集结果：</span>按照排序后的顺序收集元素，形成新的数组</li>
+                        <li><span class="font-medium">重复执行：</span>对更高位重复步骤2和3，直到对最高位排序完成</li>
+                    </ol>
+                    
+                    <div class="bg-gray-100 p-5 rounded-lg">
+                        <h3 class="text-lg font-medium text-gray-800 mb-3">实现方式</h3>
+                        <p class="text-gray-700 mb-3">基数排序有两种主要的实现方式：</p>
+                        <ul class="list-disc list-inside space-y-2 text-gray-700 ml-4">
+                            <li><span class="font-medium">LSD（Least Significant Digit）：</span>从最低位开始排序，适合位数相同的数值</li>
+                            <li><span class="font-medium">MSD（Most Significant Digit）：</span>从最高位开始排序，适合位数不同的数值</li>
+                        </ul>
+                        <p class="text-gray-700 mt-2">常见实现中，基数排序每一位上的排序通常使用计数排序或桶排序，因为它们对于有限范围的整数（0-9）排序非常高效。</p>
+                    </div>
+                </div>
+            </section>
+
+            <!-- 算法演示 -->
+            <section id="demo">
+                <h2 class="text-2xl font-semibold text-gray-800 mb-4 flex items-center">
+                    <i class="fas fa-play-circle text-primary mr-3"></i>算法演示
+                </h2>
+                <div class="bg-white p-6 rounded-lg shadow-md">
+                    <p class="text-gray-700 mb-4">以数组 [170, 45, 75, 90, 802, 24, 2, 66] 为例，展示基数排序（LSD 方式）的执行过程：</p>
+                    
+                    <div class="space-y-8 my-6">
+                        <!-- 步骤 1 -->
+                        <div>
+                            <h3 class="text-lg font-medium text-gray-800 mb-2">步骤 1：确定最大位数</h3>
+                            <p class="text-gray-700 mb-3">数组中最大的数是 802，有3位，因此需要进行3轮排序（个位、十位、百位）</p>
+                            <div class="flex items-center justify-center space-x-2 my-4 flex-wrap">
+                                <div class="w-12 h-12 flex items-center justify-center bg-primary-light text-gray-800 font-medium rounded">170</div>
+                                <div class="w-12 h-12 flex items-center justify-center bg-primary-light text-gray-800 font-medium rounded">45</div>
+                                <div class="w-12 h-12 flex items-center justify-center bg-primary-light text-gray-800 font-medium rounded">75</div>
+                                <div class="w-12 h-12 flex items-center justify-center bg-primary-light text-gray-800 font-medium rounded">90</div>
+                                <div class="w-12 h-12 flex items-center justify-center bg-primary-light text-gray-800 font-medium rounded">802</div>
+                                <div class="w-12 h-12 flex items-center justify-center bg-primary-light text-gray-800 font-medium rounded">24</div>
+                                <div class="w-12 h-12 flex items-center justify-center bg-primary-light text-gray-800 font-medium rounded">2</div>
+                                <div class="w-12 h-12 flex items-center justify-center bg-primary-light text-gray-800 font-medium rounded">66</div>
+                            </div>
+                        </div>
+                        
+                        <!-- 步骤 2 -->
+                        <div>
+                            <h3 class="text-lg font-medium text-gray-800 mb-2">步骤 2：按个位数字排序</h3>
+                            <p class="text-gray-700 mb-3">按个位数字（0-9）将数字分组，然后合并</p>
+                            
+                            <div class="overflow-x-auto mb-4">
+                                <table class="min-w-full border-collapse">
+                                    <thead>
+                                        <tr class="bg-gray-100">
+                                            <th class="py-2 px-4 border">数字桶</th>
+                                            <th class="py-2 px-4 border">包含的元素</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <tr>
+                                            <td class="py-2 px-4 border text-center font-medium">0</td>
+                                            <td class="py-2 px-4 border">
+                                                <div class="flex justify-center">
+                                                    <div class="w-12 h-12 flex items-center justify-center bg-blue-100 text-gray-800 font-medium rounded mx-1">170</div>
+                                                    <div class="w-12 h-12 flex items-center justify-center bg-blue-100 text-gray-800 font-medium rounded mx-1">90</div>
+                                                </div>
+                                            </td>
+                                        </tr>
+                                        <tr>
+                                            <td class="py-2 px-4 border text-center font-medium">2</td>
+                                            <td class="py-2 px-4 border">
+                                                <div class="flex justify-center">
+                                                    <div class="w-12 h-12 flex items-center justify-center bg-blue-100 text-gray-800 font-medium rounded mx-1">802</div>
+                                                    <div class="w-12 h-12 flex items-center justify-center bg-blue-100 text-gray-800 font-medium rounded mx-1">2</div>
+                                                </div>
+                                            </td>
+                                        </tr>
+                                        <tr>
+                                            <td class="py-2 px-4 border text-center font-medium">4</td>
+                                            <td class="py-2 px-4 border">
+                                                <div class="flex justify-center">
+                                                    <div class="w-12 h-12 flex items-center justify-center bg-blue-100 text-gray-800 font-medium rounded mx-1">24</div>
+                                                </div>
+                                            </td>
+                                        </tr>
+                                        <tr>
+                                            <td class="py-2 px-4 border text-center font-medium">5</td>
+                                            <td class="py-2 px-4 border">
+                                                <div class="flex justify-center">
+                                                    <div class="w-12 h-12 flex items-center justify-center bg-blue-100 text-gray-800 font-medium rounded mx-1">45</div>
+                                                    <div class="w-12 h-12 flex items-center justify-center bg-blue-100 text-gray-800 font-medium rounded mx-1">75</div>
+                                                </div>
+                                            </td>
+                                        </tr>
+                                        <tr>
+                                            <td class="py-2 px-4 border text-center font-medium">6</td>
+                                            <td class="py-2 px-4 border">
+                                                <div class="flex justify-center">
+                                                    <div class="w-12 h-12 flex items-center justify-center bg-blue-100 text-gray-800 font-medium rounded mx-1">66</div>
+                                                </div>
+                                            </td>
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                            
+                            <p class="text-gray-700 mb-3">按个位排序后的结果：</p>
+                            <div class="flex items-center justify-center space-x-2 my-4 flex-wrap">
+                                <div class="w-12 h-12 flex items-center justify-center bg-blue-200 text-gray-800 font-medium rounded">170</div>
+                                <div class="w-12 h-12 flex items-center justify-center bg-blue-200 text-gray-800 font-medium rounded">90</div>
+                                <div class="w-12 h-12 flex items-center justify-center bg-blue-200 text-gray-800 font-medium rounded">802</div>
+                                <div class="w-12 h-12 flex items-center justify-center bg-blue-200 text-gray-800 font-medium rounded">2</div>
+                                <div class="w-12 h-12 flex items-center justify-center bg-blue-200 text-gray-800 font-medium rounded">24</div>
+                                <div class="w-12 h-12 flex items-center justify-center bg-blue-200 text-gray-800 font-medium rounded">45</div>
+                                <div class="w-12 h-12 flex items-center justify-center bg-blue-200 text-gray-800 font-medium rounded">75</div>
+                                <div class="w-12 h-12 flex items-center justify-center bg-blue-200 text-gray-800 font-medium rounded">66</div>
+                            </div>
+                        </div>
+                        
+                        <!-- 步骤 3 -->
+                        <div>
+                            <h3 class="text-lg font-medium text-gray-800 mb-2">步骤 3：按十位数字排序</h3>
+                            <p class="text-gray-700 mb-3">对第一轮排序的结果，按十位数字（0-9）分组，再合并</p>
+                            
+                            <div class="overflow-x-auto mb-4">
+                                <table class="min-w-full border-collapse">
+                                    <thead>
+                                        <tr class="bg-gray-100">
+                                            <th class="py-2 px-4 border">数字桶</th>
+                                            <th class="py-2 px-4 border">包含的元素</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <tr>
+                                            <td class="py-2 px-4 border text-center font-medium">0</td>
+                                            <td class="py-2 px-4 border">
+                                                <div class="flex justify-center">
+                                                    <div class="w-12 h-12 flex items-center justify-center bg-blue-100 text-gray-800 font-medium rounded mx-1">2</div>
+                                                </div>
+                                            </td>
+                                        </tr>
+                                        <tr>
+                                            <td class="py-2 px-4 border text-center font-medium">2</td>
+                                            <td class="py-2 px-4 border">
+                                                <div class="flex justify-center">
+                                                    <div class="w-12 h-12 flex items-center justify-center bg-blue-100 text-gray-800 font-medium rounded mx-1">24</div>
+                                                </div>
+                                            </td>
+                                        </tr>
+                                        <tr>
+                                            <td class="py-2 px-4 border text-center font-medium">4</td>
+                                            <td class="py-2 px-4 border">
+                                                <div class="flex justify-center">
+                                                    <div class="w-12 h-12 flex items-center justify-center bg-blue-100 text-gray-800 font-medium rounded mx-1">45</div>
+                                                </div>
+                                            </td>
+                                        </tr>
+                                        <tr>
+                                            <td class="py-2 px-4 border text-center font-medium">6</td>
+                                            <td class="py-2 px-4 border">
+                                                <div class="flex justify-center">
+                                                    <div class="w-12 h-12 flex items-center justify-center bg-blue-100 text-gray-800 font-medium rounded mx-1">66</div>
+                                                </div>
+                                            </td>
+                                        </tr>
+                                        <tr>
+                                            <td class="py-2 px-4 border text-center font-medium">7</td>
+                                            <td class="py-2 px-4 border">
+                                                <div class="flex justify-center">
+                                                    <div class="w-12 h-12 flex items-center justify-center bg-blue-100 text-gray-800 font-medium rounded mx-1">75</div>
+                                                    <div class="w-12 h-12 flex items-center justify-center bg-blue-100 text-gray-800 font-medium rounded mx-1">170</div>
+                                                </div>
+                                            </td>
+                                        </tr>
+                                        <tr>
+                                            <td class="py-2 px-4 border text-center font-medium">9</td>
+                                            <td class="py-2 px-4 border">
+                                                <div class="flex justify-center">
+                                                    <div class="w-12 h-12 flex items-center justify-center bg-blue-100 text-gray-800 font-medium rounded mx-1">90</div>
+                                                </div>
+                                            </td>
+                                        </tr>
+                                        <tr>
+                                            <td class="py-2 px-4 border text-center font-medium">0</td>
+                                            <td class="py-2 px-4 border">
+                                                <div class="flex justify-center">
+                                                    <div class="w-12 h-12 flex items-center justify-center bg-blue-100 text-gray-800 font-medium rounded mx-1">802</div>
+                                                </div>
+                                            </td>
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                            
+                            <p class="text-gray-700 mb-3">按十位排序后的结果：</p>
+                            <div class="flex items-center justify-center space-x-2 my-4 flex-wrap">
+                                <div class="w-12 h-12 flex items-center justify-center bg-green-200 text-gray-800 font-medium rounded">2</div>
+                                <div class="w-12 h-12 flex items-center justify-center bg-green-200 text-gray-800 font-medium rounded">802</div>
+                                <div class="w-12 h-12 flex items-center justify-center bg-green-200 text-gray-800 font-medium rounded">24</div>
+                                <div class="w-12 h-12 flex items-center justify-center bg-green-200 text-gray-800 font-medium rounded">45</div>
+                                <div class="w-12 h-12 flex items-center justify-center bg-green-200 text-gray-800 font-medium rounded">66</div>
+                                <div class="w-12 h-12 flex items-center justify-center bg-green-200 text-gray-800 font-medium rounded">75</div>
+                                <div class="w-12 h-12 flex items-center justify-center bg-green-200 text-gray-800 font-medium rounded">170</div>
+                                <div class="w-12 h-12 flex items-center justify-center bg-green-200 text-gray-800 font-medium rounded">90</div>
+                            </div>
+                        </div>
+                        
+                        <!-- 步骤 4 -->
+                        <div>
+                            <h3 class="text-lg font-medium text-gray-800 mb-2">步骤 4：按百位数字排序</h3>
+                            <p class="text-gray-700 mb-3">对第二轮排序的结果，按百位数字（0-9）分组，再合并</p>
+                            
+                            <div class="overflow-x-auto mb-4">
+                                <table class="min-w-full border-collapse">
+                                    <thead>
+                                        <tr class="bg-gray-100">
+                                            <th class="py-2 px-4 border">数字桶</th>
+                                            <th class="py-2 px-4 border">包含的元素</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <tr>
+                                            <td class="py-2 px-4 border text-center font-medium">0</td>
+                                            <td class="py-2 px-4 border">
+                                                <div class="flex justify-center flex-wrap">
+                                                    <div class="w-12 h-12 flex items-center justify-center bg-blue-100 text-gray-800 font-medium rounded mx-1 my-1">2</div>
+                                                    <div class="w-12 h-12 flex items-center justify-center bg-blue-100 text-gray-800 font-medium rounded mx-1 my-1">24</div>
+                                                    <div class="w-12 h-12 flex items-center justify-center bg-blue-100 text-gray-800 font-medium rounded mx-1 my-1">45</div>
+                                                    <div class="w-12 h-12 flex items-center justify-center bg-blue-100 text-gray-800 font-medium rounded mx-1 my-1">66</div>
+                                                    <div class="w-12 h-12 flex items-center justify-center bg-blue-100 text-gray-800 font-medium rounded mx-1 my-1">75</div>
+                                                    <div class="w-12 h-12 flex items-center justify-center bg-blue-100 text-gray-800 font-medium rounded mx-1 my-1">90</div>
+                                                </div>
+                                            </td>
+                                        </tr>
+                                        <tr>
+                                            <td class="py-2 px-4 border text-center font-medium">1</td>
+                                            <td class="py-2 px-4 border">
+                                                <div class="flex justify-center">
+                                                    <div class="w-12 h-12 flex items-center justify-center bg-blue-100 text-gray-800 font-medium rounded mx-1">170</div>
+                                                </div>
+                                            </td>
+                                        </tr>
+                                        <tr>
+                                            <td class="py-2 px-4 border text-center font-medium">8</td>
+                                            <td class="py-2 px-4 border">
+                                                <div class="flex justify-center">
+                                                    <div class="w-12 h-12 flex items-center justify-center bg-blue-100 text-gray-800 font-medium rounded mx-1">802</div>
+                                                </div>
+                                            </td>
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                            
+                            <p class="text-gray-700 mb-3">按百位排序后的最终结果：</p>
+                            <div class="flex items-center justify-center space-x-2 my-4 flex-wrap">
+                                <div class="w-12 h-12 flex items-center justify-center bg-green-500 text-white font-medium rounded">2</div>
+                                <div class="w-12 h-12 flex items-center justify-center bg-green-500 text-white font-medium rounded">24</div>
+                                <div class="w-12 h-12 flex items-center justify-center bg-green-500 text-white font-medium rounded">45</div>
+                                <div class="w-12 h-12 flex items-center justify-center bg-green-500 text-white font-medium rounded">66</div>
+                                <div class="w-12 h-12 flex items-center justify-center bg-green-500 text-white font-medium rounded">75</div>
+                                <div class="w-12 h-12 flex items-center justify-center bg-green-500 text-white font-medium rounded">90</div>
+                                <div class="w-12 h-12 flex items-center justify-center bg-green-500 text-white font-medium rounded">170</div>
+                                <div class="w-12 h-12 flex items-center justify-center bg-green-500 text-white font-medium rounded">802</div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="bg-gray-100 p-5 rounded-lg mt-6">
+                        <h3 class="text-lg font-medium text-gray-800 mb-3">LSD 基数排序过程总结</h3>
+                        <ol class="list-decimal list-inside space-y-2 text-gray-700 ml-4">
+                            <li>第一轮：按个位排序，相当于将数字分到0-9的十个桶中，并按桶的顺序收集</li>
+                            <li>第二轮：按十位排序，将上一轮结果再次分到0-9的桶中并收集</li>
+                            <li>第三轮：按百位排序，重复上述过程</li>
+                            <li>排序完成后，数组已按照数值大小排好序</li>
+                        </ol>
+                        <p class="text-gray-700 mt-3">每一轮排序中，必须使用稳定的排序算法（如计数排序）才能保证基数排序的正确性。</p>
+                    </div>
+                </div>
+            </section>
+
+            <!-- 交互式可视化 -->
+            <section id="visualization">
+                <h2 class="text-2xl font-semibold text-gray-800 mb-4 flex items-center">
+                    <i class="fas fa-chart-bar text-primary mr-3"></i>交互式可视化
+                </h2>
+                <div class="bg-white p-6 rounded-lg shadow-md">
+                    <p class="text-gray-700 mb-4">以下是基数排序算法的交互式可视化演示，您可以生成新的随机数组并观察LSD基数排序的执行过程。</p>
+                    
+                    <div class="flex flex-wrap gap-2 mb-4">
+                        <button id="newArray" class="px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600 transition">
+                            <i class="fas fa-random mr-2"></i>生成新数组
+                        </button>
+                        <button id="startSort" class="px-4 py-2 bg-green-500 text-white rounded hover:bg-green-600 transition">
+                            <i class="fas fa-play mr-2"></i>开始排序
+                        </button>
+                        <button id="pauseSort" class="px-4 py-2 bg-yellow-500 text-white rounded hover:bg-yellow-600 transition hidden">
+                            <i class="fas fa-pause mr-2"></i>暂停排序
+                        </button>
+                        <button id="resetSort" class="px-4 py-2 bg-red-500 text-white rounded hover:bg-red-600 transition">
+                            <i class="fas fa-redo mr-2"></i>重置排序
+                        </button>
+                    </div>
+                    
+                    <div class="mb-4">
+                        <label for="speed" class="block text-sm font-medium text-gray-700 mb-1">速度调节：</label>
+                        <input type="range" id="speed" min="1" max="10" value="5" class="w-full md:w-1/2">
+                    </div>
+                    
+                    <div class="flex flex-wrap items-center mb-4 text-sm">
+                        <div class="flex items-center mr-4 mb-2">
+                            <div class="w-4 h-4 bg-blue-400 mr-1"></div>
+                            <span>原始数组</span>
+                        </div>
+                        <div class="flex items-center mr-4 mb-2">
+                            <div class="w-4 h-4 bg-yellow-400 mr-1"></div>
+                            <span>当前处理位</span>
+                        </div>
+                        <div class="flex items-center mr-4 mb-2">
+                            <div class="w-4 h-4 bg-green-500 mr-1"></div>
+                            <span>已排序</span>
+                        </div>
+                        <div class="flex items-center mr-4 mb-2">
+                            <div class="w-4 h-4 bg-red-400 mr-1"></div>
+                            <span>当前处理元素</span>
+                        </div>
+                    </div>
+                    
+                    <div id="array-container" class="h-64 flex items-end justify-center border-b border-gray-300"></div>
+                    
+                    <div id="buckets-container" class="mt-6 border-t border-gray-300 pt-4">
+                        <h3 class="text-lg font-medium text-gray-800 mb-3">数字桶</h3>
+                        <div id="buckets-grid" class="grid grid-cols-2 md:grid-cols-5 gap-2">
+                            <!-- 桶将通过 JavaScript 动态生成 -->
+                        </div>
+                    </div>
+                    
+                    <div id="info-container" class="mt-4 text-gray-700">
+                        <p id="current-step">准备开始基数排序...</p>
+                    </div>
+                </div>
+            </section>
+            
+            <!-- 代码实现 -->
+            <section id="implementation">
+                <h2 class="text-2xl font-semibold text-gray-800 mb-4 flex items-center">
+                    <i class="fas fa-code text-primary mr-3"></i>代码实现
+                </h2>
+                <div class="bg-white p-6 rounded-lg shadow-md">
+                    <div class="mb-6">
+                        <h3 class="text-xl font-medium text-gray-800 mb-3">C++ 实现</h3>
+                        <pre class="bg-gray-800 text-white p-4 rounded-lg overflow-x-auto code-block"><code class="language-cpp">// 基数排序 - C++ 实现
+#include &lt;iostream&gt;
+#include &lt;vector&gt;
+#include &lt;algorithm&gt;
+#include &lt;cmath&gt;
+
+// 获取数字在指定位上的数值（个位、十位、百位...）
+int getDigit(int num, int place) {
+    return (num / static_cast&lt;int&gt;(std::pow(10, place))) % 10;
+}
+
+// 计数排序的变种，用于按数字的某一位进行排序
+void countingSortByDigit(std::vector&lt;int&gt;& arr, int place) {
+    const int n = arr.size();
+    if (n <= 1) return;
+    
+    std::vector&lt;int&gt; output(n);
+    std::vector&lt;int&gt; count(10, 0); // 0-9 共十个数字
+    
+    // 统计每个数字在当前位上出现的次数
+    for (int i = 0; i < n; i++) {
+        int digit = getDigit(arr[i], place);
+        count[digit]++;
+    }
+    
+    // 计算累加计数，确定位置
+    for (int i = 1; i < 10; i++) {
+        count[i] += count[i - 1];
+    }
+    
+    // 从后向前遍历，保持稳定性
+    for (int i = n - 1; i >= 0; i--) {
+        int digit = getDigit(arr[i], place);
+        output[count[digit] - 1] = arr[i];
+        count[digit]--;
+    }
+    
+    // 将排序结果复制回原数组
+    for (int i = 0; i < n; i++) {
+        arr[i] = output[i];
+    }
+}
+
+// 基数排序主函数
+void radixSort(std::vector&lt;int&gt;& arr) {
+    // 找出最大值
+    int max_val = *std::max_element(arr.begin(), arr.end());
+    
+    // 计算最大值的位数
+    int max_digits = 0;
+    while (max_val > 0) {
+        max_digits++;
+        max_val /= 10;
+    }
+    
+    // 从个位开始，对每一位进行排序
+    for (int place = 0; place < max_digits; place++) {
+        countingSortByDigit(arr, place);
+    }
+}
+
+// 示例使用
+int main() {
+    std::vector&lt;int&gt; arr = {170, 45, 75, 90, 802, 24, 2, 66};
+    
+    std::cout &lt;&lt; "排序前: ";
+    for (int num : arr) {
+        std::cout &lt;&lt; num &lt;&lt; " ";
+    }
+    std::cout &lt;&lt; std::endl;
+    
+    radixSort(arr);
+    
+    std::cout &lt;&lt; "排序后: ";
+    for (int num : arr) {
+        std::cout &lt;&lt; num &lt;&lt; " ";
+    }
+    std::cout &lt;&lt; std::endl;
+    
+    return 0;
+}</code></pre>
+                    </div>
+                    
+                    <div>
+                        <h3 class="text-xl font-medium text-gray-800 mb-3">优化技巧</h3>
+                        <ul class="list-disc list-inside space-y-2 text-gray-700 ml-4">
+                            <li><span class="font-medium">内置序列位数处理：</span>实现时可以检测数列内元素的最大位数，只排序到必要的位数</li>
+                            <li><span class="font-medium">负数处理：</span>对于包含负数的数组，可以先将所有数加上一个偏移量使其变为非负数，排序后再减去偏移量</li>
+                            <li><span class="font-medium">桶排序替代：</span>在某些情况下，使用桶排序代替计数排序可能更高效</li>
+                            <li><span class="font-medium">位操作优化：</span>使用位运算可以更快地提取数字的特定位</li>
+                            <li><span class="font-medium">MSD优化：</span>对于位数差异大的数据集，可以考虑使用MSD（最高位优先）基数排序</li>
+                        </ul>
+                    </div>
+                </div>
+            </section>
+
+            <!-- 时间复杂度分析 -->
+            <section id="complexity">
+                <h2 class="text-2xl font-semibold text-gray-800 mb-4 flex items-center">
+                    <i class="fas fa-clock text-primary mr-3"></i>时间复杂度分析
+                </h2>
+                <div class="bg-white p-6 rounded-lg shadow-md">
+                    <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+                        <div class="p-4 border border-green-200 rounded-lg bg-green-50">
+                            <h3 class="text-lg font-medium text-gray-800 mb-2">最佳情况</h3>
+                            <p class="text-2xl font-bold text-green-600 mb-2">O(nk)</p>
+                            <p class="text-gray-700 text-sm">其中 n 是数组长度，k 是最大数字的位数</p>
+                        </div>
+                        <div class="p-4 border border-blue-200 rounded-lg bg-blue-50">
+                            <h3 class="text-lg font-medium text-gray-800 mb-2">平均情况</h3>
+                            <p class="text-2xl font-bold text-blue-600 mb-2">O(nk)</p>
+                            <p class="text-gray-700 text-sm">基数排序的时间复杂度不受输入数据的分布影响</p>
+                        </div>
+                        <div class="p-4 border border-blue-200 rounded-lg bg-blue-50">
+                            <h3 class="text-lg font-medium text-gray-800 mb-2">最差情况</h3>
+                            <p class="text-2xl font-bold text-blue-600 mb-2">O(nk)</p>
+                            <p class="text-gray-700 text-sm">即使在最差情况下，时间复杂度仍然是 O(nk)</p>
+                        </div>
+                    </div>
+                    
+                    <div class="mt-6">
+                        <h3 class="text-lg font-medium text-gray-800 mb-3">空间复杂度</h3>
+                        <p class="text-gray-700 mb-4">基数排序的空间复杂度主要来自于临时数组和桶空间：</p>
+                        <ul class="list-disc list-inside space-y-2 text-gray-700 ml-4">
+                            <li><span class="font-medium">输出数组：</span>O(n) - 存储每次按位排序的结果</li>
+                            <li><span class="font-medium">计数数组：</span>O(k) - 对于十进制数，每位上的数字范围是0-9，需要10个桶</li>
+                            <li><span class="font-medium">总空间复杂度：</span>O(n+k)，通常k=10（十进制数的位数范围）</li>
+                        </ul>
+                    </div>
+                    
+                    <div class="mt-6 bg-gray-100 p-5 rounded-lg">
+                        <h3 class="text-lg font-medium text-gray-800 mb-3">基数排序与比较排序的比较</h3>
+                        <p class="text-gray-700 mb-4">基数排序是一种非比较排序算法，它跳过了元素间的直接比较，而是依赖于特定的数据结构：</p>
+                        <ul class="list-disc list-inside space-y-2 text-gray-700 ml-4">
+                            <li>基于比较的排序算法（如快速排序、归并排序）的理论下界是 O(n log n)</li>
+                            <li>基数排序的时间复杂度为 O(nk)，当 k 远小于 log n 时，基数排序可以更高效</li>
+                            <li>对于固定范围内的整数（如32位整数），k 是常数，此时基数排序的时间复杂度可以视为线性 O(n)</li>
+                            <li>基数排序是稳定的，相同元素的相对顺序在排序后保持不变</li>
+                        </ul>
+                    </div>
+                    
+                    <div class="mt-6">
+                        <h3 class="text-lg font-medium text-gray-800 mb-3">性能影响因素</h3>
+                        <p class="text-gray-700 mb-4">基数排序的性能受以下因素影响：</p>
+                        <ul class="list-disc list-inside space-y-2 text-gray-700 ml-4">
+                            <li><span class="font-medium">数据位数 (k)：</span>位数多的数据排序需要更多轮次，影响总体性能</li>
+                            <li><span class="font-medium">基数大小：</span>十进制数使用10个桶，二进制使用2个桶，基数越大需要的桶越多但轮次越少</li>
+                            <li><span class="font-medium">数据分布：</span>位数差异大的数据集用MSD(Most Significant Digit)方式可能更高效</li>
+                            <li><span class="font-medium">实现方式：</span>每位排序使用的算法（计数排序或桶排序）会影响整体效率</li>
+                        </ul>
+                    </div>
+                </div>
+            </section>
+            
+            <!-- 应用场景 -->
+            <section id="applications">
+                <h2 class="text-2xl font-semibold text-gray-800 mb-4 flex items-center">
+                    <i class="fas fa-briefcase text-primary mr-3"></i>应用场景
+                </h2>
+                <div class="bg-white p-6 rounded-lg shadow-md">
+                    <p class="text-gray-700 mb-4">基数排序在特定场景下表现优异，常用于以下应用：</p>
+                    
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                        <div class="border-l-4 border-primary pl-4">
+                            <h3 class="text-lg font-medium text-gray-800 mb-2">整数排序</h3>
+                            <p class="text-gray-700">对于固定范围的整数排序（如32位或64位整数），基数排序可以实现线性时间复杂度</p>
+                        </div>
+                        <div class="border-l-4 border-primary pl-4">
+                            <h3 class="text-lg font-medium text-gray-800 mb-2">字符串排序</h3>
+                            <p class="text-gray-700">对字符串按字典序排序，特别是长度相近的字符串，基数排序表现很好</p>
+                        </div>
+                        <div class="border-l-4 border-primary pl-4">
+                            <h3 class="text-lg font-medium text-gray-800 mb-2">IP地址排序</h3>
+                            <p class="text-gray-700">网络中的IP地址排序，可以视为对固定格式数据的排序</p>
+                        </div>
+                        <div class="border-l-4 border-primary pl-4">
+                            <h3 class="text-lg font-medium text-gray-800 mb-2">日期时间排序</h3>
+                            <p class="text-gray-700">对格式化的日期和时间进行排序，按年、月、日、时、分、秒的顺序</p>
+                        </div>
+                    </div>
+                    
+                    <div class="mt-6 bg-gray-100 p-5 rounded-lg">
+                        <h3 class="text-lg font-medium text-gray-800 mb-3">经典应用案例</h3>
+                        <div class="space-y-4">
+                            <div>
+                                <h4 class="font-medium text-gray-800 mb-2">1. 后缀数组构建</h4>
+                                <p class="text-gray-700 mb-2">后缀数组是字符串处理中的重要数据结构，基数排序可用于高效构建后缀数组</p>
+                                <div class="bg-white p-3 rounded shadow-sm">
+                                    <p class="text-gray-700 text-sm">利用基数排序的思想对字符串的后缀进行排序，构建出高效的后缀数组结构</p>
+                                </div>
+                            </div>
+                            <div>
+                                <h4 class="font-medium text-gray-800 mb-2">2. 文件系统中的大文件排序</h4>
+                                <p class="text-gray-700 mb-2">处理大型日志文件或数据库记录时，基数排序可以作为外部排序的一部分</p>
+                                <div class="bg-white p-3 rounded shadow-sm">
+                                    <p class="text-gray-700 text-sm">将大文件分割处理，每次处理一个数字位，可以在有限内存中处理超大数据集</p>
+                                </div>
+                            </div>
+                            <div>
+                                <h4 class="font-medium text-gray-800 mb-2">3. 电话号码排序</h4>
+                                <p class="text-gray-700 mb-2">大型电话簿或通讯录中的号码排序</p>
+                                <div class="bg-white p-3 rounded shadow-sm">
+                                    <p class="text-gray-700 text-sm">电话号码通常是固定长度的数字序列，非常适合使用基数排序进行处理</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="mt-6">
+                        <h3 class="text-lg font-medium text-gray-800 mb-3">练习题目</h3>
+                        <ul class="list-disc list-inside space-y-3 text-gray-700 ml-4">
+                            <li><a href="https://leetcode.cn/problems/sort-an-array/" target="_blank" class="text-blue-600 hover:underline">力扣 912. 排序数组</a> - 使用基数排序实现整数数组排序</li>
+                            <li><a href="https://leetcode.cn/problems/maximum-gap/" target="_blank" class="text-blue-600 hover:underline">力扣 164. 最大间距</a> - 可以使用基数排序后计算相邻元素的最大差值</li>
+                            <li><a href="https://leetcode.cn/problems/sort-characters-by-frequency/" target="_blank" class="text-blue-600 hover:underline">力扣 451. 根据字符出现频率排序</a> - 结合计数和基数排序的思想</li>
+                        </ul>
+                    </div>
+                </div>
+            </section>
+            
+            <!-- 与其他排序算法比较 -->
+            <section id="comparison">
+                <h2 class="text-2xl font-semibold text-gray-800 mb-4 flex items-center">
+                    <i class="fas fa-balance-scale text-primary mr-3"></i>与其他排序算法比较
+                </h2>
+                <div class="bg-white p-6 rounded-lg shadow-md overflow-x-auto">
+                    <table class="min-w-full bg-white">
+                        <thead>
+                            <tr>
+                                <th class="py-3 px-4 border-b border-gray-200 bg-gray-50 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">算法</th>
+                                <th class="py-3 px-4 border-b border-gray-200 bg-gray-50 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">最佳时间</th>
+                                <th class="py-3 px-4 border-b border-gray-200 bg-gray-50 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">平均时间</th>
+                                <th class="py-3 px-4 border-b border-gray-200 bg-gray-50 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">最差时间</th>
+                                <th class="py-3 px-4 border-b border-gray-200 bg-gray-50 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">空间复杂度</th>
+                                <th class="py-3 px-4 border-b border-gray-200 bg-gray-50 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">稳定性</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr class="bg-gray-100">
+                                <td class="py-2 px-4 border-b border-gray-200 text-sm font-medium">基数排序</td>
+                                <td class="py-2 px-4 border-b border-gray-200 text-sm">O(nk)</td>
+                                <td class="py-2 px-4 border-b border-gray-200 text-sm">O(nk)</td>
+                                <td class="py-2 px-4 border-b border-gray-200 text-sm">O(nk)</td>
+                                <td class="py-2 px-4 border-b border-gray-200 text-sm">O(n+k)</td>
+                                <td class="py-2 px-4 border-b border-gray-200 text-sm">稳定</td>
+                            </tr>
+                            <tr>
+                                <td class="py-2 px-4 border-b border-gray-200 text-sm font-medium">计数排序</td>
+                                <td class="py-2 px-4 border-b border-gray-200 text-sm">O(n+r)</td>
+                                <td class="py-2 px-4 border-b border-gray-200 text-sm">O(n+r)</td>
+                                <td class="py-2 px-4 border-b border-gray-200 text-sm">O(n+r)</td>
+                                <td class="py-2 px-4 border-b border-gray-200 text-sm">O(n+r)</td>
+                                <td class="py-2 px-4 border-b border-gray-200 text-sm">稳定</td>
+                            </tr>
+                            <tr class="bg-gray-100">
+                                <td class="py-2 px-4 border-b border-gray-200 text-sm font-medium">桶排序</td>
+                                <td class="py-2 px-4 border-b border-gray-200 text-sm">O(n+r)</td>
+                                <td class="py-2 px-4 border-b border-gray-200 text-sm">O(n+r)</td>
+                                <td class="py-2 px-4 border-b border-gray-200 text-sm">O(n²)</td>
+                                <td class="py-2 px-4 border-b border-gray-200 text-sm">O(n+r)</td>
+                                <td class="py-2 px-4 border-b border-gray-200 text-sm">稳定</td>
+                            </tr>
+                            <tr>
+                                <td class="py-2 px-4 border-b border-gray-200 text-sm font-medium">快速排序</td>
+                                <td class="py-2 px-4 border-b border-gray-200 text-sm">O(n log n)</td>
+                                <td class="py-2 px-4 border-b border-gray-200 text-sm">O(n log n)</td>
+                                <td class="py-2 px-4 border-b border-gray-200 text-sm">O(n²)</td>
+                                <td class="py-2 px-4 border-b border-gray-200 text-sm">O(log n)</td>
+                                <td class="py-2 px-4 border-b border-gray-200 text-sm">不稳定</td>
+                            </tr>
+                            <tr class="bg-gray-100">
+                                <td class="py-2 px-4 border-b border-gray-200 text-sm font-medium">归并排序</td>
+                                <td class="py-2 px-4 border-b border-gray-200 text-sm">O(n log n)</td>
+                                <td class="py-2 px-4 border-b border-gray-200 text-sm">O(n log n)</td>
+                                <td class="py-2 px-4 border-b border-gray-200 text-sm">O(n log n)</td>
+                                <td class="py-2 px-4 border-b border-gray-200 text-sm">O(n)</td>
+                                <td class="py-2 px-4 border-b border-gray-200 text-sm">稳定</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                    <p class="mt-4 text-gray-700 text-sm">* 其中 n 是数组长度，k 是数字位数，r 是值的范围</p>
+                </div>
+            </section>
+        </main>
+        
+        <!-- 页脚 -->
+        <footer class="mt-10 p-6 bg-gray-800 text-white flex flex-col md:flex-row justify-between items-center">
+            <div class="mb-4 md:mb-0">
+                <p class="text-sm"></p>
+            </div>
+            <div class="flex space-x-4">
+                <a href="index.html" class="text-gray-300 hover:text-white transition-colors">首页</a>
+                <a href="计数排序.html" class="text-gray-300 hover:text-white transition-colors">计数排序</a>
+                <a href="快速排序.html" class="text-gray-300 hover:text-white transition-colors">快速排序</a>
+                <a href="归并排序.html" class="text-gray-300 hover:text-white transition-colors">归并排序</a>
+            </div>
+            <button id="back-to-top" class="fixed right-6 bottom-6 p-3 bg-primary rounded-full shadow-lg text-white hidden">
+                <i class="fas fa-arrow-up"></i>
+            </button>
+        </footer>
+        
+        <!-- ScrollReveal -->
+        <script src="https://unpkg.com/scrollreveal"></script>
+        
+        <!-- Highlight.js -->
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.7.0/highlight.min.js"></script>
+        <script>hljs.highlightAll();</script>
+        
+        <script>
+            // ScrollReveal 初始化
+            ScrollReveal().reveal('.section, h2, .bg-white', {
+                distance: '50px',
+                duration: 1000,
+                delay: 200,
+                easing: 'cubic-bezier(0.5, 0, 0, 1)'
+            });
+            
+            // 回到顶部按钮
+            const backToTopButton = document.getElementById('back-to-top');
+            
+            window.addEventListener('scroll', () => {
+                if (window.pageYOffset > 300) {
+                    backToTopButton.classList.remove('hidden');
+                } else {
+                    backToTopButton.classList.add('hidden');
+                }
+            });
+            
+            backToTopButton.addEventListener('click', () => {
+                window.scrollTo({
+                    top: 0,
+                    behavior: 'smooth'
+                });
+            });
+            
+            // 基数排序交互式可视化
+            document.addEventListener('DOMContentLoaded', function() {
+                // 获取DOM元素
+                const arrayContainer = document.getElementById('array-container');
+                const bucketsGrid = document.getElementById('buckets-grid');
+                const infoContainer = document.getElementById('current-step');
+                const newArrayBtn = document.getElementById('newArray');
+                const startSortBtn = document.getElementById('startSort');
+                const pauseSortBtn = document.getElementById('pauseSort');
+                const resetSortBtn = document.getElementById('resetSort');
+                const speedSlider = document.getElementById('speed');
+                
+                // 初始化变量
+                let array = [];
+                const arraySize = 10;    // 数组大小
+                const maxValue = 999;    // 最大值
+                const minValue = 1;      // 最小值
+                let animationSpeed = 1000 / parseInt(speedSlider.value);
+                let animations = [];
+                let animationInterval;
+                let isPaused = false;
+                let currentAnimationStep = 0;
+                
+                // 创建新的随机数组
+                function generateRandomArray() {
+                    array = [];
+                    for (let i = 0; i < arraySize; i++) {
+                        array.push(Math.floor(Math.random() * (maxValue - minValue + 1)) + minValue);
+                    }
+                    renderArray(array);
+                    resetAnimationState();
+                    infoContainer.textContent = "准备开始基数排序...";
+                    
+                    // 清空桶显示
+                    bucketsGrid.innerHTML = '';
+                }
+                
+                // 渲染数组
+                function renderArray(arr, currentIndex = -1, highlightIndices = [], sortedIndices = []) {
+                    arrayContainer.innerHTML = '';
+                    const maxArrVal = Math.max(...arr, maxValue);
+                    
+                    arr.forEach((val, idx) => {
+                        const bar = document.createElement('div');
+                        const height = (val / maxArrVal) * 100;
+                        
+                        bar.style.height = `${height}%`;
+                        bar.style.width = `${80 / arraySize}%`;
+                        bar.style.margin = '0 0.2%';
+                        bar.style.position = 'relative';
+                        
+                        // 设置颜色
+                        if (idx === currentIndex) {
+                            bar.style.backgroundColor = '#F87171'; // 当前处理元素
+                        } else if (highlightIndices.includes(idx)) {
+                            bar.style.backgroundColor = '#FBBF24'; // 特定位高亮
+                        } else if (sortedIndices.includes(idx)) {
+                            bar.style.backgroundColor = '#10B981'; // 已排序
+                        } else {
+                            bar.style.backgroundColor = '#60A5FA'; // 默认
+                        }
+                        
+                        // 添加数值标签
+                        const label = document.createElement('div');
+                        label.textContent = val;
+                        label.style.position = 'absolute';
+                        label.style.bottom = '-25px';
+                        label.style.width = '100%';
+                        label.style.textAlign = 'center';
+                        label.style.fontSize = '12px';
+                        bar.appendChild(label);
+                        
+                        arrayContainer.appendChild(bar);
+                    });
+                }
+                
+                // 渲染桶
+                function renderBuckets(buckets, digits, highlightDigit) {
+                    bucketsGrid.innerHTML = '';
+                    
+                    for (let i = 0; i < 10; i++) {
+                        const bucketDiv = document.createElement('div');
+                        bucketDiv.className = 'border rounded-lg p-2';
+                        
+                        // 桶标题
+                        const bucketTitle = document.createElement('div');
+                        bucketTitle.className = 'text-center font-medium mb-2 bg-gray-100 rounded py-1';
+                        bucketTitle.textContent = `桶 ${i}`;
+                        bucketDiv.appendChild(bucketTitle);
+                        
+                        // 桶内元素
+                        const bucketContent = document.createElement('div');
+                        bucketContent.className = 'flex flex-wrap justify-center gap-1';
+                        
+                        if (buckets[i] && buckets[i].length > 0) {
+                            buckets[i].forEach(num => {
+                                const numBox = document.createElement('div');
+                                numBox.className = 'px-2 py-1 bg-blue-100 rounded text-sm mb-1';
+                                
+                                // 高亮特定位
+                                if (highlightDigit !== undefined) {
+                                    const numStr = num.toString().padStart(digits, '0');
+                                    const highlightPos = digits - 1 - highlightDigit;
+                                    
+                                    if (highlightPos >= 0 && highlightPos < numStr.length) {
+                                        const beforeHighlight = numStr.substring(0, highlightPos);
+                                        const highlight = numStr[highlightPos];
+                                        const afterHighlight = numStr.substring(highlightPos + 1);
+                                        
+                                        numBox.innerHTML = beforeHighlight + 
+                                            `<span class="bg-yellow-300 font-medium">${highlight}</span>` + 
+                                            afterHighlight;
+                                    } else {
+                                        numBox.textContent = num;
+                                    }
+                                } else {
+                                    numBox.textContent = num;
+                                }
+                                
+                                bucketContent.appendChild(numBox);
+                            });
+                        } else {
+                            const emptyMsg = document.createElement('div');
+                            emptyMsg.className = 'text-gray-400 text-xs';
+                            emptyMsg.textContent = '(空)';
+                            bucketContent.appendChild(emptyMsg);
+                        }
+                        
+                        bucketDiv.appendChild(bucketContent);
+                        bucketsGrid.appendChild(bucketDiv);
+                    }
+                }
+                
+                // 获取数字在指定位上的数值（个位、十位、百位...）
+                function getDigit(num, place) {
+                    return Math.floor(Math.abs(num) / Math.pow(10, place)) % 10;
+                }
+                
+                // 获取数组中最大值的位数
+                function getMaxDigits(arr) {
+                    const max = Math.max(...arr.map(Math.abs));
+                    if (max === 0) return 1;
+                    return Math.floor(Math.log10(max)) + 1;
+                }
+                
+                // 生成基数排序的动画步骤
+                function generateRadixSortAnimations(arr) {
+                    const animations = [];
+                    const n = arr.length;
+                    
+                    if (n <= 1) {
+                        return animations;
+                    }
+                    
+                    const maxDigits = getMaxDigits(arr);
+                    
+                    animations.push({
+                        step: '初始化',
+                        array: [...arr],
+                        message: `找出最大位数：数组最大值 = ${Math.max(...arr)}，位数 = ${maxDigits}`
+                    });
+                    
+                    let currentArray = [...arr];
+                    
+                    // 从个位开始，对每一位进行排序
+                    for (let digit = 0; digit < maxDigits; digit++) {
+                        animations.push({
+                            step: '开始新位',
+                            array: [...currentArray],
+                            message: `开始按第 ${digit + 1} 位排序（从右往左）`,
+                            highlightDigit: digit
+                        });
+                        
+                        // 创建10个桶（0-9）
+                        const buckets = Array.from({ length: 10 }, () => []);
+                        
+                        // 将数字分配到桶中
+                        for (let i = 0; i < n; i++) {
+                            const num = currentArray[i];
+                            const digitValue = getDigit(num, digit);
+                            buckets[digitValue].push(num);
+                            
+                            animations.push({
+                                step: '分桶',
+                                array: [...currentArray],
+                                currentIndex: i,
+                                buckets: buckets.map(bucket => [...bucket]),
+                                message: `处理元素 ${num}：第 ${digit + 1} 位数字是 ${digitValue}，放入桶 ${digitValue}`,
+                                digits: maxDigits,
+                                highlightDigit: digit
+                            });
+                        }
+                        
+                        animations.push({
+                            step: '完成分桶',
+                            array: [...currentArray],
+                            buckets: buckets.map(bucket => [...bucket]),
+                            message: `按第 ${digit + 1} 位完成分桶`,
+                            digits: maxDigits,
+                            highlightDigit: digit
+                        });
+                        
+                        // 将桶中的元素按顺序放回数组
+                        let index = 0;
+                        for (let j = 0; j < 10; j++) {
+                            const bucket = buckets[j];
+                            
+                            if (bucket.length > 0) {
+                                animations.push({
+                                    step: '收集桶',
+                                    array: [...currentArray],
+                                    buckets: buckets.map(bucket => [...bucket]),
+                                    message: `从桶 ${j} 收集元素`,
+                                    currentBucket: j,
+                                    digits: maxDigits,
+                                    highlightDigit: digit
+                                });
+                                
+                                for (let k = 0; k < bucket.length; k++) {
+                                    currentArray[index++] = bucket[k];
+                                    
+                                    animations.push({
+                                        step: '更新数组',
+                                        array: [...currentArray],
+                                        buckets: buckets.map(bucket => [...bucket]),
+                                        message: `从桶 ${j} 取出元素 ${bucket[k]} 放回数组位置 ${index - 1}`,
+                                        currentBucket: j,
+                                        highlightIndices: [index - 1],
+                                        digits: maxDigits,
+                                        highlightDigit: digit
+                                    });
+                                }
+                            }
+                        }
+                        
+                        animations.push({
+                            step: '完成一位',
+                            array: [...currentArray],
+                            message: `完成按第 ${digit + 1} 位排序`,
+                            digits: maxDigits,
+                            highlightDigit: digit
+                        });
+                    }
+                    
+                    animations.push({
+                        step: '完成排序',
+                        array: [...currentArray],
+                        sortedIndices: Array.from({ length: n }, (_, i) => i),
+                        message: `基数排序完成！`
+                    });
+                    
+                    return animations;
+                }
+                
+                // 开始排序动画
+                function startSortAnimation() {
+                    if (animations.length === 0 || currentAnimationStep >= animations.length) {
+                        // 为当前数组生成动画
+                        animations = generateRadixSortAnimations([...array]);
+                        currentAnimationStep = 0;
+                    }
+                    
+                    startSortBtn.classList.add('hidden');
+                    pauseSortBtn.classList.remove('hidden');
+                    isPaused = false;
+                    
+                    animationInterval = setInterval(() => {
+                        if (currentAnimationStep < animations.length) {
+                            const step = animations[currentAnimationStep];
+                            
+                            renderArray(
+                                step.array, 
+                                step.currentIndex, 
+                                step.highlightIndices || [], 
+                                step.sortedIndices || []
+                            );
+                            
+                            if (step.buckets) {
+                                renderBuckets(step.buckets, step.digits, step.highlightDigit);
+                            }
+                            
+                            infoContainer.textContent = step.message;
+                            currentAnimationStep++;
+                        } else {
+                            clearInterval(animationInterval);
+                            infoContainer.textContent = "排序完成!";
+                            pauseSortBtn.classList.add('hidden');
+                            startSortBtn.classList.remove('hidden');
+                            
+                            // 显示全部排序完成
+                            if (animations.length > 0) {
+                                const finalStep = animations[animations.length - 1];
+                                renderArray(finalStep.array, -1, [], Array.from({length: finalStep.array.length}, (_, i) => i));
+                            }
+                        }
+                    }, animationSpeed);
+                }
+                
+                // 暂停排序动画
+                function pauseSortAnimation() {
+                    clearInterval(animationInterval);
+                    isPaused = true;
+                    pauseSortBtn.classList.add('hidden');
+                    startSortBtn.classList.remove('hidden');
+                }
+                
+                // 重置动画状态
+                function resetAnimationState() {
+                    clearInterval(animationInterval);
+                    animations = [];
+                    currentAnimationStep = 0;
+                    isPaused = false;
+                    pauseSortBtn.classList.add('hidden');
+                    startSortBtn.classList.remove('hidden');
+                }
+                
+                // 事件监听器
+                newArrayBtn.addEventListener('click', generateRandomArray);
+                startSortBtn.addEventListener('click', startSortAnimation);
+                pauseSortBtn.addEventListener('click', pauseSortAnimation);
+                resetSortBtn.addEventListener('click', () => {
+                    resetAnimationState();
+                    renderArray(array);
+                    bucketsGrid.innerHTML = '';
+                    infoContainer.textContent = "排序已重置";
+                });
+                
+                speedSlider.addEventListener('input', function() {
+                    animationSpeed = 1000 / parseInt(this.value);
+                    if (!isPaused && animationInterval) {
+                        clearInterval(animationInterval);
+                        startSortAnimation();
+                    }
+                });
+                
+                // 初始化
+                generateRandomArray();
+            });
+        </script>
+    </div>
+</body>
+</html> 

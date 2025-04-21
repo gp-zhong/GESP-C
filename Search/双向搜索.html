@@ -1,0 +1,1652 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>双向搜索</title>
+    <!-- TailwindCSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&family=Roboto+Mono&display=swap" rel="stylesheet">
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        primary: {
+                            light: '#93c5fd',
+                            DEFAULT: '#3b82f6',
+                            dark: '#2563eb',
+                        },
+                        secondary: {
+                            light: '#c7d2fe',
+                            DEFAULT: '#818cf8',
+                            dark: '#6366f1',
+                        },
+                        codeBlock: '#1e293b',
+                    },
+                    fontFamily: {
+                        sans: ['Poppins', 'sans-serif'],
+                        mono: ['Roboto Mono', 'monospace'],
+                    },
+                }
+            }
+        }
+    </script>
+    <style>
+        .card-hover {
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+        }
+        .card-hover:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 25px -5px rgba(59, 130, 246, 0.1), 0 10px 10px -5px rgba(59, 130, 246, 0.04);
+        }
+        .code-block::-webkit-scrollbar {
+            height: 8px;
+        }
+        .code-block::-webkit-scrollbar-thumb {
+            background-color: #3b82f6;
+            border-radius: 4px;
+        }
+        .code-block::-webkit-scrollbar-track {
+            background-color: #e2e8f0;
+            border-radius: 4px;
+        }
+        
+        /* 保留原有自定义样式 */
+        :root {
+            --primary: #6366f1;
+            --primary-dark: #4f46e5;
+            --primary-light: #818cf8;
+        }
+        .bg-primary { background-color: var(--primary); }
+        .bg-primary-dark { background-color: var(--primary-dark); }
+        .bg-primary-light { background-color: var(--primary-light); }
+        .text-primary { color: var(--primary); }
+        .text-primary-dark { color: var(--primary-dark); }
+        .text-primary-light { color: var(--primary-light); }
+        .hover\:bg-primary-dark:hover { background-color: var(--primary-dark); }
+        .border-primary { border-color: var(--primary); }
+        
+        .bg-codeBlock {
+            background-color: #1e293b;
+        }
+        
+        .code-block {
+            position: relative;
+        }
+        
+        /* 滚动条样式 */
+        ::-webkit-scrollbar {
+            width: 8px;
+            height: 8px;
+        }
+        ::-webkit-scrollbar-track {
+            background: #f1f1f1;
+            border-radius: 4px;
+        }
+        ::-webkit-scrollbar-thumb {
+            background: #888;
+            border-radius: 4px;
+        }
+        ::-webkit-scrollbar-thumb:hover {
+            background: #555;
+        }
+        
+        /* 添加折叠代码块样式 */
+        .code-container {
+            position: relative;
+            margin: 1rem 0;
+            border-radius: 0.5rem;
+            overflow: hidden;
+        }
+        
+        .code-toggle-btn {
+            position: absolute;
+            top: 0.5rem;
+            right: 0.5rem;
+            z-index: 10;
+            transition: all 0.3s ease;
+        }
+        
+        .collapsible-code {
+            max-height: 0;
+            overflow: hidden;
+            transition: max-height 0.5s ease;
+            opacity: 0;
+            padding-top: 3rem !important; /* 为按钮留出空间 */
+        }
+        
+        .collapsible-code.expanded {
+            max-height: 1500px; /* 足够大以容纳代码内容 */
+            opacity: 1;
+            transition: max-height 0.5s ease, opacity 0.3s ease 0.2s;
+        }
+        
+        .collapsible-code code {
+            display: block;
+            white-space: pre;
+        }
+    </style>
+</head>
+<body class="bg-gray-50 font-sans">
+    <div class="min-h-screen max-w-6xl mx-auto px-8 py-10">
+        <!-- Header -->
+        <header class="mb-12 text-center">
+            <div class="inline-block px-3 py-1 bg-primary-light text-primary-dark rounded-full text-sm font-medium mb-4">
+                图论算法
+            </div>
+            <h1 class="text-4xl font-bold text-gray-800 mb-4">双向搜索</h1>
+            <p class="text-lg text-gray-600 max-w-3xl mx-auto">一种同时从起点和终点两个方向进行搜索的算法，大幅提高搜索效率，适用于最短路径问题</p>
+        </header>
+
+        <!-- Main Content -->
+        <main>
+            <!-- 算法基础 Section -->
+            <section class="mb-12 bg-white rounded-2xl shadow-md p-8">
+                <div class="flex items-center mb-6">
+                    <i class="fas fa-cogs text-primary text-xl mr-3"></i>
+                    <h2 class="text-2xl font-bold text-gray-800">算法基础</h2>
+                </div>
+                <div class="space-y-4 text-gray-700">
+                    <p>双向搜索（Bidirectional Search）是一种图搜索算法，同时从起点和终点开始搜索，当两个搜索方向相遇时，便找到了从起点到终点的一条路径。</p>
+                    
+                    <!-- 算法原理 Section -->
+                    <h3 class="text-xl font-semibold text-gray-800 mt-6 mb-3">算法原理</h3>
+                    <p>双向搜索同时从起点和终点进行广度优先或深度优先搜索，直到两个搜索过程相遇。具体来说：</p>
+                    <ol class="list-decimal list-inside pl-5 space-y-2">
+                        <li>从起点开始向前搜索（Forward Search）</li>
+                        <li>从终点开始向后搜索（Backward Search）</li>
+                        <li>当两个搜索相遇时，找到了从起点到终点的路径</li>
+                    </ol>
+                    
+                    <div class="bg-blue-50 border-l-4 border-blue-500 p-4 my-4 rounded-r">
+                        <div class="flex">
+                            <div class="flex-shrink-0">
+                                <i class="fas fa-info-circle text-blue-500 mt-1"></i>
+                            </div>
+                            <div class="ml-3">
+                                <p class="text-sm text-blue-700">
+                                    双向搜索的核心思想是：搜索空间随着搜索深度的增加呈指数级增长，但从两端同时开始搜索可以将搜索空间减少到原来的平方根级别。
+                                </p>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="mt-6">
+                        <h4 class="text-lg font-semibold text-gray-800 mb-2">双向搜索的工作过程</h4>
+                        <p class="mb-3">假设我们要在一个图中找到从节点s到节点t的路径：</p>
+                        <ol class="list-decimal list-inside pl-5 space-y-2">
+                            <li>维护两个搜索前沿：前向前沿（从s开始）和后向前沿（从t开始）</li>
+                            <li>交替扩展这两个前沿</li>
+                            <li>当两个前沿相交时（即有共同节点），我们就找到了一条路径</li>
+                            <li>路径由从s到交点的前向路径，加上从交点到t的后向路径（需要反转）组成</li>
+                        </ol>
+                    </div>
+                </div>
+            </section>
+            
+            <!-- 算法分析 Section -->
+            <section class="mb-12 bg-white rounded-2xl shadow-md p-8">
+                <div class="flex items-center mb-6">
+                    <i class="fas fa-chart-line text-primary text-xl mr-3"></i>
+                    <h2 class="text-2xl font-bold text-gray-800">算法分析</h2>
+                </div>
+                
+                <div class="space-y-4 text-gray-700">
+                    <h3 class="text-xl font-semibold text-gray-800 mb-3">时间复杂度</h3>
+                    <p>对于具有分支因子b的图，传统的单向广度优先搜索的时间复杂度为O(b^d)，其中d是起点到终点的距离。而双向搜索的时间复杂度为O(b^(d/2))，这是一个显著的改进。</p>
+                    
+                    <div class="p-5 bg-gray-50 rounded-xl mt-4">
+                        <table class="min-w-full">
+                            <thead>
+                                <tr class="border-b border-gray-200">
+                                    <th class="py-2 text-left">搜索方法</th>
+                                    <th class="py-2 text-left">时间复杂度</th>
+                                    <th class="py-2 text-left">说明</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr class="border-b border-gray-200">
+                                    <td class="py-2">单向BFS</td>
+                                    <td class="py-2 font-mono">O(b^d)</td>
+                                    <td class="py-2">b是分支因子，d是起点到终点的距离</td>
+                                </tr>
+                                <tr>
+                                    <td class="py-2">双向BFS</td>
+                                    <td class="py-2 font-mono">O(b^(d/2))</td>
+                                    <td class="py-2">从两端同时搜索，可以将搜索深度减半</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                    
+                    <h3 class="text-xl font-semibold text-gray-800 mt-6 mb-3">空间复杂度</h3>
+                    <p>双向搜索需要存储两个搜索前沿，因此空间复杂度也是O(b^(d/2))。虽然比单向搜索的空间复杂度O(b^d)要好，但仍然需要存储大量节点。</p>
+                    
+                    <h3 class="text-xl font-semibold text-gray-800 mt-6 mb-3">优缺点</h3>
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-4">
+                        <div class="card-hover p-6 bg-gray-50 rounded-xl">
+                            <h4 class="text-lg font-semibold text-gray-800 mb-3">
+                                <i class="fas fa-check-circle text-green-600 mr-2"></i>
+                                优点
+                            </h4>
+                            <ul class="list-disc list-inside space-y-1">
+                                <li>大幅减少搜索空间，时间复杂度从O(b^d)降至O(b^(d/2))</li>
+                                <li>在大型图中寻找最短路径更高效</li>
+                                <li>可以结合启发式方法进一步提高效率</li>
+                                <li>对于深度较大的问题特别有效</li>
+                            </ul>
+                        </div>
+                        
+                        <div class="card-hover p-6 bg-gray-50 rounded-xl">
+                            <h4 class="text-lg font-semibold text-gray-800 mb-3">
+                                <i class="fas fa-times-circle text-red-600 mr-2"></i>
+                                缺点
+                            </h4>
+                            <ul class="list-disc list-inside space-y-1">
+                                <li>实现复杂度高于单向搜索</li>
+                                <li>需要两个搜索前沿，增加了内存开销</li>
+                                <li>需要高效的数据结构来检测两个前沿的交叉</li>
+                                <li>在某些特殊图结构上可能不如单向搜索高效</li>
+                                <li>不适用于只有单向边的有向图</li>
+                            </ul>
+                        </div>
+                    </div>
+                    
+                    <h3 class="text-xl font-semibold text-gray-800 mt-6 mb-3">优化策略</h3>
+                    <div class="p-5 bg-primary-light bg-opacity-10 rounded-lg">
+                        <ol class="list-decimal list-inside space-y-2 pl-2">
+                            <li><strong>启发式选择扩展方向</strong>：每次选择前沿较小的一侧进行扩展，可以减少总体内存使用</li>
+                            <li><strong>结合A*算法</strong>：使用启发式函数引导两个方向的搜索，形成双向A*搜索</li>
+                            <li><strong>高效的集合操作</strong>：使用哈希表或布隆过滤器快速检查两个前沿是否相交</li>
+                            <li><strong>剪枝技术</strong>：当找到一条路径后，可以剪枝掉所有更长的路径</li>
+                            <li><strong>并行化</strong>：前向和后向搜索可以并行执行，进一步提高效率</li>
+                        </ol>
+                    </div>
+                </div>
+            </section>
+            
+            <!-- 代码实现 Section -->
+            <section class="mb-12 bg-white rounded-2xl shadow-md p-8">
+                <div class="flex items-center mb-6">
+                    <i class="fas fa-code text-primary text-xl mr-3"></i>
+                    <h2 class="text-2xl font-bold text-gray-800">代码实现</h2>
+                </div>
+                
+                <div class="space-y-4 text-gray-700">
+                    <h3 class="text-xl font-semibold text-gray-800 mb-3">使用队列实现双向BFS</h3>
+                    <div class="mb-4 code-container relative bg-gray-100 rounded-lg">
+                        <button class="code-toggle-btn bg-primary hover:bg-primary-dark text-white font-medium py-1.5 px-4 rounded-md flex items-center absolute top-2 right-2 z-10 shadow-sm transition-all duration-300 cursor-pointer" data-target="bidirectional-bfs-code">
+                            <span>展开代码</span>
+                            <i class="fas fa-chevron-down ml-2 transition-transform duration-300"></i>
+                        </button>
+                        <div id="bidirectional-bfs-code" class="collapsible-code p-4 pt-12 bg-gray-100 rounded-lg overflow-auto">
+                            <pre><code class="language-cpp">
+#include &lt;iostream&gt;
+#include &lt;vector&gt;
+#include &lt;queue&gt;
+#include &lt;unordered_map&gt;
+#include &lt;unordered_set&gt;
+
+class Graph {
+private:
+    int V;                      // 图中顶点的数量
+    std::vector&lt;std::vector&lt;int&gt;&gt; adj;  // 邻接表表示图
+    
+public:
+    // 构造函数
+    Graph(int v) : V(v) {
+        adj.resize(v);
+    }
+    
+    // 添加边的函数（无向图）
+    void addEdge(int v, int w) {
+        adj[v].push_back(w);    // 添加边 v -> w
+        adj[w].push_back(v);    // 添加边 w -> v
+    }
+    
+    // 双向BFS搜索
+    void bidirectionalSearch(int start, int end) {
+        // 如果起点和终点相同
+        if (start == end) {
+            std::cout << "起点和终点相同，路径为: " << start << std::endl;
+            return;
+        }
+        
+        // 前向搜索访问集合
+        std::unordered_set&lt;int&gt; visitedForward;
+        // 后向搜索访问集合
+        std::unordered_set&lt;int&gt; visitedBackward;
+        
+        // 前向和后向搜索队列
+        std::queue&lt;int&gt; queueForward;
+        std::queue&lt;int&gt; queueBackward;
+        
+        // 记录路径的父节点映射
+        std::unordered_map&lt;int, int&gt; parentForward;
+        std::unordered_map&lt;int, int&gt; parentBackward;
+        
+        // 将起点和终点加入各自的队列和访问集合
+        queueForward.push(start);
+        visitedForward.insert(start);
+        parentForward[start] = -1;
+        
+        queueBackward.push(end);
+        visitedBackward.insert(end);
+        parentBackward[end] = -1;
+        
+        // 相遇点
+        int intersectNode = -1;
+        
+        // 双向BFS主循环
+        while (!queueForward.empty() && !queueBackward.empty()) {
+            // 从前向搜索扩展一层
+            int sizeForward = queueForward.size();
+            for (int i = 0; i < sizeForward; i++) {
+                int current = queueForward.front();
+                queueForward.pop();
+                
+                // 检查邻接点
+                for (int adjacent : adj[current]) {
+                    // 如果邻接点未被前向搜索访问过
+                    if (visitedForward.find(adjacent) == visitedForward.end()) {
+                        // 记录父节点并加入队列
+                        visitedForward.insert(adjacent);
+                        queueForward.push(adjacent);
+                        parentForward[adjacent] = current;
+                        
+                        // 检查是否与后向搜索相遇
+                        if (visitedBackward.find(adjacent) != visitedBackward.end()) {
+                            intersectNode = adjacent;
+                            break;
+                        }
+                    }
+                }
+                
+                if (intersectNode != -1)
+                    break;
+            }
+            
+            if (intersectNode != -1)
+                break;
+            
+            // 从后向搜索扩展一层
+            int sizeBackward = queueBackward.size();
+            for (int i = 0; i < sizeBackward; i++) {
+                int current = queueBackward.front();
+                queueBackward.pop();
+                
+                // 检查邻接点
+                for (int adjacent : adj[current]) {
+                    // 如果邻接点未被后向搜索访问过
+                    if (visitedBackward.find(adjacent) == visitedBackward.end()) {
+                        // 记录父节点并加入队列
+                        visitedBackward.insert(adjacent);
+                        queueBackward.push(adjacent);
+                        parentBackward[adjacent] = current;
+                        
+                        // 检查是否与前向搜索相遇
+                        if (visitedForward.find(adjacent) != visitedForward.end()) {
+                            intersectNode = adjacent;
+                            break;
+                        }
+                    }
+                }
+                
+                if (intersectNode != -1)
+                    break;
+            }
+            
+            if (intersectNode != -1)
+                break;
+        }
+        
+        // 如果没有找到相交点，则无路径
+        if (intersectNode == -1) {
+            std::cout << "没有找到从 " << start << " 到 " << end << " 的路径。" << std::endl;
+            return;
+        }
+        
+        // 构建路径：前向部分
+        std::vector&lt;int&gt; path;
+        int current = intersectNode;
+        while (current != -1) {
+            path.push_back(current);
+            current = parentForward[current];
+        }
+        
+        // 反转前向路径
+        std::reverse(path.begin(), path.end());
+        
+        // 构建路径：后向部分（不包括相交点，因为已经在前向部分包含）
+        current = parentBackward[intersectNode];
+        while (current != -1) {
+            path.push_back(current);
+            current = parentBackward[current];
+        }
+        
+        // 打印路径
+        std::cout << "找到从 " << start << " 到 " << end << " 的路径: ";
+        for (size_t i = 0; i < path.size(); i++) {
+            std::cout << path[i];
+            if (i < path.size() - 1)
+                std::cout << " -> ";
+        }
+        std::cout << std::endl;
+    }
+};
+
+int main() {
+    // 创建一个有9个顶点的无向图
+    Graph g(9);
+    
+    // 添加边
+    g.addEdge(0, 1);
+    g.addEdge(0, 7);
+    g.addEdge(1, 2);
+    g.addEdge(1, 7);
+    g.addEdge(2, 3);
+    g.addEdge(2, 8);
+    g.addEdge(2, 5);
+    g.addEdge(3, 4);
+    g.addEdge(3, 5);
+    g.addEdge(4, 5);
+    g.addEdge(5, 6);
+    g.addEdge(6, 7);
+    g.addEdge(6, 8);
+    g.addEdge(7, 8);
+    
+    // 执行双向搜索，从顶点0到顶点4
+    g.bidirectionalSearch(0, 4);
+    
+    return 0;
+                            </code></pre>
+                        </div>
+                    </div>
+                    
+                    <div class="bg-yellow-50 border-l-4 border-yellow-400 p-4 rounded-r mb-4">
+                        <div class="flex items-start">
+                            <i class="fas fa-lightbulb text-yellow-500 mt-1 mr-3"></i>
+                            <p class="text-gray-700">
+                                <strong>实现要点</strong>：双向BFS使用两个队列和两个访问集合，分别从起点和终点扩展。每扩展一层后，检查是否有节点同时存在于两个搜索空间中，若有则表示找到一条路径。
+                            </p>
+                        </div>
+                    </div>
+                    
+                    <h3 class="text-xl font-semibold text-gray-800 mt-6 mb-3">优先队列实现的双向搜索</h3>
+                    <div class="mb-4 code-container relative bg-gray-100 rounded-lg">
+                        <button class="code-toggle-btn bg-primary hover:bg-primary-dark text-white font-medium py-1.5 px-4 rounded-md flex items-center absolute top-2 right-2 z-10 shadow-sm transition-all duration-300 cursor-pointer" data-target="priority-queue-code">
+                            <span>展开代码</span>
+                            <i class="fas fa-chevron-down ml-2 transition-transform duration-300"></i>
+                        </button>
+                        <div id="priority-queue-code" class="collapsible-code p-4 pt-12 bg-gray-100 rounded-lg overflow-auto">
+                            <pre><code class="language-cpp">
+#include &lt;iostream&gt;
+#include &lt;vector&gt;
+#include &lt;queue&gt;
+#include &lt;unordered_map&gt;
+#include &lt;unordered_set&gt;
+#include &lt;utility&gt;
+#include &lt;functional&gt;
+
+// 带权图的边
+struct Edge {
+    int to;
+    int weight;
+};
+
+class WeightedGraph {
+private:
+    int V;                      // 图中顶点的数量
+    std::vector&lt;std::vector&lt;Edge&gt;&gt; adj;  // 邻接表表示图
+    
+public:
+    // 构造函数
+    WeightedGraph(int v) : V(v) {
+        adj.resize(v);
+    }
+    
+    // 添加边的函数（无向图）
+    void addEdge(int u, int v, int weight) {
+        adj[u].push_back({v, weight});
+        adj[v].push_back({u, weight});
+    }
+    
+    // 使用优先队列的双向搜索（类似于双向Dijkstra）
+    void bidirectionalDijkstra(int start, int end) {
+        // 如果起点和终点相同
+        if (start == end) {
+            std::cout << "起点和终点相同，路径为: " << start << std::endl;
+            return;
+        }
+        
+        // 前向和后向的距离映射
+        std::vector&lt;int&gt; distForward(V, INT_MAX);
+        std::vector&lt;int&gt; distBackward(V, INT_MAX);
+        
+        // 前向和后向的父节点映射
+        std::vector&lt;int&gt; parentForward(V, -1);
+        std::vector&lt;int&gt; parentBackward(V, -1);
+        
+        // 前向和后向的访问标记
+        std::vector&lt;bool&gt; visitedForward(V, false);
+        std::vector&lt;bool&gt; visitedBackward(V, false);
+        
+        // 初始化起点和终点的距离
+        distForward[start] = 0;
+        distBackward[end] = 0;
+        
+        // 使用优先队列，按距离排序
+        using PQPair = std::pair&lt;int, int&gt;; // 距离，顶点
+        std::priority_queue&lt;PQPair, std::vector&lt;PQPair&gt;, std::greater&lt;PQPair&gt;&gt; pqForward;
+        std::priority_queue&lt;PQPair, std::vector&lt;PQPair&gt;, std::greater&lt;PQPair&gt;&gt; pqBackward;
+        
+        pqForward.push({0, start});
+        pqBackward.push({0, end});
+        
+        // 记录最短路径和相交点
+        int bestDist = INT_MAX;
+        int intersectNode = -1;
+        
+        // 当两个优先队列都不为空，且还未找到最短路径
+        while (!pqForward.empty() && !pqBackward.empty()) {
+            // 检查当前最小距离是否已经大于已知最短路径
+            if (bestDist <= pqForward.top().first + pqBackward.top().first) {
+                break;
+            }
+            
+            // 前向搜索扩展
+            int distF = pqForward.top().first;
+            int currentF = pqForward.top().second;
+            pqForward.pop();
+            
+            // 如果节点已被前向搜索处理，则跳过
+            if (visitedForward[currentF]) continue;
+            visitedForward[currentF] = true;
+            
+            // 检查与后向搜索的交叉
+            if (visitedBackward[currentF]) {
+                int pathDist = distF + distBackward[currentF];
+                if (pathDist < bestDist) {
+                    bestDist = pathDist;
+                    intersectNode = currentF;
+                }
+            }
+            
+            // 扩展前向搜索的邻接点
+            for (const Edge& edge : adj[currentF]) {
+                int neighbor = edge.to;
+                int weight = edge.weight;
+                
+                // 松弛操作
+                if (distF + weight < distForward[neighbor]) {
+                    distForward[neighbor] = distF + weight;
+                    parentForward[neighbor] = currentF;
+                    pqForward.push({distForward[neighbor], neighbor});
+                }
+            }
+            
+            // 后向搜索扩展
+            int distB = pqBackward.top().first;
+            int currentB = pqBackward.top().second;
+            pqBackward.pop();
+            
+            // 如果节点已被后向搜索处理，则跳过
+            if (visitedBackward[currentB]) continue;
+            visitedBackward[currentB] = true;
+            
+            // 检查与前向搜索的交叉
+            if (visitedForward[currentB]) {
+                int pathDist = distB + distForward[currentB];
+                if (pathDist < bestDist) {
+                    bestDist = pathDist;
+                    intersectNode = currentB;
+                }
+            }
+            
+            // 扩展后向搜索的邻接点
+            for (const Edge& edge : adj[currentB]) {
+                int neighbor = edge.to;
+                int weight = edge.weight;
+                
+                // 松弛操作
+                if (distB + weight < distBackward[neighbor]) {
+                    distBackward[neighbor] = distB + weight;
+                    parentBackward[neighbor] = currentB;
+                    pqBackward.push({distBackward[neighbor], neighbor});
+                }
+            }
+        }
+        
+        // 如果没有找到路径
+        if (intersectNode == -1 || bestDist == INT_MAX) {
+            std::cout << "没有找到从 " << start << " 到 " << end << " 的路径。" << std::endl;
+            return;
+        }
+        
+        // 构建路径
+        std::vector&lt;int&gt; path;
+        
+        // 前向部分
+        for (int at = intersectNode; at != -1; at = parentForward[at]) {
+            path.push_back(at);
+        }
+        std::reverse(path.begin(), path.end());
+        
+        // 后向部分（跳过交点，因为它已经在前向部分）
+        for (int at = parentBackward[intersectNode]; at != -1; at = parentBackward[at]) {
+            path.push_back(at);
+        }
+        
+        // 打印路径
+        std::cout << "找到从 " << start << " 到 " << end << " 的最短路径，距离为: " << bestDist << std::endl;
+        std::cout << "路径: ";
+        for (size_t i = 0; i < path.size(); i++) {
+            std::cout << path[i];
+            if (i < path.size() - 1)
+                std::cout << " -> ";
+        }
+        std::cout << std::endl;
+    }
+};
+
+int main() {
+    // 创建一个有9个顶点的无向加权图
+    WeightedGraph g(9);
+    
+    // 添加边
+    g.addEdge(0, 1, 4);
+    g.addEdge(0, 7, 8);
+    g.addEdge(1, 2, 8);
+    g.addEdge(1, 7, 11);
+    g.addEdge(2, 3, 7);
+    g.addEdge(2, 8, 2);
+    g.addEdge(2, 5, 4);
+    g.addEdge(3, 4, 9);
+    g.addEdge(3, 5, 14);
+    g.addEdge(4, 5, 10);
+    g.addEdge(5, 6, 2);
+    g.addEdge(6, 7, 1);
+    g.addEdge(6, 8, 6);
+    g.addEdge(7, 8, 7);
+    
+    // 执行双向Dijkstra搜索，从顶点0到顶点4
+    g.bidirectionalDijkstra(0, 4);
+    
+    return 0;
+                            </code></pre>
+                        </div>
+                    </div>
+                </div>
+            </section>
+            
+            <!-- 交互式可视化 Section -->
+            <section class="mb-12 bg-white rounded-2xl shadow-md p-8">
+                <div class="flex items-center mb-6">
+                    <i class="fas fa-chart-bar text-primary text-xl mr-3"></i>
+                    <h2 class="text-2xl font-bold text-gray-800">交互式可视化</h2>
+                </div>
+                <div class="space-y-6 text-gray-700">
+                    <p>下面是双向搜索算法的交互式可视化演示。您可以通过点击节点创建图，设置起点和终点，然后观察双向BFS的搜索过程。已为您初始化一个示例图，可直接体验双向搜索的过程。</p>
+                    
+                    <div class="flex flex-col items-center p-6 bg-gray-50 rounded-xl">
+                        <!-- 图可视化区域 -->
+                        <div id="graph-container" class="w-full h-96 bg-blue-100 rounded-lg shadow-inner p-4 mb-6 flex items-center justify-center">
+                            <canvas id="graph-canvas" class="w-full h-full"></canvas>
+                        </div>
+                        
+                        <!-- 控制区域 - 将按钮和操作说明分为两列 -->
+                        <div class="w-full grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
+                            <!-- 左侧：控制按钮和速度滑块 -->
+                            <div class="flex flex-col space-y-6">
+                                <div class="flex flex-wrap gap-4">
+                                    <button id="add-node" class="px-4 py-2 bg-primary hover:bg-primary-dark text-white rounded-lg transition duration-300 flex items-center">
+                                        <i class="fas fa-plus mr-2"></i> 添加节点
+                                    </button>
+                                    <button id="add-edge" class="px-4 py-2 bg-green-500 hover:bg-green-600 text-white rounded-lg transition duration-300 flex items-center">
+                                        <i class="fas fa-link mr-2"></i> 添加边
+                                    </button>
+                                    <button id="set-start" class="px-4 py-2 bg-blue-500 hover:bg-blue-600 text-white rounded-lg transition duration-300 flex items-center shadow-lg border-2 border-transparent hover:border-blue-300">
+                                        <i class="fas fa-play mr-2"></i> <span class="font-bold">设置起点</span>
+                                    </button>
+                                    <button id="set-end" class="px-4 py-2 bg-purple-500 hover:bg-purple-600 text-white rounded-lg transition duration-300 flex items-center shadow-lg border-2 border-transparent hover:border-purple-300">
+                                        <i class="fas fa-flag mr-2"></i> <span class="font-bold">设置终点</span>
+                                    </button>
+                                    <button id="start-search" class="px-4 py-2 bg-yellow-500 hover:bg-yellow-600 text-white rounded-lg transition duration-300 flex items-center">
+                                        <i class="fas fa-search mr-2"></i> 开始搜索
+                                    </button>
+                                    <button id="reset" class="px-4 py-2 bg-red-500 hover:bg-red-600 text-white rounded-lg transition duration-300 flex items-center">
+                                        <i class="fas fa-undo mr-2"></i> 重置
+                                    </button>
+                                </div>
+                                <div class="w-full flex items-center">
+                                    <span class="mr-3 text-sm font-medium text-gray-700">速度:</span>
+                                    <input id="speed-slider" type="range" min="1" max="5" value="3" class="w-full h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer">
+                                    <span class="ml-3 text-sm font-medium text-gray-700" id="speed-value">中等</span>
+                                </div>
+                            </div>
+                            
+                            <!-- 右侧：操作说明 -->
+                            <div class="bg-white p-4 rounded-lg shadow-sm">
+                                <h4 class="font-semibold text-gray-800 mb-2">操作说明:</h4>
+                                <ul class="list-disc list-inside text-sm text-gray-600 pl-2">
+                                    <li>已为您初始化一个演示图，您可以直接体验或自行创建新图</li>
+                                    <li>点击"添加节点"按钮后，在画布空白处点击创建新节点</li>
+                                    <li>点击"添加边"按钮后，先点击起始节点再点击目标节点创建边</li>
+                                    <li>点击"设置起点"按钮后，可以点击任意节点设为起点，也可以在空白处点击新建节点并设为起点</li>
+                                    <li>点击"设置终点"按钮后，可以点击任意节点设为终点，也可以在空白处点击新建节点并设为终点</li>
+                                    <li>点击"开始搜索"按钮启动双向BFS搜索过程</li>
+                                    <li>使用速度滑块控制动画速度</li>
+                                    <li>点击"重置"按钮清除所有节点和边并重新初始化示例图</li>
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <h3 class="text-xl font-semibold text-gray-800 mt-8 mb-4">搜索过程</h3>
+                    <div class="overflow-x-auto">
+                        <div id="search-output" class="w-full bg-gray-100 p-4 rounded-lg font-mono text-sm h-32 overflow-y-auto">
+                            双向搜索演示已准备就绪。已为您创建示例图，节点0为起点，节点8为终点。<br>选择一个操作按钮开始交互。
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- JavaScript 实现可视化 -->
+                <script>
+                    // 颜色定义
+                    const COLORS = {
+                        NODE: {
+                            DEFAULT: '#6366f1',
+                            START: '#3b82f6',
+                            END: '#8b5cf6',
+                            FORWARD: '#10b981',
+                            BACKWARD: '#f59e0b',
+                            INTERSECT: '#ef4444',
+                            PATH: '#059669',
+                            SELECTED: '#64748b',
+                            TEXT: '#ffffff'
+                        },
+                        EDGE: {
+                            DEFAULT: '#64748b',
+                            FORWARD: '#10b981',
+                            BACKWARD: '#f59e0b',
+                            PATH: '#059669'
+                        }
+                    };
+                    
+                    // 双向搜索的可视化代码
+                    document.addEventListener('DOMContentLoaded', function() {
+                        // 初始化交互式可视化
+                        initializeVisualization();
+                    });
+                    
+                    function initializeVisualization() {
+                        // 获取Canvas元素
+                        const canvas = document.getElementById('graph-canvas');
+                        const ctx = canvas.getContext('2d');
+                        const output = document.getElementById('search-output');
+                        
+                        // 设置Canvas尺寸
+                        function resizeCanvas() {
+                            const container = document.getElementById('graph-container');
+                            canvas.width = container.clientWidth;
+                            canvas.height = container.clientHeight;
+                        }
+                        
+                        // 初始调整Canvas尺寸
+                        resizeCanvas();
+                        window.addEventListener('resize', resizeCanvas);
+                        
+                        // 定义图结构和节点
+                        let nodes = [];
+                        let edges = [];
+                        let startNode = null;
+                        let endNode = null;
+                        let currentMode = 'add-node'; // 默认模式：添加节点
+                        let selectedNode = null;
+                        let animationSpeed = 3; // 默认速度
+                        
+                        // 更新速度显示
+                        const speedSlider = document.getElementById('speed-slider');
+                        const speedValue = document.getElementById('speed-value');
+                        
+                        // 更新速度值函数
+                        function updateSpeedValue() {
+                            const speed = parseInt(speedSlider.value);
+                            let speedText = '';
+                            
+                            switch(speed) {
+                                case 1: speedText = '非常慢'; break;
+                                case 2: speedText = '慢'; break;
+                                case 3: speedText = '中等'; break;
+                                case 4: speedText = '快'; break;
+                                case 5: speedText = '非常快'; break;
+                            }
+                            
+                            speedValue.textContent = speedText;
+                            animationSpeed = speed;
+                        }
+                        
+                        // 初始速度显示
+                        updateSpeedValue();
+                        
+                        // 监听速度滑块变化
+                        speedSlider.addEventListener('input', updateSpeedValue);
+                        
+                        // 创建示例图
+                        function createSampleGraph() {
+                            // 清空现有图
+                            nodes = [];
+                            edges = [];
+                            startNode = null;
+                            endNode = null;
+                            
+                            // 创建一些节点
+                            const nodePositions = [
+                                { x: canvas.width * 0.2, y: canvas.height * 0.3 },
+                                { x: canvas.width * 0.4, y: canvas.height * 0.2 },
+                                { x: canvas.width * 0.6, y: canvas.height * 0.3 },
+                                { x: canvas.width * 0.8, y: canvas.height * 0.2 },
+                                { x: canvas.width * 0.3, y: canvas.height * 0.5 },
+                                { x: canvas.width * 0.5, y: canvas.height * 0.6 },
+                                { x: canvas.width * 0.7, y: canvas.height * 0.5 },
+                                { x: canvas.width * 0.2, y: canvas.height * 0.7 },
+                                { x: canvas.width * 0.5, y: canvas.height * 0.8 }
+                            ];
+                            
+                            // 添加节点
+                            for (let i = 0; i < nodePositions.length; i++) {
+                                nodes.push({
+                                    id: i,
+                                    x: nodePositions[i].x,
+                                    y: nodePositions[i].y,
+                                    radius: 20,
+                                    color: COLORS.NODE.DEFAULT,
+                                    textColor: COLORS.NODE.TEXT,
+                                    label: i.toString()
+                                });
+                            }
+                            
+                            // 添加边
+                            const edgeConnections = [
+                                [0, 1], [0, 4], [1, 2], [1, 4],
+                                [2, 3], [2, 6], [3, 6], [4, 5],
+                                [4, 7], [5, 6], [5, 8], [6, 8],
+                                [7, 8]
+                            ];
+                            
+                            for (const [from, to] of edgeConnections) {
+                                edges.push({
+                                    from: from,
+                                    to: to,
+                                    color: COLORS.EDGE.DEFAULT
+                                });
+                            }
+                            
+                            // 设置起点和终点
+                            startNode = 0;
+                            endNode = 8;
+                            
+                            // 更新节点颜色
+                            if (startNode !== null) {
+                                nodes[startNode].color = COLORS.NODE.START;
+                            }
+                            if (endNode !== null) {
+                                nodes[endNode].color = COLORS.NODE.END;
+                            }
+                            
+                            // 绘制图
+                            drawGraph();
+                        }
+                        
+                        // 绘制图
+                        function drawGraph() {
+                            // 清空canvas
+                            ctx.clearRect(0, 0, canvas.width, canvas.height);
+                            
+                            // 绘制边
+                            edges.forEach(edge => {
+                                const fromNode = nodes[edge.from];
+                                const toNode = nodes[edge.to];
+                                
+                                ctx.beginPath();
+                                ctx.moveTo(fromNode.x, fromNode.y);
+                                ctx.lineTo(toNode.x, toNode.y);
+                                ctx.strokeStyle = edge.color;
+                                ctx.lineWidth = 2;
+                                ctx.stroke();
+                            });
+                            
+                            // 绘制节点
+                            nodes.forEach(node => {
+                                // 绘制节点圆形
+                                ctx.beginPath();
+                                ctx.arc(node.x, node.y, node.radius, 0, Math.PI * 2);
+                                ctx.fillStyle = node.color;
+                                ctx.fill();
+                                
+                                // 如果是选中的节点，添加边框
+                                if (selectedNode === node.id) {
+                                    ctx.strokeStyle = COLORS.NODE.SELECTED;
+                                    ctx.lineWidth = 3;
+                                    ctx.stroke();
+                                }
+                                
+                                // 绘制节点标签
+                                ctx.fillStyle = node.textColor;
+                                ctx.font = '14px Arial';
+                                ctx.textAlign = 'center';
+                                ctx.textBaseline = 'middle';
+                                ctx.fillText(node.label, node.x, node.y);
+                            });
+                        }
+                        
+                        // 检查鼠标是否在节点上
+                        function getNodeAtPosition(x, y) {
+                            for (let i = nodes.length - 1; i >= 0; i--) {
+                                const node = nodes[i];
+                                const dx = x - node.x;
+                                const dy = y - node.y;
+                                const distance = Math.sqrt(dx * dx + dy * dy);
+                                
+                                if (distance <= node.radius) {
+                                    return i;
+                                }
+                            }
+                            return null;
+                        }
+                        
+                        // 添加节点
+                        function addNode(x, y) {
+                            const id = nodes.length;
+                            nodes.push({
+                                id: id,
+                                x: x,
+                                y: y,
+                                radius: 20,
+                                color: COLORS.NODE.DEFAULT,
+                                textColor: COLORS.NODE.TEXT,
+                                label: id.toString()
+                            });
+                            drawGraph();
+                        }
+                        
+                        // 添加边
+                        function addEdge(fromId, toId) {
+                            // 检查边是否已存在
+                            const edgeExists = edges.some(edge => 
+                                (edge.from === fromId && edge.to === toId) || 
+                                (edge.from === toId && edge.to === fromId)
+                            );
+                            
+                            if (!edgeExists && fromId !== toId) {
+                                edges.push({
+                                    from: fromId,
+                                    to: toId,
+                                    color: COLORS.EDGE.DEFAULT
+                                });
+                                drawGraph();
+                            }
+                        }
+                        
+                        // 设置起点
+                        function setStart(nodeId) {
+                            if (startNode !== null) {
+                                nodes[startNode].color = COLORS.NODE.DEFAULT;
+                            }
+                            startNode = nodeId;
+                            nodes[nodeId].color = COLORS.NODE.START;
+                            drawGraph();
+                        }
+                        
+                        // 设置终点
+                        function setEnd(nodeId) {
+                            if (endNode !== null) {
+                                nodes[endNode].color = COLORS.NODE.DEFAULT;
+                            }
+                            endNode = nodeId;
+                            nodes[nodeId].color = COLORS.NODE.END;
+                            drawGraph();
+                        }
+                        
+                        // 重置图的颜色
+                        function resetColors() {
+                            edges.forEach(edge => {
+                                edge.color = COLORS.EDGE.DEFAULT;
+                            });
+                            
+                            nodes.forEach(node => {
+                                if (node.id === startNode) {
+                                    node.color = COLORS.NODE.START;
+                                } else if (node.id === endNode) {
+                                    node.color = COLORS.NODE.END;
+                                } else {
+                                    node.color = COLORS.NODE.DEFAULT;
+                                }
+                            });
+                            
+                            drawGraph();
+                        }
+                        
+                        // 双向BFS搜索
+                        async function startBidirectionalSearch() {
+                            if (startNode === null || endNode === null) {
+                                output.innerHTML = "<span class='text-red-500'>请先设置起点和终点</span>";
+                                return;
+                            }
+                            
+                            // 重置颜色
+                            resetColors();
+                            output.innerHTML = "开始执行双向BFS搜索...<br>";
+                            
+                            // 定义搜索相关数据结构
+                            const visitedFromStart = new Set([startNode]);
+                            const visitedFromEnd = new Set([endNode]);
+                            const queueFromStart = [startNode];
+                            const queueFromEnd = [endNode];
+                            const parentFromStart = new Map();
+                            const parentFromEnd = new Map();
+                            parentFromStart.set(startNode, null);
+                            parentFromEnd.set(endNode, null);
+                            
+                            // 标记起点和终点
+                            nodes[startNode].color = COLORS.NODE.START;
+                            nodes[endNode].color = COLORS.NODE.END;
+                            drawGraph();
+                            
+                            // 延迟函数
+                            const delay = ms => new Promise(resolve => setTimeout(resolve, ms));
+                            
+                            // 计算延迟时间（基于速度滑块值）
+                            const getDelayTime = () => {
+                                const speeds = [1000, 700, 400, 200, 100]; // 从慢到快
+                                return speeds[animationSpeed - 1];
+                            };
+                            
+                            // 获取节点的邻居
+                            function getNeighbors(nodeId) {
+                                const neighbors = [];
+                                edges.forEach(edge => {
+                                    if (edge.from === nodeId) {
+                                        neighbors.push(edge.to);
+                                    } else if (edge.to === nodeId) {
+                                        neighbors.push(edge.from);
+                                    }
+                                });
+                                return neighbors;
+                            }
+                            
+                            // 找到节点连接的边
+                            function findEdge(fromId, toId) {
+                                return edges.findIndex(edge => 
+                                    (edge.from === fromId && edge.to === toId) || 
+                                    (edge.from === toId && edge.to === fromId)
+                                );
+                            }
+                            
+                            // 交点节点
+                            let intersectNode = null;
+                            
+                            // 主搜索循环
+                            while (queueFromStart.length > 0 && queueFromEnd.length > 0 && intersectNode === null) {
+                                // 从起点扩展
+                                await expandFromDirection(queueFromStart, visitedFromStart, parentFromStart, visitedFromEnd, COLORS.NODE.FORWARD, COLORS.EDGE.FORWARD);
+                                
+                                if (intersectNode !== null) break;
+                                
+                                // 从终点扩展
+                                await expandFromDirection(queueFromEnd, visitedFromEnd, parentFromEnd, visitedFromStart, COLORS.NODE.BACKWARD, COLORS.EDGE.BACKWARD);
+                            }
+                            
+                            // 从一个方向扩展
+                            async function expandFromDirection(queue, visited, parent, otherVisited, nodeColor, edgeColor) {
+                                if (queue.length === 0 || intersectNode !== null) return;
+                                
+                                const current = queue.shift();
+                                output.innerHTML += `正在探索节点 ${current}...<br>`;
+                                output.scrollTop = output.scrollHeight;
+                                
+                                // 高亮当前节点
+                                if (current !== startNode && current !== endNode) {
+                                    nodes[current].color = nodeColor;
+                                    drawGraph();
+                                    await delay(getDelayTime());
+                                }
+                                
+                                // 获取邻居节点
+                                const neighbors = getNeighbors(current);
+                                
+                                for (const neighbor of neighbors) {
+                                    // 检查是否已访问
+                                    if (!visited.has(neighbor)) {
+                                        visited.add(neighbor);
+                                        parent.set(neighbor, current);
+                                        queue.push(neighbor);
+                                        
+                                        // 高亮边和邻居节点
+                                        const edgeIndex = findEdge(current, neighbor);
+                                        if (edgeIndex !== -1) {
+                                            edges[edgeIndex].color = edgeColor;
+                                        }
+                                        
+                                        if (neighbor !== startNode && neighbor !== endNode) {
+                                            nodes[neighbor].color = nodeColor;
+                                        }
+                                        drawGraph();
+                                        await delay(getDelayTime() / 2);
+                                        
+                                        // 检查是否与另一方向相遇
+                                        if (otherVisited.has(neighbor)) {
+                                            intersectNode = neighbor;
+                                            output.innerHTML += `在节点 ${neighbor} 处找到交点！<br>`;
+                                            
+                                            // 高亮交点
+                                            nodes[neighbor].color = COLORS.NODE.INTERSECT;
+                                            drawGraph();
+                                            await delay(getDelayTime());
+                                            
+                                            // 构建并显示路径
+                                            await constructPath(parentFromStart, parentFromEnd, intersectNode);
+                                            return;
+                                        }
+                                    }
+                                }
+                            }
+                            
+                            // 构建路径
+                            async function constructPath(parentFromStart, parentFromEnd, meetingPoint) {
+                                // 如果没有找到路径
+                                if (meetingPoint === null) {
+                                    output.innerHTML += "<span class='text-red-500'>没有找到从起点到终点的路径</span><br>";
+                                    return;
+                                }
+                                
+                                output.innerHTML += "找到路径! 正在构建...<br>";
+                                
+                                // 构建从起点到交点的路径
+                                const pathFromStart = [];
+                                let current = meetingPoint;
+                                while (current !== null) {
+                                    pathFromStart.unshift(current);
+                                    current = parentFromStart.get(current);
+                                }
+                                
+                                // 构建从交点到终点的路径
+                                const pathFromEnd = [];
+                                current = parentFromEnd.get(meetingPoint);
+                                while (current !== null) {
+                                    pathFromEnd.push(current);
+                                    current = parentFromEnd.get(current);
+                                }
+                                
+                                // 合并路径
+                                const fullPath = [...pathFromStart, ...pathFromEnd];
+                                
+                                // 高亮完整路径
+                                output.innerHTML += `完整路径: ${fullPath.join(' -> ')}<br>`;
+                                output.innerHTML += `路径长度: ${fullPath.length - 1}<br>`;
+                                
+                                // 高亮路径的边和节点
+                                for (let i = 0; i < fullPath.length - 1; i++) {
+                                    const fromId = fullPath[i];
+                                    const toId = fullPath[i + 1];
+                                    
+                                    // 高亮边
+                                    const edgeIndex = findEdge(fromId, toId);
+                                    if (edgeIndex !== -1) {
+                                        edges[edgeIndex].color = COLORS.EDGE.PATH;
+                                    }
+                                    
+                                    // 高亮节点
+                                    if (fromId !== startNode && fromId !== endNode) {
+                                        nodes[fromId].color = COLORS.NODE.PATH;
+                                    }
+                                    
+                                    drawGraph();
+                                    await delay(getDelayTime() / 2);
+                                }
+                                
+                                // 确保终点也被高亮
+                                if (fullPath[fullPath.length - 1] !== startNode && 
+                                    fullPath[fullPath.length - 1] !== endNode) {
+                                    nodes[fullPath[fullPath.length - 1]].color = COLORS.NODE.PATH;
+                                    drawGraph();
+                                }
+                                
+                                output.innerHTML += "<span class='text-green-500'>搜索完成!</span><br>";
+                            }
+                        }
+                        
+                        // 添加Canvas点击事件
+                        canvas.addEventListener('click', function(e) {
+                            const rect = canvas.getBoundingClientRect();
+                            // Calculate scaled coordinates considering canvas size ratio
+                            const scaleX = canvas.width / rect.width;
+                            const scaleY = canvas.height / rect.height;
+                            const x = (e.clientX - rect.left) * scaleX;
+                            const y = (e.clientY - rect.top) * scaleY;
+                            
+                            // 检查是否点击了节点
+                            const clickedNodeId = getNodeAtPosition(x, y);
+                            
+                            if (currentMode === 'add-node' && clickedNodeId === null) {
+                                // 添加新节点
+                                addNode(x, y);
+                                output.innerHTML = `在位置 (${Math.round(x)}, ${Math.round(y)}) 添加了新节点`;
+                            } else if (currentMode === 'add-edge') {
+                                if (clickedNodeId !== null) {
+                                    if (selectedNode === null) {
+                                        // 选择第一个节点
+                                        selectedNode = clickedNodeId;
+                                        nodes[selectedNode].color = COLORS.NODE.SELECTED;
+                                        drawGraph();
+                                        output.innerHTML = `选择了节点 ${clickedNodeId} 作为边的起点`;
+                                    } else if (selectedNode !== clickedNodeId) {
+                                        // 添加边并取消选择
+                                        addEdge(selectedNode, clickedNodeId);
+                                        nodes[selectedNode].color = COLORS.NODE.DEFAULT;
+                                        selectedNode = null;
+                                        drawGraph();
+                                        output.innerHTML = `添加了从节点 ${selectedNode} 到节点 ${clickedNodeId} 的边`;
+                                    }
+                                }
+                            } else if (currentMode === 'set-start') {
+                                if (clickedNodeId !== null) {
+                                    // 点击了已有节点，设置为起点
+                                    setStart(clickedNodeId);
+                                    output.innerHTML = `将节点 ${clickedNodeId} 设置为起点`;
+                                } else {
+                                    // 点击了空白区域，创建新节点并设置为起点
+                                    addNode(x, y);
+                                    setStart(nodes.length - 1);
+                                    output.innerHTML = `在位置 (${Math.round(x)}, ${Math.round(y)}) 创建新节点并设置为起点`;
+                                }
+                            } else if (currentMode === 'set-end') {
+                                if (clickedNodeId !== null) {
+                                    // 点击了已有节点，设置为终点
+                                    setEnd(clickedNodeId);
+                                    output.innerHTML = `将节点 ${clickedNodeId} 设置为终点`;
+                                } else {
+                                    // 点击了空白区域，创建新节点并设置为终点
+                                    addNode(x, y);
+                                    setEnd(nodes.length - 1);
+                                    output.innerHTML = `在位置 (${Math.round(x)}, ${Math.round(y)}) 创建新节点并设置为终点`;
+                                }
+                            }
+                        });
+                        
+                        // 添加按钮事件监听
+                        document.getElementById('add-node').addEventListener('click', function() {
+                            if (selectedNode !== null) {
+                                nodes[selectedNode].color = COLORS.NODE.DEFAULT;
+                                selectedNode = null;
+                                drawGraph();
+                            }
+                            currentMode = 'add-node';
+                            updateButtonStyles();
+                            output.innerHTML = "模式: 添加节点 - 点击画布空白区域创建新节点";
+                        });
+                        
+                        document.getElementById('add-edge').addEventListener('click', function() {
+                            currentMode = 'add-edge';
+                            updateButtonStyles();
+                            output.innerHTML = "模式: 添加边 - 先点击一个节点，再点击另一个节点创建边";
+                        });
+                        
+                        document.getElementById('set-start').addEventListener('click', function() {
+                            if (selectedNode !== null) {
+                                nodes[selectedNode].color = COLORS.NODE.DEFAULT;
+                                selectedNode = null;
+                                drawGraph();
+                            }
+                            currentMode = 'set-start';
+                            updateButtonStyles();
+                            output.innerHTML = "模式: 设置起点 - 点击一个现有节点设为起点，或点击空白区域创建新起点";
+                        });
+                        
+                        document.getElementById('set-end').addEventListener('click', function() {
+                            if (selectedNode !== null) {
+                                nodes[selectedNode].color = COLORS.NODE.DEFAULT;
+                                selectedNode = null;
+                                drawGraph();
+                            }
+                            currentMode = 'set-end';
+                            updateButtonStyles();
+                            output.innerHTML = "模式: 设置终点 - 点击一个现有节点设为终点，或点击空白区域创建新终点";
+                        });
+                        
+                        document.getElementById('start-search').addEventListener('click', function() {
+                            if (startNode === null || endNode === null) {
+                                output.innerHTML = "<span class='text-red-500'>错误: 请先设置起点和终点</span>";
+                                return;
+                            }
+                            startBidirectionalSearch();
+                        });
+                        
+                        document.getElementById('reset').addEventListener('click', function() {
+                            resetVisualization();
+                        });
+                        
+                        // 更新按钮样式
+                        function updateButtonStyles() {
+                            const buttons = ['add-node', 'add-edge', 'set-start', 'set-end'];
+                            buttons.forEach(id => {
+                                const button = document.getElementById(id);
+                                button.classList.remove('ring-2', 'ring-offset-2', 'ring-primary');
+                                
+                                if (id === currentMode) {
+                                    button.classList.add('ring-2', 'ring-offset-2', 'ring-primary');
+                                }
+                            });
+                        }
+                        
+                        // 重置可视化
+                        function resetVisualization() {
+                            // 清空输出
+                            output.innerHTML = "双向搜索演示已重置。已为您创建示例图，节点0为起点，节点8为终点。<br>选择一个操作按钮开始交互。";
+                            
+                            // 重置模式和选择
+                            currentMode = 'add-node';
+                            selectedNode = null;
+                            
+                            // 更新按钮样式
+                            updateButtonStyles();
+                            
+                            // 创建示例图
+                            createSampleGraph();
+                        }
+                        
+                        // 初始化示例图
+                        createSampleGraph();
+                        updateButtonStyles();
+                    }
+                </script>
+            </section>
+            
+            <!-- 应用示例 Section -->
+            <section class="mb-12 bg-white rounded-2xl shadow-md p-8">
+                <div class="flex items-center mb-6">
+                    <i class="fas fa-laptop-code text-primary text-xl mr-3"></i>
+                    <h2 class="text-2xl font-bold text-gray-800">应用示例</h2>
+                </div>
+                <div class="space-y-4 text-gray-700">
+                    <h3 class="text-xl font-semibold text-gray-800 mb-3">实例：迷宫最短路径</h3>
+                    <div class="mb-4 code-container relative bg-gray-100 rounded-lg">
+                        <button class="code-toggle-btn bg-primary hover:bg-primary-dark text-white font-medium py-1.5 px-4 rounded-md flex items-center absolute top-2 right-2 z-10 shadow-sm transition-all duration-300 cursor-pointer" data-target="maze-solver-code">
+                            <span>展开代码</span>
+                            <i class="fas fa-chevron-down ml-2 transition-transform duration-300"></i>
+                        </button>
+                        <div id="maze-solver-code" class="collapsible-code p-4 pt-12 bg-gray-100 rounded-lg overflow-auto">
+                            <pre><code class="language-cpp">
+#include &lt;iostream&gt;
+#include &lt;vector&gt;
+#include &lt;queue&gt;
+#include &lt;unordered_set&gt;
+#include &lt;utility&gt;
+#include &lt;string&gt;
+
+// 位置坐标
+struct Point {
+    int x, y;
+    
+    bool operator==(const Point& other) const {
+        return x == other.x && y == other.y;
+    }
+};
+
+// 哈希函数，用于unordered_set
+namespace std {
+    template <>
+    struct hash&lt;Point&gt; {
+        size_t operator()(const Point& p) const {
+            return hash&lt;int&gt;()(p.x) ^ hash&lt;int&gt;()(p.y);
+        }
+    };
+}
+
+// 方向：上、右、下、左
+const int dx[] = {-1, 0, 1, 0};
+const int dy[] = {0, 1, 0, -1};
+
+class MazeSolver {
+private:
+    std::vector&lt;std::string&gt; maze;
+    int rows, cols;
+    
+public:
+    MazeSolver(const std::vector&lt;std::string&gt;& m) : maze(m) {
+        rows = maze.size();
+        cols = maze[0].size();
+    }
+    
+    // 检查位置是否有效（在迷宫内且是通道）
+    bool isValid(const Point& p) {
+        return p.x >= 0 && p.x < rows && p.y >= 0 && p.y < cols && maze[p.x][p.y] == '.';
+    }
+    
+    // 使用双向BFS寻找最短路径
+    void bidirectionalBFS(Point start, Point end) {
+        // 如果起点或终点不合法
+        if (!isValid(start) || !isValid(end)) {
+            std::cout << "起点或终点不是有效位置。" << std::endl;
+            return;
+        }
+        
+        // 前向和后向的队列
+        std::queue&lt;Point&gt; queueForward;
+        std::queue&lt;Point&gt; queueBackward;
+        
+        // 前向和后向的访问集合
+        std::unordered_set&lt;Point&gt; visitedForward;
+        std::unordered_set&lt;Point&gt; visitedBackward;
+        
+        // 前向和后向的父节点映射
+        std::unordered_map&lt;Point, Point&gt; parentForward;
+        std::unordered_map&lt;Point, Point&gt; parentBackward;
+        
+        // 初始化
+        queueForward.push(start);
+        visitedForward.insert(start);
+        parentForward[start] = {-1, -1}; // 无效坐标表示起点
+        
+        queueBackward.push(end);
+        visitedBackward.insert(end);
+        parentBackward[end] = {-1, -1}; // 无效坐标表示终点
+        
+        // 相遇点
+        Point intersect = {-1, -1};
+        bool found = false;
+        
+        // 双向BFS主循环
+        while (!queueForward.empty() && !queueBackward.empty() && !found) {
+            // 扩展前向搜索
+            int sizeForward = queueForward.size();
+            for (int i = 0; i < sizeForward && !found; i++) {
+                Point current = queueForward.front();
+                queueForward.pop();
+                
+                // 遍历四个方向
+                for (int dir = 0; dir < 4; dir++) {
+                    Point next = {current.x + dx[dir], current.y + dy[dir]};
+                    
+                    // 如果下一个位置有效且未被前向搜索访问过
+                    if (isValid(next) && visitedForward.find(next) == visitedForward.end()) {
+                        visitedForward.insert(next);
+                        queueForward.push(next);
+                        parentForward[next] = current;
+                        
+                        // 检查是否与后向搜索相遇
+                        if (visitedBackward.find(next) != visitedBackward.end()) {
+                            intersect = next;
+                            found = true;
+                            break;
+                        }
+                    }
+                }
+            }
+            
+            if (found) break;
+            
+            // 扩展后向搜索
+            int sizeBackward = queueBackward.size();
+            for (int i = 0; i < sizeBackward && !found; i++) {
+                Point current = queueBackward.front();
+                queueBackward.pop();
+                
+                // 遍历四个方向
+                for (int dir = 0; dir < 4; dir++) {
+                    Point next = {current.x + dx[dir], current.y + dy[dir]};
+                    
+                    // 如果下一个位置有效且未被后向搜索访问过
+                    if (isValid(next) && visitedBackward.find(next) == visitedBackward.end()) {
+                        visitedBackward.insert(next);
+                        queueBackward.push(next);
+                        parentBackward[next] = current;
+                        
+                        // 检查是否与前向搜索相遇
+                        if (visitedForward.find(next) != visitedForward.end()) {
+                            intersect = next;
+                            found = true;
+                            break;
+                        }
+                    }
+                }
+            }
+        }
+        
+        // 如果没有找到路径
+        if (!found) {
+            std::cout << "没有找到从起点到终点的路径。" << std::endl;
+            return;
+        }
+        
+        // 构建路径
+        std::vector&lt;Point&gt; path;
+        
+        // 前向路径（从相交点到起点，然后反转）
+        for (Point at = intersect; !(at.x == -1 && at.y == -1); at = parentForward[at]) {
+            path.push_back(at);
+        }
+        std::reverse(path.begin(), path.end());
+        
+        // 后向路径（从相交点的下一个节点到终点）
+        std::vector&lt;Point&gt; backPath;
+        for (Point at = parentBackward[intersect]; !(at.x == -1 && at.y == -1); at = parentBackward[at]) {
+            backPath.push_back(at);
+        }
+        
+        // 合并路径
+        path.insert(path.end(), backPath.begin(), backPath.end());
+        
+        // 打印路径长度
+        std::cout << "最短路径长度: " << path.size() - 1 << std::endl;
+        
+        // 在迷宫中标记路径
+        std::vector&lt;std::string&gt; pathMaze = maze;
+        for (const Point& p : path) {
+            if (p == start)
+                pathMaze[p.x][p.y] = 'S'; // 起点
+            else if (p == end)
+                pathMaze[p.x][p.y] = 'E'; // 终点
+            else
+                pathMaze[p.x][p.y] = '*'; // 路径
+        }
+        
+        // 打印带路径的迷宫
+        std::cout << "带路径的迷宫 (S:起点, E:终点, *:路径, #:墙壁, .:通道):\n" << std::endl;
+        for (const std::string& row : pathMaze) {
+            std::cout << row << std::endl;
+        }
+    }
+};
+
+int main() {
+    // 迷宫示例 (#:墙壁, .:通道)
+    std::vector&lt;std::string&gt; maze = {
+        "##########",
+        "#........#",
+        "#.######.#",
+        "#.#....#.#",
+        "#.#.##.#.#",
+        "#.#.#..#.#",
+        "#.#.#.##.#",
+        "#...#....#",
+        "##########"
+    };
+    
+    // 创建迷宫求解器
+    MazeSolver solver(maze);
+    
+    // 设置起点和终点
+    Point start = {1, 1};
+    Point end = {7, 8};
+    
+    // 使用双向BFS寻找最短路径
+    solver.bidirectionalBFS(start, end);
+    
+    return 0;
+                            </code></pre>
+                        </div>
+                    </div>
+                </div>
+            </section>
+        </main>
+
+        <!-- 页脚 -->
+        <footer class="mt-10 p-6 bg-gray-800 text-white flex flex-col md:flex-row justify-between items-center">
+            <div class="mb-4 md:mb-0">
+                <p class="text-sm"></p>
+            </div>
+            <div class="flex space-x-4">
+                <a href="index.html" class="text-gray-300 hover:text-white transition-colors">首页</a>
+                <a href="深度优先搜索.html" class="text-gray-300 hover:text-white transition-colors">深度优先搜索</a>
+                <a href="广度优先搜索.html" class="text-gray-300 hover:text-white transition-colors">广度优先搜索</a>
+                <a href="Astar算法.html" class="text-gray-300 hover:text-white transition-colors">A*算法</a>
+            </div>
+        </footer>
+        <!-- Footer -->
+        <!-- <footer class="mt-8 text-center text-gray-500 text-sm py-6 border-t border-gray-200">
+            <p>© 2024 信息学素养GESP学习笔记 - 算法与数据结构</p>
+        </footer> -->
+    </div>
+
+    <!-- 代码折叠功能的JavaScript -->
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // 获取所有代码折叠按钮
+            const codeToggleBtns = document.querySelectorAll('.code-toggle-btn');
+            
+            // 为每个按钮添加点击事件监听器
+            codeToggleBtns.forEach(btn => {
+                const targetId = btn.getAttribute('data-target');
+                const targetElement = document.getElementById(targetId);
+                const icon = btn.querySelector('i');
+                
+                // 确保初始状态为折叠
+                if (targetElement) {
+                    // 移除可能已有的展开类
+                    targetElement.classList.remove('expanded');
+                }
+                
+                btn.addEventListener('click', function() {
+                    // 切换展开/折叠状态
+                    if (targetElement.classList.contains('expanded')) {
+                        // 折叠代码
+                        targetElement.classList.remove('expanded');
+                        btn.querySelector('span').textContent = '展开代码';
+                        icon.style.transform = 'rotate(0deg)';
+                    } else {
+                        // 展开代码
+                        targetElement.classList.add('expanded');
+                        btn.querySelector('span').textContent = '收起代码';
+                        icon.style.transform = 'rotate(180deg)';
+                    }
+                });
+            });
+        });
+    </script>
+</body>
+</html> 

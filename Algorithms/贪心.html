@@ -1,0 +1,533 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>贪心算法</title>
+    <!-- TailwindCSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&family=Roboto+Mono&display=swap" rel="stylesheet">
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        primary: {
+                            light: '#a5f3fc',
+                            DEFAULT: '#06b6d4',
+                            dark: '#0891b2',
+                        },
+                        secondary: {
+                            light: '#c7d2fe',
+                            DEFAULT: '#818cf8',
+                            dark: '#6366f1',
+                        },
+                        codeBlock: '#1e293b',
+                    },
+                    fontFamily: {
+                        sans: ['Poppins', 'sans-serif'],
+                        mono: ['Roboto Mono', 'monospace'],
+                    },
+                }
+            }
+        }
+    </script>
+    <style>
+        .card-hover {
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+        }
+        .card-hover:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 25px -5px rgba(6, 182, 212, 0.1), 0 10px 10px -5px rgba(6, 182, 212, 0.04);
+        }
+        .code-block::-webkit-scrollbar {
+            height: 8px;
+        }
+        .code-block::-webkit-scrollbar-thumb {
+            background-color: #06b6d4;
+            border-radius: 4px;
+        }
+        .code-block::-webkit-scrollbar-track {
+            background-color: #e2e8f0;
+            border-radius: 4px;
+        }
+    </style>
+</head>
+<body class="bg-gray-50 font-sans">
+    <div class="min-h-screen max-w-6xl mx-auto px-8 py-10">
+        <!-- Header -->
+        <header class="mb-12 text-center">
+            <div class="inline-block px-3 py-1 bg-primary-light text-primary-dark rounded-full text-sm font-medium mb-4">
+                算法基础
+            </div>
+            <h1 class="text-4xl font-bold text-gray-800 mb-4">贪心算法</h1>
+            <p class="text-lg text-gray-600 max-w-3xl mx-auto">掌握贪心策略和技巧，解决问题时做出局部最优选择以获得全局最优解</p>
+        </header>
+
+        <!-- Main Content -->
+        <main>
+            <!-- 贪心算法基础 Section -->
+            <section class="mb-12 bg-white rounded-2xl shadow-md p-8">
+                <div class="flex items-center mb-6">
+                    <i class="fas fa-bullseye text-primary text-xl mr-3"></i>
+                    <h2 class="text-2xl font-bold text-gray-800">贪心算法基础</h2>
+                </div>
+                <div class="space-y-4 text-gray-700">
+                    <p>贪心算法（Greedy Algorithm）是一种在每一步选择中都采取当前状态下最好或最优的选择，从而希望导致全局最优解的算法策略。</p>
+                    
+                    <div class="p-5 bg-primary-light bg-opacity-10 rounded-lg">
+                        <p>贪心算法的核心思想是：<strong>局部最优选择能导致全局最优解</strong>。每一步都选择当前看起来最优的解，而不考虑后续可能的影响。</p>
+                    </div>
+                    
+                    <h3 class="text-xl font-semibold text-gray-800 mt-6 mb-3">贪心算法的设计步骤</h3>
+                    <ol class="list-decimal list-inside space-y-2 pl-4">
+                        <li>将问题分解为若干个子问题</li>
+                        <li>找出适合的贪心策略</li>
+                        <li>求解每个子问题的局部最优解</li>
+                        <li>将局部最优解堆叠成全局最优解</li>
+                    </ol>
+                    
+                    <h3 class="text-xl font-semibold text-gray-800 mt-6 mb-3">贪心算法的特点</h3>
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-4">
+                        <div class="card-hover p-6 bg-gray-50 rounded-xl">
+                            <h4 class="text-lg font-semibold text-gray-800 mb-3">
+                                <i class="fas fa-plus-circle text-green-500 mr-2"></i>
+                                优点
+                            </h4>
+                            <ul class="list-disc pl-5 space-y-1">
+                                <li>简单直观，容易实现</li>
+                                <li>计算效率高，通常时间复杂度较低</li>
+                                <li>不需要回溯或递归</li>
+                                <li>适合解决某些特定类型的问题</li>
+                            </ul>
+                        </div>
+                        
+                        <div class="card-hover p-6 bg-gray-50 rounded-xl">
+                            <h4 class="text-lg font-semibold text-gray-800 mb-3">
+                                <i class="fas fa-minus-circle text-red-500 mr-2"></i>
+                                局限性
+                            </h4>
+                            <ul class="list-disc pl-5 space-y-1">
+                                <li>不是所有问题都能用贪心算法解决</li>
+                                <li>局部最优不一定导致全局最优</li>
+                                <li>难以证明算法的正确性</li>
+                                <li>对问题结构要求严格</li>
+                            </ul>
+                        </div>
+                    </div>
+                    
+                    <div class="bg-yellow-50 border-l-4 border-yellow-400 p-4 rounded-r my-6">
+                        <div class="flex items-start">
+                            <i class="fas fa-exclamation-triangle text-yellow-500 mt-1 mr-3"></i>
+                            <p class="text-gray-700">
+                                <strong>重要提示</strong>：使用贪心算法前，需要证明该问题具有"贪心选择性质"（即局部最优选择能导致全局最优解）和"最优子结构"（即问题的最优解包含子问题的最优解）。
+                            </p>
+                        </div>
+                    </div>
+                </div>
+            </section>
+            
+            <!-- 何时使用贪心算法 Section -->
+            <section class="mb-12 bg-white rounded-2xl shadow-md p-8">
+                <div class="flex items-center mb-6">
+                    <i class="fas fa-question-circle text-primary text-xl mr-3"></i>
+                    <h2 class="text-2xl font-bold text-gray-800">何时使用贪心算法</h2>
+                </div>
+                <div class="space-y-4 text-gray-700">
+                    <p>贪心算法并不适用于所有问题，它适用于具有以下特性的问题：</p>
+                    
+                    <div class="p-6 bg-gray-50 rounded-xl">
+                        <h3 class="text-xl font-semibold text-gray-800 mb-4">贪心算法适用条件</h3>
+                        <ul class="list-disc pl-5 space-y-3">
+                            <li>
+                                <strong>贪心选择性质</strong>：每一步的局部最优选择能够导致全局最优解。也就是说，通过一系列局部最优的选择，可以构造出一个全局最优解。
+                            </li>
+                            <li>
+                                <strong>最优子结构</strong>：问题的最优解包含其子问题的最优解。这意味着可以通过组合子问题的最优解来得到原问题的最优解。
+                            </li>
+                            <li>
+                                <strong>无后效性</strong>：一旦做出决策，就不会影响之前做出的选择。每个子问题的解决方案不会影响其他子问题。
+                            </li>
+                        </ul>
+                    </div>
+                    
+                    <h3 class="text-xl font-semibold text-gray-800 mt-6 mb-3">贪心算法与动态规划的比较</h3>
+                    <table class="min-w-full bg-white border border-gray-200 mb-4">
+                        <thead>
+                            <tr class="bg-gray-100">
+                                <th class="py-3 px-4 border-b text-left">贪心算法</th>
+                                <th class="py-3 px-4 border-b text-left">动态规划</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td class="py-3 px-4 border-b">每一步做出局部最优选择</td>
+                                <td class="py-3 px-4 border-b">考虑所有可能的选择并保存子问题的解</td>
+                            </tr>
+                            <tr>
+                                <td class="py-3 px-4 border-b">不能回退，一旦做出选择就不能改变</td>
+                                <td class="py-3 px-4 border-b">可以根据子问题的解决方案调整决策</td>
+                            </tr>
+                            <tr>
+                                <td class="py-3 px-4 border-b">时间复杂度通常较低（如O(n)或O(n log n)）</td>
+                                <td class="py-3 px-4 border-b">时间复杂度通常较高（如O(n²)或更高）</td>
+                            </tr>
+                            <tr>
+                                <td class="py-3 px-4 border-b">不一定得到全局最优解</td>
+                                <td class="py-3 px-4 border-b">总是得到全局最优解（如果正确实现）</td>
+                            </tr>
+                            <tr>
+                                <td class="py-3 px-4 border-b">实现简单直观</td>
+                                <td class="py-3 px-4 border-b">实现相对复杂</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </section>
+            
+            <!-- 贪心算法经典问题 Section -->
+            <section class="mb-12 bg-white rounded-2xl shadow-md p-8">
+                <div class="flex items-center mb-6">
+                    <i class="fas fa-code text-primary text-xl mr-3"></i>
+                    <h2 class="text-2xl font-bold text-gray-800">贪心算法经典问题</h2>
+                </div>
+                <div class="space-y-4 text-gray-700">
+                    <p>以下是一些可以使用贪心算法解决的经典问题：</p>
+                    
+                    <h3 class="text-xl font-semibold text-gray-800 mt-6 mb-3">1. 活动选择问题</h3>
+                    <p>问题描述：有n个活动，每个活动有开始时间和结束时间，目标是安排尽可能多的不冲突活动。</p>
+                    <p>贪心策略：按照活动的结束时间进行排序，每次选择结束时间最早的且与已选活动不冲突的活动。</p>
+                    
+                    <div class="overflow-x-auto bg-codeBlock rounded-lg p-4 mb-4">
+                        <pre class="text-gray-100 font-mono text-sm"><code>// 活动选择问题
+// 输入：活动的开始时间和结束时间
+// 输出：最大不冲突活动数量以及这些活动
+void activitySelection(vector&lt;int&gt; start, vector&lt;int&gt; finish) {
+    int n = start.size();
+    
+    // 根据结束时间排序活动
+    vector&lt;pair&lt;int, int&gt;&gt; activities(n);
+    for (int i = 0; i < n; i++) {
+        activities[i] = {finish[i], start[i]};
+    }
+    sort(activities.begin(), activities.end());
+    
+    // 选择第一个活动
+    vector&lt;int&gt; selected;
+    selected.push_back(0);
+    int lastFinish = activities[0].first;
+    
+    // 依次选择不冲突的活动
+    for (int i = 1; i < n; i++) {
+        // 如果当前活动的开始时间不早于上一个活动的结束时间
+        if (activities[i].second >= lastFinish) {
+            selected.push_back(i);
+            lastFinish = activities[i].first;
+        }
+    }
+    
+    // 输出结果
+    cout << "选择的活动数量: " << selected.size() << endl;
+    cout << "选择的活动: ";
+    for (int i : selected) {
+        cout << i << " ";
+    }
+    cout << endl;
+}</code></pre>
+                    </div>
+                    
+                    <h3 class="text-xl font-semibold text-gray-800 mt-6 mb-3">2. 分数背包问题</h3>
+                    <p>问题描述：有n个物品，每个物品有重量和价值，背包有最大容量限制，可以取物品的一部分，目标是使背包中物品的总价值最大。</p>
+                    <p>贪心策略：按照物品的价值/重量比降序排序，优先选择价值密度高的物品。</p>
+                    
+                    <div class="overflow-x-auto bg-codeBlock rounded-lg p-4 mb-4">
+                        <pre class="text-gray-100 font-mono text-sm"><code>// 分数背包问题
+// 输入：物品的重量、价值和背包容量
+// 输出：能够装入背包的最大价值
+double fractionalKnapsack(vector&lt;int&gt; weights, vector&lt;int&gt; values, int capacity) {
+    int n = weights.size();
+    
+    // 计算每个物品的价值密度（价值/重量）
+    vector&lt;pair&lt;double, int&gt;&gt; valuePerWeight(n);
+    for (int i = 0; i < n; i++) {
+        valuePerWeight[i] = {(double)values[i] / weights[i], i};
+    }
+    
+    // 按价值密度降序排序
+    sort(valuePerWeight.begin(), valuePerWeight.end(), greater<>());
+    
+    double totalValue = 0.0;
+    int currentWeight = 0;
+    
+    // 贪心选择
+    for (int i = 0; i < n; i++) {
+        int idx = valuePerWeight[i].second;
+        
+        // 如果能完整装入当前物品
+        if (currentWeight + weights[idx] <= capacity) {
+            currentWeight += weights[idx];
+            totalValue += values[idx];
+        }
+        // 否则只能装入部分
+        else {
+            int remainingCapacity = capacity - currentWeight;
+            totalValue += values[idx] * ((double)remainingCapacity / weights[idx]);
+            break; // 背包已满
+        }
+    }
+    
+    return totalValue;
+}</code></pre>
+                    </div>
+                    
+                    <h3 class="text-xl font-semibold text-gray-800 mt-6 mb-3">3. 哈夫曼编码</h3>
+                    <p>问题描述：给定一组字符及其出现频率，设计一种变长编码方案，使得编码后的总长度最小。</p>
+                    <p>贪心策略：每次合并两个出现频率最低的节点，构建一棵哈夫曼树。</p>
+                    
+                    <div class="overflow-x-auto bg-codeBlock rounded-lg p-4 mb-4">
+                        <pre class="text-gray-100 font-mono text-sm"><code>// 哈夫曼编码
+// 定义哈夫曼树节点
+struct HuffmanNode {
+    char data;
+    int freq;
+    HuffmanNode *left, *right;
+    
+    HuffmanNode(char data, int freq) {
+        this->data = data;
+        this->freq = freq;
+        left = right = nullptr;
+    }
+};
+
+// 比较函数，用于优先队列
+struct Compare {
+    bool operator()(HuffmanNode* a, HuffmanNode* b) {
+        return a->freq > b->freq; // 小顶堆
+    }
+};
+
+// 递归打印哈夫曼编码
+void printCodes(HuffmanNode* root, string code) {
+    if (!root) return;
+    
+    // 如果是叶节点
+    if (!root->left && !root->right) {
+        cout << root->data << ": " << code << endl;
+        return;
+    }
+    
+    // 递归处理左右子树
+    printCodes(root->left, code + "0");
+    printCodes(root->right, code + "1");
+}
+
+// 构建哈夫曼树并打印编码
+void huffmanCoding(vector<char> data, vector<int> freq) {
+    int n = data.size();
+    
+    // 创建优先队列（小顶堆）
+    priority_queue<HuffmanNode*, vector<HuffmanNode*>, Compare> minHeap;
+    
+    // 创建叶节点并加入优先队列
+    for (int i = 0; i < n; i++) {
+        minHeap.push(new HuffmanNode(data[i], freq[i]));
+    }
+    
+    // 构建哈夫曼树
+    while (minHeap.size() > 1) {
+        // 取出两个频率最小的节点
+        HuffmanNode* left = minHeap.top();
+        minHeap.pop();
+        
+        HuffmanNode* right = minHeap.top();
+        minHeap.pop();
+        
+        // 创建新的内部节点，频率为两个子节点的和
+        HuffmanNode* newNode = new HuffmanNode('$', left->freq + right->freq);
+        newNode->left = left;
+        newNode->right = right;
+        
+        // 将新节点加入优先队列
+        minHeap.push(newNode);
+    }
+    
+    // 打印哈夫曼编码
+    printCodes(minHeap.top(), "");
+}</code></pre>
+                    </div>
+                </div>
+            </section>
+            
+            <!-- 更多贪心算法问题 Section -->
+            <section class="bg-white rounded-2xl shadow-md p-8">
+                <div class="flex items-center mb-6">
+                    <i class="fas fa-puzzle-piece text-primary text-xl mr-3"></i>
+                    <h2 class="text-2xl font-bold text-gray-800">更多贪心算法应用</h2>
+                </div>
+                <div class="space-y-4 text-gray-700">
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-4">
+                        <div class="card-hover p-6 bg-gray-50 rounded-xl">
+                            <h3 class="text-lg font-semibold text-gray-800 mb-3">
+                                <i class="fas fa-chart-line text-primary-dark mr-2"></i>
+                                最小生成树算法
+                            </h3>
+                            <p class="mb-2">贪心算法在最小生成树问题中有两个经典应用：</p>
+                            <ul class="list-disc pl-5 space-y-1">
+                                <li><strong>Kruskal 算法</strong>：按边权重从小到大排序，依次加入不形成环的边</li>
+                                <li><strong>Prim 算法</strong>：从一个顶点开始，每次选择与当前树连接的权重最小的边</li>
+                            </ul>
+                        </div>
+                        
+                        <div class="card-hover p-6 bg-gray-50 rounded-xl">
+                            <h3 class="text-lg font-semibold text-gray-800 mb-3">
+                                <i class="fas fa-route text-primary-dark mr-2"></i>
+                                最短路径算法
+                            </h3>
+                            <p class="mb-2">Dijkstra 算法是应用贪心思想的最短路径算法：</p>
+                            <ul class="list-disc pl-5 space-y-1">
+                                <li>每次选择当前未处理的距离最小的顶点</li>
+                                <li>更新该顶点邻居的距离</li>
+                                <li>重复过程直到所有顶点都被处理</li>
+                            </ul>
+                        </div>
+                    </div>
+                    
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-4">
+                        <div class="card-hover p-6 bg-gray-50 rounded-xl">
+                            <h3 class="text-lg font-semibold text-gray-800 mb-3">
+                                <i class="fas fa-coins text-primary-dark mr-2"></i>
+                                硬币找零问题
+                            </h3>
+                            <p>在特定的货币系统中（如美元），可以用贪心算法解决硬币找零问题：</p>
+                            <div class="mt-3">
+                                <p class="text-sm">例如，给定面值为 [25, 10, 5, 1] 的硬币，如何用最少的硬币组成一个特定金额：</p>
+                                <div class="overflow-x-auto bg-codeBlock rounded-lg p-3 mt-2">
+                                    <pre class="text-gray-100 font-mono text-xs"><code>// 找零问题
+int coinChange(vector&lt;int&gt; coins, int amount) {
+    sort(coins.begin(), coins.end(), greater<int>());
+    int count = 0;
+    
+    for (int coin : coins) {
+        // 当前面值的硬币可以用多少个
+        int numCoins = amount / coin;
+        count += numCoins;
+        amount -= numCoins * coin;
+    }
+    
+    return amount == 0 ? count : -1; // 如果无法找零，返回-1
+}</code></pre>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="card-hover p-6 bg-gray-50 rounded-xl">
+                            <h3 class="text-lg font-semibold text-gray-800 mb-3">
+                                <i class="fas fa-calendar-alt text-primary-dark mr-2"></i>
+                                区间调度问题
+                            </h3>
+                            <p>区间调度问题是安排不相交区间的问题变体：</p>
+                            <div class="mt-3">
+                                <p class="text-sm">例如，给定一组区间，选择尽可能多的不重叠区间：</p>
+                                <div class="overflow-x-auto bg-codeBlock rounded-lg p-3 mt-2">
+                                    <pre class="text-gray-100 font-mono text-xs"><code>// 区间调度
+int intervalScheduling(vector&lt;pair&lt;int, int&gt;&gt; intervals) {
+    // 按结束时间排序
+    sort(intervals.begin(), intervals.end(),
+         [](pair&lt;int, int&gt; a, pair&lt;int, int&gt; b) {
+             return a.second < b.second;
+         });
+    
+    int count = 0;
+    int lastEnd = -1;
+    
+    for (auto& interval : intervals) {
+        // 如果当前区间的开始时间不早于上一个区间的结束时间
+        if (interval.first >= lastEnd) {
+            count++;
+            lastEnd = interval.second;
+        }
+    }
+    
+    return count;
+}</code></pre>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="bg-yellow-50 border-l-4 border-yellow-400 p-4 rounded-r my-6">
+                        <div class="flex items-start">
+                            <i class="fas fa-exclamation-triangle text-yellow-500 mt-1 mr-3"></i>
+                            <div>
+                                <h4 class="font-semibold text-gray-800 mb-2">贪心算法需谨慎</h4>
+                                <p class="text-gray-700">
+                                    贪心算法虽然在某些问题上非常有效，但也有很多问题无法用贪心算法求解。例如，在一般的背包问题（0-1背包）中，贪心算法不一定能得到最优解，这时应该使用动态规划。
+                                </p>
+                                <p class="text-gray-700 mt-2">
+                                    在应用贪心算法前，务必验证该问题是否满足贪心选择性质，否则可能得到错误的结果。
+                                </p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+        </main>
+
+        <!-- Footer -->
+        <footer class="mt-16 text-center text-gray-500 text-sm">
+            <div class="flex justify-center mt-6 space-x-4">
+                <a href="简介.html" class="text-primary hover:text-primary-dark transition-colors duration-300">
+                    <i class="fas fa-home mr-1"></i>首页
+                </a>
+                <a href="递归.html" class="text-primary hover:text-primary-dark transition-colors duration-300">
+                    <i class="fas fa-arrow-left ml-1"></i>递归与分治
+                </a>
+                <a href="二分查找.html" class="text-primary hover:text-primary-dark transition-colors duration-300">
+                    二分查找<i class="fas fa-arrow-right ml-1"></i>
+                </a>
+            </div>
+        </footer>
+    </div>
+
+    <!-- Back to top button -->
+    <button id="backToTop" class="fixed bottom-6 right-6 bg-primary hover:bg-primary-dark text-white rounded-full p-3 shadow-lg transition-all duration-300 opacity-0 invisible">
+        <i class="fas fa-arrow-up"></i>
+    </button>
+
+    <!-- JavaScript for Back to top button -->
+    <script>
+        const backToTop = document.getElementById('backToTop');
+        
+        window.addEventListener('scroll', () => {
+            if (window.scrollY > 300) {
+                backToTop.classList.remove('opacity-0', 'invisible');
+                backToTop.classList.add('opacity-100', 'visible');
+            } else {
+                backToTop.classList.remove('opacity-100', 'visible');
+                backToTop.classList.add('opacity-0', 'invisible');
+            }
+        });
+        
+        backToTop.addEventListener('click', () => {
+            window.scrollTo({
+                top: 0,
+                behavior: 'smooth'
+            });
+        });
+    </script>
+    <!-- Simple ScrollReveal effect -->
+    <script src="https://unpkg.com/scrollreveal"></script>
+    <script>
+        ScrollReveal().reveal('section', { 
+            delay: 200,
+            distance: '20px',
+            origin: 'bottom',
+            duration: 800,
+            easing: 'ease-in-out'
+        });
+    </script>
+</body>
+</html> 
