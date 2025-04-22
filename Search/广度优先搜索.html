@@ -128,7 +128,7 @@
                             <h3 class="text-xl font-semibold text-gray-800 mb-3">使用队列实现</h3>
                             <div class="mb-4">
                                 <button class="code-toggle-btn px-4 py-2 bg-gray-200 hover:bg-gray-300 rounded-lg transition duration-300 flex items-center" data-target="queue-code">
-                                    <i class="fas fa-code mr-2"></i> <span>展开/收起代码</span>
+                                    <i class="fas fa-code mr-2"></i> <span>展开代码</span>
                                 </button>
                             </div>
                             <div id="queue-code" class="overflow-x-auto bg-codeBlock rounded-lg p-4 mb-4 code-block">
@@ -387,7 +387,7 @@ int main() {
                     <h3 class="text-xl font-semibold text-gray-800 mb-3">实例：最短路径查找</h3>
                     <div class="mb-4">
                         <button class="code-toggle-btn px-4 py-2 bg-gray-200 hover:bg-gray-300 rounded-lg transition duration-300 flex items-center" data-target="shortest-path-code">
-                            <i class="fas fa-code mr-2"></i> <span>展开/收起代码</span>
+                            <i class="fas fa-code mr-2"></i> <span>展开代码</span>
                         </button>
                     </div>
                     <div id="shortest-path-code" class="overflow-x-auto bg-codeBlock rounded-lg p-4 mb-6 code-block">
@@ -502,7 +502,7 @@ int main() {
                     <h3 class="text-xl font-semibold text-gray-800 mt-6 mb-3">实例：二分图检测</h3>
                     <div class="mb-4">
                         <button class="code-toggle-btn px-4 py-2 bg-gray-200 hover:bg-gray-300 rounded-lg transition duration-300 flex items-center" data-target="bipartite-code">
-                            <i class="fas fa-code mr-2"></i> <span>展开/收起代码</span>
+                            <i class="fas fa-code mr-2"></i> <span>展开代码</span>
                         </button>
                     </div>
                     <div id="bipartite-code" class="overflow-x-auto bg-codeBlock rounded-lg p-4 mb-4 code-block">
@@ -626,10 +626,13 @@ int main() {
             <section id="visualization" class="mb-16">
                 <h2 class="text-3xl font-bold mb-6 text-gray-800 border-l-4 border-primary pl-3">交互式可视化</h2>
                 <p class="mb-4">
-                    广度优先搜索（BFS）是一种图搜索算法，它从根节点开始，沿着图的宽度遍历所有节点。对于每一层节点，BFS 会先访问所有邻接节点，然后再移动到下一层。
+                    广度优先搜索（BFS）是一种图搜索算法，它从根节点开始，<strong>逐层</strong>遍历图中的所有节点。BFS的核心特点是先访问距离起点近的节点，然后再访问距离更远的节点，确保按照距离递增的顺序访问所有节点。
+                </p>
+                <p class="mb-4">
+                    在BFS中，同一层的节点按照它们被添加到队列的顺序进行访问。对于每个节点，我们先将其<strong>所有</strong>未访问的邻居节点按照从左到右（或节点编号从小到大）的顺序加入队列，然后再处理队列中的下一个节点。这种访问顺序确保了广度优先的特性。
                 </p>
                 <p class="mb-6">
-                    下面是广度优先搜索算法的交互式可视化演示。您可以通过点击节点创建图，然后选择起始节点观察BFS遍历的过程。已为您初始化一个示例图，可直接点击"开始BFS"按钮并选择一个起始节点体验算法运行过程。
+                    下面是广度优先搜索算法的交互式可视化演示。您可以通过点击节点创建图，然后选择起始节点观察BFS按层次遍历的过程。已为您初始化一个具有清晰层次结构的示例图，可直接点击"开始BFS"按钮并选择节点1作为起始节点，体验算法如何逐层扩展遍历图中所有节点，并观察同一层中节点的访问顺序。
                 </p>
                 
                 <div class="flex flex-col items-center p-6 bg-gray-50 rounded-xl">
@@ -875,6 +878,9 @@ int main() {
                             this.visited = new Set();
                             this.traversalOrder = [];
                             this.edges = [];
+                            this.currentLevel = 0; // 当前层级
+                            this.levelMap = {}; // 存储每个节点所在的层级
+                            this.processingOrder = []; // 记录节点的处理顺序
                         }
                         
                         // 初始化BFS
@@ -883,38 +889,59 @@ int main() {
                             this.visited = new Set([startLabel]);
                             this.traversalOrder = [startLabel];
                             this.edges = [];
+                            this.currentLevel = 0;
+                            this.levelMap = { [startLabel]: 0 }; // 起始节点在第0层
+                            this.processingOrder = [];
                         }
                         
-                        // 执行单步BFS
+                        // 执行单步BFS，返回一层的处理结果
                         step() {
                             if (this.queue.length === 0) {
                                 return { done: true };
                             }
                             
-                            const currentLabel = this.queue.shift();
-                            const neighbors = this.graph.adjacencyList[currentLabel] || [];
+                            // 获取当前层的节点数量
+                            const currentLevelSize = this.queue.length;
+                            const currentLevel = this.currentLevel;
+                            const currentLevelNodes = [];
+                            const newNeighbors = [];
                             
-                            // 检查每个邻居
-                            for (const neighbor of neighbors) {
-                                if (!this.visited.has(neighbor)) {
-                                    this.visited.add(neighbor);
-                                    this.queue.push(neighbor);
-                                    this.traversalOrder.push(neighbor);
-                                    this.edges.push({ from: currentLabel, to: neighbor });
-                                    
-                                    return {
-                                        done: false,
-                                        current: currentLabel,
-                                        neighbor: neighbor,
-                                        queue: [...this.queue] // 当前队列的副本
-                                    };
+                            // 处理当前层的所有节点
+                            for (let i = 0; i < currentLevelSize; i++) {
+                                const currentLabel = this.queue.shift();
+                                currentLevelNodes.push(currentLabel);
+                                this.processingOrder.push(currentLabel); // 记录节点处理顺序
+                                
+                                // 获取所有未访问的邻居节点（按节点编号从小到大排序）
+                                const neighbors = [...(this.graph.adjacencyList[currentLabel] || [])];
+                                neighbors.sort((a, b) => a - b); // 确保邻居节点按编号从小到大处理
+                                
+                                for (const neighbor of neighbors) {
+                                    if (!this.visited.has(neighbor)) {
+                                        this.visited.add(neighbor);
+                                        this.queue.push(neighbor);
+                                        this.traversalOrder.push(neighbor);
+                                        this.edges.push({ from: currentLabel, to: neighbor });
+                                        this.levelMap[neighbor] = currentLevel + 1; // 设置邻居节点的层级
+                                        newNeighbors.push({ 
+                                            current: currentLabel, 
+                                            neighbor: neighbor 
+                                        });
+                                    }
                                 }
                             }
                             
-                            // 如果当前节点处理完所有邻居但没有新的邻居被添加到队列
+                            // 对添加的新邻居按节点编号排序以清晰展示
+                            newNeighbors.sort((a, b) => a.neighbor - b.neighbor);
+                            
+                            // 当前层处理完毕，层级+1
+                            this.currentLevel++;
+                            
                             return {
                                 done: false,
-                                current: currentLabel,
+                                currentLevel,
+                                currentLevelNodes,
+                                newNeighbors,
                                 queue: [...this.queue]
                             };
                         }
@@ -1034,33 +1061,51 @@ int main() {
                         
                         // 创建示例图
                         function createExampleGraph() {
-                            // 添加节点（在画布上均匀分布）
+                            // 添加节点（在画布上均匀分布，更清晰地展示层次结构）
                             const width = canvas.canvas.width;
                             const height = canvas.canvas.height;
                             
-                            const node1 = graph.addNode(width * 0.2, height * 0.3, nextNodeLabel++);
-                            const node2 = graph.addNode(width * 0.5, height * 0.2, nextNodeLabel++);
-                            const node3 = graph.addNode(width * 0.8, height * 0.3, nextNodeLabel++);
-                            const node4 = graph.addNode(width * 0.1, height * 0.6, nextNodeLabel++);
-                            const node5 = graph.addNode(width * 0.4, height * 0.7, nextNodeLabel++);
-                            const node6 = graph.addNode(width * 0.7, height * 0.6, nextNodeLabel++);
-                            const node7 = graph.addNode(width * 0.5, height * 0.5, nextNodeLabel++);
+                            // 第一层（根节点）
+                            const node1 = graph.addNode(width * 0.5, height * 0.2, nextNodeLabel++);
                             
-                            // 添加边
+                            // 第二层
+                            const node2 = graph.addNode(width * 0.3, height * 0.4, nextNodeLabel++);
+                            const node3 = graph.addNode(width * 0.7, height * 0.4, nextNodeLabel++);
+                            
+                            // 第三层
+                            const node4 = graph.addNode(width * 0.15, height * 0.6, nextNodeLabel++);
+                            const node5 = graph.addNode(width * 0.45, height * 0.6, nextNodeLabel++);
+                            const node6 = graph.addNode(width * 0.55, height * 0.6, nextNodeLabel++);
+                            const node7 = graph.addNode(width * 0.85, height * 0.6, nextNodeLabel++);
+                            
+                            // 第四层
+                            const node8 = graph.addNode(width * 0.3, height * 0.8, nextNodeLabel++);
+                            const node9 = graph.addNode(width * 0.7, height * 0.8, nextNodeLabel++);
+                            
+                            // 添加边（构建层次结构）
+                            // 第一层连接到第二层
                             graph.addEdge(1, 2);
-                            graph.addEdge(1, 4);
-                            graph.addEdge(2, 3);
-                            graph.addEdge(2, 7);
+                            graph.addEdge(1, 3);
+                            
+                            // 第二层连接到第三层
+                            graph.addEdge(2, 4);
+                            graph.addEdge(2, 5);
                             graph.addEdge(3, 6);
-                            graph.addEdge(4, 5);
-                            graph.addEdge(5, 7);
-                            graph.addEdge(6, 7);
+                            graph.addEdge(3, 7);
+                            
+                            // 第三层连接到第四层
+                            graph.addEdge(5, 8);
+                            graph.addEdge(6, 9);
+                            
+                            // 额外添加一些交叉边，使图更有趣
+                            graph.addEdge(4, 8);
+                            graph.addEdge(7, 9);
                             
                             // 绘制图
                             canvas.drawGraph(graph);
                             
                             // 显示初始信息
-                            bfsOutput.innerHTML = `<span class="text-gray-700">初始化完成，请选择一个起始节点开始BFS遍历，或自行修改图结构。</span>`;
+                            bfsOutput.innerHTML = `<span class="text-gray-700">初始化完成，请点击"开始BFS"并选择一个起始节点，体验逐层遍历的过程。</span>`;
                         }
                         
                         // 重置图
@@ -1119,41 +1164,45 @@ int main() {
                                 result = bfsAlgorithm.step();
                                 
                                 if (!result.done) {
-                                    if (result.neighbor) {
-                                        // 获取当前节点和邻居节点
-                                        const currentNode = graph.getNodeByLabel(result.current);
-                                        const neighborNode = graph.getNodeByLabel(result.neighbor);
+                                    // 标记当前层的所有节点为已访问
+                                    result.currentLevelNodes.forEach(label => {
+                                        const node = graph.getNodeByLabel(label);
+                                        node.color = COLORS.NODE.VISITED;
+                                    });
+                                    
+                                    // 处理所有新发现的邻居节点
+                                    if (result.newNeighbors.length > 0) {
+                                        bfsOutput.innerHTML += `<div class="mb-2 mt-2"><span class="font-semibold">层级 ${result.currentLevel}:</span> 处理节点 ${result.currentLevelNodes.join(', ')} (从左到右)</div>`;
                                         
-                                        // 更新节点颜色
-                                        currentNode.color = COLORS.NODE.VISITED;
-                                        neighborNode.color = COLORS.NODE.CURRENT;
-                                        
-                                        // 更新边的颜色
-                                        for (const edge of graph.edges) {
-                                            if ((edge.start === currentNode && edge.end === neighborNode) || 
-                                                (edge.start === neighborNode && edge.end === currentNode)) {
-                                                edge.color = COLORS.EDGE.TRAVERSED;
-                                                break;
+                                        // 处理每个邻居节点和对应的边
+                                        for (const { current, neighbor } of result.newNeighbors) {
+                                            const neighborNode = graph.getNodeByLabel(neighbor);
+                                            neighborNode.color = COLORS.NODE.CURRENT;
+                                            
+                                            // 更新边的颜色
+                                            for (const edge of graph.edges) {
+                                                if ((edge.start.label == current && edge.end.label == neighbor) || 
+                                                    (edge.start.label == neighbor && edge.end.label == current)) {
+                                                    edge.color = COLORS.EDGE.TRAVERSED;
+                                                    break;
+                                                }
                                             }
+                                            
+                                            // 更新输出信息
+                                            bfsOutput.innerHTML += `<div class="mb-1 ml-4">- 发现节点 ${neighbor} (来自节点 ${current})</div>`;
+                                            
+                                            // 绘制更新后的图
+                                            canvas.drawGraph(graph);
+                                            await delay(animationDelay / 2); // 每个邻居单独展示一小段时间
                                         }
                                         
-                                        // 绘制更新后的图
-                                        canvas.drawGraph(graph);
-                                        
-                                        // 更新输出信息
+                                        // 显示当前队列状态
                                         const queueStr = result.queue.join(' → ') || '空';
-                                        bfsOutput.innerHTML += `<div class="mb-1"><span class="font-semibold">步骤 ${step}:</span> 从节点 ${result.current} 访问节点 ${result.neighbor}，当前队列: [${queueStr}]</div>`;
-                                        step++;
-                                        
+                                        bfsOutput.innerHTML += `<div class="mb-1 ml-4"><span class="font-semibold">当前队列:</span> [${queueStr}]</div>`;
                                     } else {
-                                        // 当前节点处理完毕但没有新的邻居
-                                        const currentNode = graph.getNodeByLabel(result.current);
-                                        currentNode.color = COLORS.NODE.VISITED;
+                                        // 当前层没有新的邻居
+                                        bfsOutput.innerHTML += `<div class="mb-2"><span class="font-semibold">层级 ${result.currentLevel}:</span> 节点 ${result.currentLevelNodes.join(', ')} 没有未访问的邻居</div>`;
                                         canvas.drawGraph(graph);
-                                        
-                                        // 更新输出信息
-                                        const queueStr = result.queue.join(' → ') || '空';
-                                        bfsOutput.innerHTML += `<div class="mb-1"><span class="font-semibold">处理完毕:</span> 节点 ${result.current} 的所有邻居已访问，当前队列: [${queueStr}]</div>`;
                                     }
                                     
                                     // 滚动到底部
@@ -1163,7 +1212,22 @@ int main() {
                             
                             // BFS完成
                             bfsOutput.innerHTML += `<div class="mt-2 font-semibold">BFS遍历完成!</div>`;
-                            bfsOutput.innerHTML += `<div><span class="font-semibold">遍历顺序:</span> ${bfsAlgorithm.traversalOrder.join(' → ')}</div>`;
+                            // 按层级显示遍历顺序
+                            const nodesByLevel = {};
+                            for (const node of bfsAlgorithm.traversalOrder) {
+                                const level = bfsAlgorithm.levelMap[node];
+                                if (!nodesByLevel[level]) nodesByLevel[level] = [];
+                                nodesByLevel[level].push(node);
+                            }
+                            
+                            const levelCount = Object.keys(nodesByLevel).length;
+                            bfsOutput.innerHTML += `<div><span class="font-semibold">共 ${levelCount} 层:</span></div>`;
+                            for (let i = 0; i < levelCount; i++) {
+                                bfsOutput.innerHTML += `<div class="ml-4">层级 ${i}: ${nodesByLevel[i].join(' → ')}</div>`;
+                            }
+                            
+                            // 显示精确的处理顺序
+                            bfsOutput.innerHTML += `<div class="mt-2"><span class="font-semibold">节点处理的具体顺序:</span> ${bfsAlgorithm.processingOrder.join(' → ')}</div>`;
                             
                             // 重置动画状态
                             animationInProgress = false;
@@ -1260,52 +1324,6 @@ int main() {
                         // 初始化示例图
                         createExampleGraph();
                     });
-
-                    // 代码展开/收起功能
-                    document.addEventListener('DOMContentLoaded', function() {
-                        // 获取所有的代码切换按钮
-                        const codeToggleBtns = document.querySelectorAll('.code-toggle-btn');
-                        
-                        // 默认先隐藏所有代码块
-                        document.querySelectorAll('.code-block').forEach(block => {
-                            block.style.display = 'none';
-                        });
-                        
-                        // 为每个按钮添加点击事件
-                        codeToggleBtns.forEach(btn => {
-                            btn.addEventListener('click', function() {
-                                const targetId = this.getAttribute('data-target');
-                                const targetBlock = document.getElementById(targetId);
-                                
-                                if (targetBlock.style.display === 'none') {
-                                    targetBlock.style.display = 'block';
-                                    this.querySelector('span').textContent = '收起代码';
-                                } else {
-                                    targetBlock.style.display = 'none';
-                                    this.querySelector('span').textContent = '展开代码';
-                                }
-                            });
-                        });
-                    });
-
-                    const backToTop = document.getElementById('backToTop');
-                    
-                    window.addEventListener('scroll', () => {
-                        if (window.scrollY > 300) {
-                            backToTop.classList.remove('opacity-0', 'invisible');
-                            backToTop.classList.add('opacity-100', 'visible');
-                        } else {
-                            backToTop.classList.remove('opacity-100', 'visible');
-                            backToTop.classList.add('opacity-0', 'invisible');
-                        }
-                    });
-                    
-                    backToTop.addEventListener('click', () => {
-                        window.scrollTo({
-                            top: 0,
-                            behavior: 'smooth'
-                        });
-                    });
                 </script>
             </section>
         </main>
@@ -1332,15 +1350,25 @@ int main() {
         <i class="fas fa-arrow-up"></i>
     </button>
     
-    <!-- JavaScript for Back to top button -->
+    <!-- JavaScript for Back to top button and code toggle -->
     <script>
         document.addEventListener('DOMContentLoaded', function() {
-            // 获取所有的代码切换按钮
+            // 代码展开/收起功能
             const codeToggleBtns = document.querySelectorAll('.code-toggle-btn');
             
-            // 默认先隐藏所有代码块
+            // 从localStorage获取代码块状态，或默认隐藏所有代码块
             document.querySelectorAll('.code-block').forEach(block => {
-                block.style.display = 'none';
+                const blockId = block.id;
+                const isVisible = localStorage.getItem(`code-block-${blockId}`) === 'visible';
+                
+                // 根据存储的状态设置显示或隐藏
+                block.style.display = isVisible ? 'block' : 'none';
+                
+                // 更新相应按钮的文本
+                const btn = document.querySelector(`[data-target="${blockId}"]`);
+                if (btn && btn.querySelector('span')) {
+                    btn.querySelector('span').textContent = isVisible ? '收起代码' : '展开代码';
+                }
             });
             
             // 为每个按钮添加点击事件
@@ -1349,12 +1377,19 @@ int main() {
                     const targetId = this.getAttribute('data-target');
                     const targetBlock = document.getElementById(targetId);
                     
+                    if (!targetBlock) return; // 如果找不到目标元素，直接返回
+                    
+                    // 检查当前显示状态并切换
                     if (targetBlock.style.display === 'none') {
                         targetBlock.style.display = 'block';
                         this.querySelector('span').textContent = '收起代码';
+                        // 保存状态到localStorage
+                        localStorage.setItem(`code-block-${targetId}`, 'visible');
                     } else {
                         targetBlock.style.display = 'none';
                         this.querySelector('span').textContent = '展开代码';
+                        // 保存状态到localStorage
+                        localStorage.setItem(`code-block-${targetId}`, 'hidden');
                     }
                 });
             });
@@ -1362,22 +1397,24 @@ int main() {
             // Back to top button functionality
             const backToTop = document.getElementById('backToTop');
             
-            window.addEventListener('scroll', () => {
-                if (window.scrollY > 300) {
-                    backToTop.classList.remove('opacity-0', 'invisible');
-                    backToTop.classList.add('opacity-100', 'visible');
-                } else {
-                    backToTop.classList.remove('opacity-100', 'visible');
-                    backToTop.classList.add('opacity-0', 'invisible');
-                }
-            });
-            
-            backToTop.addEventListener('click', () => {
-                window.scrollTo({
-                    top: 0,
-                    behavior: 'smooth'
+            if (backToTop) {
+                window.addEventListener('scroll', () => {
+                    if (window.scrollY > 300) {
+                        backToTop.classList.remove('opacity-0', 'invisible');
+                        backToTop.classList.add('opacity-100', 'visible');
+                    } else {
+                        backToTop.classList.remove('opacity-100', 'visible');
+                        backToTop.classList.add('opacity-0', 'invisible');
+                    }
                 });
-            });
+                
+                backToTop.addEventListener('click', () => {
+                    window.scrollTo({
+                        top: 0,
+                        behavior: 'smooth'
+                    });
+                });
+            }
         });
     </script>
     
