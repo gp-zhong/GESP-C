@@ -1,0 +1,846 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>位运算</title>
+    <!-- TailwindCSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&family=Roboto+Mono&display=swap" rel="stylesheet">
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        primary: {
+                            light: '#a5b4fc',
+                            DEFAULT: '#6366f1',
+                            dark: '#4f46e5',
+                        },
+                        secondary: {
+                            light: '#bae6fd',
+                            DEFAULT: '#38bdf8',
+                            dark: '#0284c7',
+                        },
+                        codeBlock: '#1e293b',
+                    },
+                    fontFamily: {
+                        sans: ['Poppins', 'sans-serif'],
+                        mono: ['Roboto Mono', 'monospace'],
+                    },
+                }
+            }
+        }
+    </script>
+    <style>
+        .card-hover {
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+        }
+        .card-hover:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 25px -5px rgba(99, 102, 241, 0.1), 0 10px 10px -5px rgba(99, 102, 241, 0.04);
+        }
+        .code-block::-webkit-scrollbar {
+            height: 8px;
+        }
+        .code-block::-webkit-scrollbar-thumb {
+            background-color: #6366f1;
+            border-radius: 4px;
+        }
+        .code-block::-webkit-scrollbar-track {
+            background-color: #e2e8f0;
+            border-radius: 4px;
+        }
+    </style>
+</head>
+<body class="bg-gray-50 font-sans">
+    <div class="min-h-screen max-w-6xl mx-auto px-8 py-10">
+        <!-- Header -->
+        <header class="mb-12 text-center">
+            <div class="inline-block px-3 py-1 bg-primary-light text-primary-dark rounded-full text-sm font-medium mb-4">
+                基础算法
+            </div>
+            <h1 class="text-4xl font-bold text-gray-800 mb-4">位运算</h1>
+            <p class="text-lg text-gray-600 max-w-3xl mx-auto">计算机中基于二进制位的运算技术，提供高效的数学和逻辑运算能力</p>
+        </header>
+
+        <!-- Main Content -->
+        <main>
+            <!-- 基础概念 Section -->
+            <section class="mb-12 bg-white rounded-2xl shadow-md p-8">
+                <div class="flex items-center mb-6">
+                    <i class="fas fa-info-circle text-primary text-xl mr-3"></i>
+                    <h2 class="text-2xl font-bold text-gray-800">基础概念</h2>
+                </div>
+                <div class="space-y-4 text-gray-700">
+                    <p>位运算是直接对整数在内存中的二进制位进行操作的运算，是计算机编程中最基础、最高效的运算之一。由于计算机内部使用二进制表示数据，位运算不需要转换数据格式，可以直接处理，因此执行速度非常快。</p>
+                    
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-4">
+                        <div class="card-hover p-6 bg-gray-50 rounded-xl">
+                            <h3 class="text-lg font-semibold text-gray-800 mb-3">
+                                <i class="fas fa-microchip text-primary-dark mr-2"></i>
+                                二进制表示
+                            </h3>
+                            <p>在计算机中，所有数据都以二进制形式存储。例如，数字9的二进制表示为1001，即：<br><code class="font-mono">1×2³ + 0×2² + 0×2¹ + 1×2⁰ = 8 + 0 + 0 + 1 = 9</code></p>
+                        </div>
+                        
+                        <div class="card-hover p-6 bg-gray-50 rounded-xl">
+                            <h3 class="text-lg font-semibold text-gray-800 mb-3">
+                                <i class="fas fa-calculator text-primary-dark mr-2"></i>
+                                运算效率
+                            </h3>
+                            <ul class="list-disc list-inside space-y-1">
+                                <li>位运算由CPU直接支持，执行速度极快</li>
+                                <li>可以同时处理多个二进制位</li>
+                                <li>在特定场景下可以替代乘除法，提高计算效率</li>
+                                <li>可以用于实现各种算法优化和空间压缩</li>
+                            </ul>
+                        </div>
+                    </div>
+                    
+                    <div class="p-5 bg-primary-light bg-opacity-10 rounded-lg">
+                        <p>位运算在很多领域都有广泛应用，例如加密算法、数据压缩、图形处理、网络协议、嵌入式系统等。掌握位运算不仅能提高代码效率，还能帮助理解计算机的工作原理，是计算机科学的基础技能之一。</p>
+                    </div>
+                </div>
+            </section>
+            
+            <!-- 基础运算符 Section -->
+            <section class="mb-12 bg-white rounded-2xl shadow-md p-8">
+                <div class="flex items-center mb-6">
+                    <i class="fas fa-cogs text-primary text-xl mr-3"></i>
+                    <h2 class="text-2xl font-bold text-gray-800">基础运算符</h2>
+                </div>
+                <div class="space-y-4 text-gray-700">
+                    <p>位运算基于二进制位进行操作，主要包括以下几种基本运算符：</p>
+                    
+                    <div class="overflow-x-auto mt-4">
+                        <table class="min-w-full bg-white">
+                            <thead class="bg-gray-100">
+                                <tr>
+                                    <th class="py-3 px-4 border-b border-gray-200 text-left">运算符</th>
+                                    <th class="py-3 px-4 border-b border-gray-200 text-left">名称</th>
+                                    <th class="py-3 px-4 border-b border-gray-200 text-left">描述</th>
+                                    <th class="py-3 px-4 border-b border-gray-200 text-left">示例</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td class="py-3 px-4 border-b border-gray-200 font-mono font-bold">&amp;</td>
+                                    <td class="py-3 px-4 border-b border-gray-200">按位与（AND）</td>
+                                    <td class="py-3 px-4 border-b border-gray-200">两个位都为1时，结果才为1，否则为0</td>
+                                    <td class="py-3 px-4 border-b border-gray-200 font-mono">1010 & 1100 = 1000</td>
+                                </tr>
+                                <tr>
+                                    <td class="py-3 px-4 border-b border-gray-200 font-mono font-bold">|</td>
+                                    <td class="py-3 px-4 border-b border-gray-200">按位或（OR）</td>
+                                    <td class="py-3 px-4 border-b border-gray-200">两个位中有一个为1时，结果为1，否则为0</td>
+                                    <td class="py-3 px-4 border-b border-gray-200 font-mono">1010 | 1100 = 1110</td>
+                                </tr>
+                                <tr>
+                                    <td class="py-3 px-4 border-b border-gray-200 font-mono font-bold">^</td>
+                                    <td class="py-3 px-4 border-b border-gray-200">按位异或（XOR）</td>
+                                    <td class="py-3 px-4 border-b border-gray-200">两个位不同时，结果为1，否则为0</td>
+                                    <td class="py-3 px-4 border-b border-gray-200 font-mono">1010 ^ 1100 = 0110</td>
+                                </tr>
+                                <tr>
+                                    <td class="py-3 px-4 border-b border-gray-200 font-mono font-bold">~</td>
+                                    <td class="py-3 px-4 border-b border-gray-200">按位取反（NOT）</td>
+                                    <td class="py-3 px-4 border-b border-gray-200">将所有位取反，0变1，1变0</td>
+                                    <td class="py-3 px-4 border-b border-gray-200 font-mono">~1010 = ...11110101</td>
+                                </tr>
+                                <tr>
+                                    <td class="py-3 px-4 border-b border-gray-200 font-mono font-bold">&lt;&lt;</td>
+                                    <td class="py-3 px-4 border-b border-gray-200">左移</td>
+                                    <td class="py-3 px-4 border-b border-gray-200">将二进制位向左移动指定位数，右侧补0</td>
+                                    <td class="py-3 px-4 border-b border-gray-200 font-mono">1010 << 2 = 101000</td>
+                                </tr>
+                                <tr>
+                                    <td class="py-3 px-4 border-b border-gray-200 font-mono font-bold">&gt;&gt;</td>
+                                    <td class="py-3 px-4 border-b border-gray-200">右移</td>
+                                    <td class="py-3 px-4 border-b border-gray-200">将二进制位向右移动指定位数，左侧根据符号位补0或1</td>
+                                    <td class="py-3 px-4 border-b border-gray-200 font-mono">1010 >> 2 = 0010</td>
+                                </tr>
+                                <tr>
+                                    <td class="py-3 px-4 border-b border-gray-200 font-mono font-bold">&gt;&gt;&gt;</td>
+                                    <td class="py-3 px-4 border-b border-gray-200">无符号右移</td>
+                                    <td class="py-3 px-4 border-b border-gray-200">将二进制位向右移动指定位数，左侧始终补0</td>
+                                    <td class="py-3 px-4 border-b border-gray-200 font-mono">负数 >>> 1 将不保留符号位</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+
+                    <h3 class="text-xl font-semibold text-gray-800 mt-6 mb-3">运算规则详解</h3>
+                    
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-4">
+                        <div class="p-5 bg-gray-50 rounded-xl">
+                            <h4 class="font-semibold text-primary-dark mb-2">按位与运算（&amp;）</h4>
+                            <p class="mb-2">对应位都为1时，结果才为1，任何一位为0，结果为0。</p>
+                            <div class="bg-gray-100 p-3 rounded font-mono">
+                                <p>A = 5 (101)，B = 3 (011)</p>
+                                <p>A & B = 101 & 011 = 001 = 1</p>
+                            </div>
+                            <div class="mt-4 mb-3 bg-yellow-50 p-4 rounded-lg border border-yellow-200">
+                                <h5 class="text-center font-semibold mb-2 text-yellow-800">按位与(&amp;)运算示例：3&amp;8</h5>
+                                <div class="flex flex-col space-y-2">
+                                    <div class="grid grid-cols-2 gap-2">
+                                        <div class="bg-yellow-100 p-2 rounded-lg">
+                                            <p class="text-center">3：0000 0011</p>
+                                        </div>
+                                        <div class="bg-yellow-100 p-2 rounded-lg">
+                                            <p class="text-center">8：0000 1000</p>
+                                        </div>
+                                    </div>
+                                    <div class="overflow-x-auto">
+                                        <table class="w-full border-collapse">
+                                            <tr>
+                                                <td class="border p-2 text-center font-bold">&amp;</td>
+                                                <td class="border p-2 text-center">0</td>
+                                                <td class="border p-2 text-center">0</td>
+                                                <td class="border p-2 text-center">0</td>
+                                                <td class="border p-2 text-center">0</td>
+                                                <td class="border p-2 text-center">0</td>
+                                                <td class="border p-2 text-center">0</td>
+                                                <td class="border p-2 text-center">1</td>
+                                                <td class="border p-2 text-center">1</td>
+                                            </tr>
+                                            <tr>
+                                                <td class="border p-2 text-center"></td>
+                                                <td class="border p-2 text-center">0</td>
+                                                <td class="border p-2 text-center">0</td>
+                                                <td class="border p-2 text-center">0</td>
+                                                <td class="border p-2 text-center">0</td>
+                                                <td class="border p-2 text-center">1</td>
+                                                <td class="border p-2 text-center">0</td>
+                                                <td class="border p-2 text-center">0</td>
+                                                <td class="border p-2 text-center">0</td>
+                                            </tr>
+                                            <tr>
+                                                <td class="border p-2 text-center"></td>
+                                                <td class="border p-2 text-center text-red-600 font-bold">0</td>
+                                                <td class="border p-2 text-center text-red-600 font-bold">0</td>
+                                                <td class="border p-2 text-center text-red-600 font-bold">0</td>
+                                                <td class="border p-2 text-center text-red-600 font-bold">0</td>
+                                                <td class="border p-2 text-center text-red-600 font-bold">0</td>
+                                                <td class="border p-2 text-center text-red-600 font-bold">0</td>
+                                                <td class="border p-2 text-center text-red-600 font-bold">0</td>
+                                                <td class="border p-2 text-center text-red-600 font-bold">0</td>
+                                            </tr>
+                                        </table>
+                                    </div>
+                                    <p class="text-center font-medium text-red-600">3&amp;8的结果为0。</p>
+                                </div>
+                            </div>
+                            <div class="mt-3">
+                                <p class="text-sm text-gray-600">常用场景：</p>
+                                <ul class="list-disc list-inside text-sm">
+                                    <li>清除特定位（与0进行与运算）</li>
+                                    <li>获取特定位的值（与对应位为1的掩码进行与运算）</li>
+                                    <li>判断奇偶性（与1进行与运算）</li>
+                                </ul>
+                            </div>
+                        </div>
+                        
+                        <div class="p-5 bg-gray-50 rounded-xl">
+                            <h4 class="font-semibold text-primary-dark mb-2">按位或运算（|）</h4>
+                            <p class="mb-2">对应位任何一个为1时，结果为1，都为0时结果为0。</p>
+                            <div class="bg-gray-100 p-3 rounded font-mono">
+                                <p>A = 5 (101)，B = 3 (011)</p>
+                                <p>A | B = 101 | 011 = 111 = 7</p>
+                            </div>
+                            <div class="mt-4 mb-3 bg-orange-50 p-4 rounded-lg border border-orange-200">
+                                <h5 class="text-center font-semibold mb-2 text-orange-800">按位或(|)运算示例：3|8</h5>
+                                <div class="flex flex-col space-y-2">
+                                    <div class="grid grid-cols-2 gap-2">
+                                        <div class="bg-orange-100 p-2 rounded-lg">
+                                            <p class="text-center">3：0000 0011</p>
+                                        </div>
+                                        <div class="bg-orange-100 p-2 rounded-lg">
+                                            <p class="text-center">8：0000 1000</p>
+                                        </div>
+                                    </div>
+                                    <div class="overflow-x-auto">
+                                        <table class="w-full border-collapse">
+                                            <tr>
+                                                <td class="border p-2 text-center font-bold">|</td>
+                                                <td class="border p-2 text-center">0</td>
+                                                <td class="border p-2 text-center">0</td>
+                                                <td class="border p-2 text-center">0</td>
+                                                <td class="border p-2 text-center">0</td>
+                                                <td class="border p-2 text-center">0</td>
+                                                <td class="border p-2 text-center">0</td>
+                                                <td class="border p-2 text-center">1</td>
+                                                <td class="border p-2 text-center">1</td>
+                                            </tr>
+                                            <tr>
+                                                <td class="border p-2 text-center"></td>
+                                                <td class="border p-2 text-center">0</td>
+                                                <td class="border p-2 text-center">0</td>
+                                                <td class="border p-2 text-center">0</td>
+                                                <td class="border p-2 text-center">0</td>
+                                                <td class="border p-2 text-center">1</td>
+                                                <td class="border p-2 text-center">0</td>
+                                                <td class="border p-2 text-center">0</td>
+                                                <td class="border p-2 text-center">0</td>
+                                            </tr>
+                                            <tr>
+                                                <td class="border p-2 text-center"></td>
+                                                <td class="border p-2 text-center text-red-600 font-bold">0</td>
+                                                <td class="border p-2 text-center text-red-600 font-bold">0</td>
+                                                <td class="border p-2 text-center text-red-600 font-bold">0</td>
+                                                <td class="border p-2 text-center text-red-600 font-bold">0</td>
+                                                <td class="border p-2 text-center text-red-600 font-bold">1</td>
+                                                <td class="border p-2 text-center text-red-600 font-bold">0</td>
+                                                <td class="border p-2 text-center text-red-600 font-bold">1</td>
+                                                <td class="border p-2 text-center text-red-600 font-bold">1</td>
+                                            </tr>
+                                        </table>
+                                    </div>
+                                    <p class="text-center font-medium text-red-600">3|8的结果为11 (十进制)。</p>
+                                </div>
+                            </div>
+                            <div class="mt-3">
+                                <p class="text-sm text-gray-600">常用场景：</p>
+                                <ul class="list-disc list-inside text-sm">
+                                    <li>设置特定位为1（与对应位为1的掩码进行或运算）</li>
+                                    <li>合并多个标志位</li>
+                                    <li>添加特定状态</li>
+                                </ul>
+                            </div>
+                        </div>
+                        
+                        <div class="p-5 bg-gray-50 rounded-xl">
+                            <h4 class="font-semibold text-primary-dark mb-2">按位异或运算（^）</h4>
+                            <p class="mb-2">对应位值不同时，结果为1，相同时结果为0。</p>
+                            <div class="bg-gray-100 p-3 rounded font-mono">
+                                <p>A = 5 (101)，B = 3 (011)</p>
+                                <p>A ^ B = 101 ^ 011 = 110 = 6</p>
+                            </div>
+                            <div class="mt-4 mb-3 bg-blue-50 p-4 rounded-lg border border-blue-200">
+                                <h5 class="text-center font-semibold mb-2 text-blue-800">按位异或(^)运算示例：3^8</h5>
+                                <div class="flex flex-col space-y-2">
+                                    <div class="grid grid-cols-2 gap-2">
+                                        <div class="bg-blue-100 p-2 rounded-lg">
+                                            <p class="text-center">3：0000 0011</p>
+                                        </div>
+                                        <div class="bg-blue-100 p-2 rounded-lg">
+                                            <p class="text-center">8：0000 1000</p>
+                                        </div>
+                                    </div>
+                                    <div class="overflow-x-auto">
+                                        <table class="w-full border-collapse">
+                                            <tr>
+                                                <td class="border p-2 text-center font-bold">^</td>
+                                                <td class="border p-2 text-center">0</td>
+                                                <td class="border p-2 text-center">0</td>
+                                                <td class="border p-2 text-center">0</td>
+                                                <td class="border p-2 text-center">0</td>
+                                                <td class="border p-2 text-center">0</td>
+                                                <td class="border p-2 text-center">0</td>
+                                                <td class="border p-2 text-center">1</td>
+                                                <td class="border p-2 text-center">1</td>
+                                            </tr>
+                                            <tr>
+                                                <td class="border p-2 text-center"></td>
+                                                <td class="border p-2 text-center">0</td>
+                                                <td class="border p-2 text-center">0</td>
+                                                <td class="border p-2 text-center">0</td>
+                                                <td class="border p-2 text-center">0</td>
+                                                <td class="border p-2 text-center">1</td>
+                                                <td class="border p-2 text-center">0</td>
+                                                <td class="border p-2 text-center">0</td>
+                                                <td class="border p-2 text-center">0</td>
+                                            </tr>
+                                            <tr>
+                                                <td class="border p-2 text-center"></td>
+                                                <td class="border p-2 text-center text-red-600 font-bold">0</td>
+                                                <td class="border p-2 text-center text-red-600 font-bold">0</td>
+                                                <td class="border p-2 text-center text-red-600 font-bold">0</td>
+                                                <td class="border p-2 text-center text-red-600 font-bold">0</td>
+                                                <td class="border p-2 text-center text-red-600 font-bold">1</td>
+                                                <td class="border p-2 text-center text-red-600 font-bold">0</td>
+                                                <td class="border p-2 text-center text-red-600 font-bold">1</td>
+                                                <td class="border p-2 text-center text-red-600 font-bold">1</td>
+                                            </tr>
+                                        </table>
+                                    </div>
+                                    <p class="text-center font-medium text-red-600">3^8的结果为11 (十进制)。</p>
+                                </div>
+                            </div>
+                            <div class="mt-3">
+                                <p class="text-sm text-gray-600">常用场景：</p>
+                                <ul class="list-disc list-inside text-sm">
+                                    <li>翻转特定位（与对应位为1的掩码进行异或运算）</li>
+                                    <li>交换两个变量的值（无需临时变量）</li>
+                                    <li>查找只出现一次的数字</li>
+                                </ul>
+                            </div>
+                        </div>
+                        
+                        <div class="p-5 bg-gray-50 rounded-xl">
+                            <h4 class="font-semibold text-primary-dark mb-2">按位取反运算（~）</h4>
+                            <p class="mb-2">将所有位取反，0变1，1变0。</p>
+                            <div class="bg-gray-100 p-3 rounded font-mono">
+                                <p>A = 5 (101)</p>
+                                <p>~A = ~(00000101) = 11111010 = -6</p>
+                                <p class="text-xs text-gray-500">(在补码表示下)</p>
+                            </div>
+                            <div class="mt-3">
+                                <p class="text-sm text-gray-600">常用场景：</p>
+                                <ul class="list-disc list-inside text-sm">
+                                    <li>取相反数减1（~x = -x-1）</li>
+                                    <li>掩码取反</li>
+                                    <li>位图中标记为已处理/未处理</li>
+                                </ul>
+                            </div>
+                        </div>
+                        
+                        <div class="p-5 bg-gray-50 rounded-xl">
+                            <h4 class="font-semibold text-primary-dark mb-2">左移运算（&lt;&lt;）</h4>
+                            <p class="mb-2">将二进制位向左移动指定位数，右侧补0。</p>
+                            <div class="bg-gray-100 p-3 rounded font-mono">
+                                <p>A = 5 (101)</p>
+                                <p>A << 2 = 101 << 2 = 10100 = 20</p>
+                            </div>
+                            <div class="mt-3">
+                                <p class="text-sm text-gray-600">常用场景：</p>
+                                <ul class="list-disc list-inside text-sm">
+                                    <li>乘以2的幂（A << n 相当于 A * 2^n）</li>
+                                    <li>快速计算幂</li>
+                                    <li>创建掩码</li>
+                                </ul>
+                            </div>
+                        </div>
+                        
+                        <div class="p-5 bg-gray-50 rounded-xl">
+                            <h4 class="font-semibold text-primary-dark mb-2">右移运算（&gt;&gt;）</h4>
+                            <p class="mb-2">将二进制位向右移动指定位数，左侧根据符号位补0或1。</p>
+                            <div class="bg-gray-100 p-3 rounded font-mono">
+                                <p>A = 5 (101)</p>
+                                <p>A >> 1 = 101 >> 1 = 010 = 2</p>
+                                <p>B = -8 (1000)</p>
+                                <p>B >> 1 = 1100 = -4</p>
+                            </div>
+                            <div class="mt-3">
+                                <p class="text-sm text-gray-600">常用场景：</p>
+                                <ul class="list-disc list-inside text-sm">
+                                    <li>除以2的幂（A >> n 相当于 A / 2^n，保留符号）</li>
+                                    <li>获取低位的值</li>
+                                    <li>快速计算平均值</li>
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="p-5 bg-primary-light bg-opacity-10 rounded-lg mt-6">
+                        <h4 class="font-semibold mb-2">位运算的性质：</h4>
+                        <ul class="list-disc list-inside space-y-1 pl-2">
+                            <li><span class="font-mono">x & 0 = 0</span> - 任何数与0进行按位与运算，结果都是0</li>
+                            <li><span class="font-mono">x & (-1) = x</span> - 任何数与-1（全1）进行按位与运算，结果保持不变</li>
+                            <li><span class="font-mono">x | 0 = x</span> - 任何数与0进行按位或运算，结果保持不变</li>
+                            <li><span class="font-mono">x | (-1) = -1</span> - 任何数与-1进行按位或运算，结果是-1</li>
+                            <li><span class="font-mono">x ^ 0 = x</span> - 任何数与0进行按位异或运算，结果保持不变</li>
+                            <li><span class="font-mono">x ^ x = 0</span> - 任何数与自身进行按位异或运算，结果是0</li>
+                            <li><span class="font-mono">x ^ y ^ x = y</span> - 异或运算满足交换律和结合律</li>
+                            <li><span class="font-mono">x << n = x * 2^n</span> - 左移n位等于乘以2的n次方</li>
+                            <li><span class="font-mono">x >> n = x / 2^n</span> - 右移n位等于除以2的n次方（整数除法）</li>
+                        </ul>
+                    </div>
+                </div>
+            </section>
+            
+            <!-- 常用技巧 Section -->
+            <section class="mb-12 bg-white rounded-2xl shadow-md p-8">
+                <div class="flex items-center mb-6">
+                    <i class="fas fa-lightbulb text-primary text-xl mr-3"></i>
+                    <h2 class="text-2xl font-bold text-gray-800">常用技巧</h2>
+                </div>
+                <div class="space-y-4 text-gray-700">
+                    <p>位运算有许多实用的技巧，这些技巧在算法竞赛、系统编程和优化代码中经常使用：</p>
+                    
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
+                        <div class="card-hover p-6 bg-gray-50 rounded-xl">
+                            <h3 class="text-lg font-semibold text-gray-800 mb-3">
+                                <i class="fas fa-check-circle text-green-600 mr-2"></i>
+                                判断奇偶性
+                            </h3>
+                            <div class="bg-gray-100 p-3 rounded font-mono text-sm">
+                                <pre>// 判断x是否为奇数
+bool isOdd(int x) {
+    return (x & 1) == 1;
+}
+
+// 判断x是否为偶数
+bool isEven(int x) {
+    return (x & 1) == 0;
+}</pre>
+                            </div>
+                            <p class="mt-2 text-sm">通过检查最低位是否为1，可以快速判断一个数是奇数还是偶数。</p>
+                        </div>
+                        
+                        <div class="card-hover p-6 bg-gray-50 rounded-xl">
+                            <h3 class="text-lg font-semibold text-gray-800 mb-3">
+                                <i class="fas fa-exchange-alt text-blue-600 mr-2"></i>
+                                交换两个变量
+                            </h3>
+                            <div class="bg-gray-100 p-3 rounded font-mono text-sm">
+                                <pre>// 使用异或交换a和b
+void swap(int &a, int &b) {
+    a = a ^ b;
+    b = a ^ b;  // 现在b=a
+    a = a ^ b;  // 现在a=b
+}</pre>
+                            </div>
+                            <p class="mt-2 text-sm">利用异或运算的性质，可以不使用临时变量交换两个数。注意：如果a和b指向同一内存位置，这种方法会将值变为0。</p>
+                        </div>
+                        
+                        <div class="card-hover p-6 bg-gray-50 rounded-xl">
+                            <h3 class="text-lg font-semibold text-gray-800 mb-3">
+                                <i class="fas fa-calculator text-purple-600 mr-2"></i>
+                                计算绝对值
+                            </h3>
+                            <div class="bg-gray-100 p-3 rounded font-mono text-sm">
+                                <pre>// 计算x的绝对值（对于-2^31会溢出）
+int abs(int x) {
+    int mask = x >> 31;  // 如果x为负，mask全为1；否则为0
+    return (x ^ mask) - mask;
+}</pre>
+                            </div>
+                            <p class="mt-2 text-sm">使用右移操作获取符号位，然后利用异或和减法实现绝对值计算。比条件分支更高效。</p>
+                        </div>
+                        
+                        <div class="card-hover p-6 bg-gray-50 rounded-xl">
+                            <h3 class="text-lg font-semibold text-gray-800 mb-3">
+                                <i class="fas fa-sort-numeric-up text-yellow-600 mr-2"></i>
+                                快速乘除2的幂
+                            </h3>
+                            <div class="bg-gray-100 p-3 rounded font-mono text-sm">
+                                <pre>// 将x乘以2^n
+int multiply(int x, int n) {
+    return x << n;
+}
+
+// 将x除以2^n
+int divide(int x, int n) {
+    return x >> n;
+}</pre>
+                            </div>
+                            <p class="mt-2 text-sm">左移和右移运算可以直接用于计算乘以或除以2的幂，比乘除法运算更快。</p>
+                        </div>
+                        
+                        <div class="card-hover p-6 bg-gray-50 rounded-xl">
+                            <h3 class="text-lg font-semibold text-gray-800 mb-3">
+                                <i class="fas fa-tachometer-alt text-red-600 mr-2"></i>
+                                计算平均值
+                            </h3>
+                            <div class="bg-gray-100 p-3 rounded font-mono text-sm">
+                                <pre>// 计算a和b的平均值，避免溢出
+int average(int a, int b) {
+    return (a & b) + ((a ^ b) >> 1);
+}
+
+// 另一种写法
+int average2(int a, int b) {
+    return (a + b) >> 1;  // 只有在确保不溢出时使用
+}</pre>
+                            </div>
+                            <p class="mt-2 text-sm">使用位运算计算平均值可以避免整数溢出并提高性能。</p>
+                        </div>
+                        
+                        <div class="card-hover p-6 bg-gray-50 rounded-xl">
+                            <h3 class="text-lg font-semibold text-gray-800 mb-3">
+                                <i class="fas fa-check-double text-indigo-600 mr-2"></i>
+                                检查2的幂
+                            </h3>
+                            <div class="bg-gray-100 p-3 rounded font-mono text-sm">
+                                <pre>// 检查x是否为2的幂
+bool isPowerOfTwo(int x) {
+    return x > 0 && (x & (x - 1)) == 0;
+}</pre>
+                            </div>
+                            <p class="mt-2 text-sm">如果一个数是2的幂，它的二进制表示中只有一个1。将其与比自己小1的数进行按位与运算，结果应为0。</p>
+                        </div>
+                    </div>
+                    
+                    <h3 class="text-xl font-semibold text-gray-800 mt-6 mb-3">位操作技巧</h3>
+                    <div class="space-y-3">
+                        <div class="bg-gray-50 p-4 rounded-lg">
+                            <h4 class="font-semibold text-primary-dark mb-2">提取最低位的1</h4>
+                            <div class="bg-gray-100 p-3 rounded font-mono">
+                                <p>int lowbit = x & (-x);</p>
+                                <p>// 或者写作</p>
+                                <p>int lowbit = x & (~x + 1);</p>
+                            </div>
+                            <p class="mt-2 text-sm">这个技巧可以获取x中最低位的1及其右侧的所有0。例如，对于x = 10110100，结果是00000100。</p>
+                        </div>
+                        
+                        <div class="bg-gray-50 p-4 rounded-lg">
+                            <h4 class="font-semibold text-primary-dark mb-2">清除最低位的1</h4>
+                            <div class="bg-gray-100 p-3 rounded font-mono">
+                                <p>int cleared = x & (x - 1);</p>
+                            </div>
+                            <p class="mt-2 text-sm">这个操作会清除x中最低位的1。例如，对于x = 10110100，结果是10110000。</p>
+                        </div>
+                        
+                        <div class="bg-gray-50 p-4 rounded-lg">
+                            <h4 class="font-semibold text-primary-dark mb-2">统计1的个数（汉明重量）</h4>
+                            <div class="bg-gray-100 p-3 rounded font-mono text-sm">
+                                <pre>int countOnes(int x) {
+    int count = 0;
+    while (x) {
+        x &= (x - 1);  // 清除最低位的1
+        count++;
+    }
+    return count;
+}</pre>
+                            </div>
+                            <p class="mt-2 text-sm">这个算法通过不断清除最低位的1来统计二进制表示中1的个数，也称为"布莱恩·克尼根算法"。</p>
+                        </div>
+                        
+                        <div class="bg-gray-50 p-4 rounded-lg">
+                            <h4 class="font-semibold text-primary-dark mb-2">设置、清除和翻转特定位</h4>
+                            <div class="bg-gray-100 p-3 rounded font-mono text-sm">
+                                <pre>// 设置第i位为1（i从0开始）
+int setBit(int x, int i) {
+    return x | (1 << i);
+}
+
+// 清除第i位（设为0）
+int clearBit(int x, int i) {
+    return x & ~(1 << i);
+}
+
+// 翻转第i位
+int flipBit(int x, int i) {
+    return x ^ (1 << i);
+}</pre>
+                            </div>
+                            <p class="mt-2 text-sm">这些操作可以修改特定位的值，在位图、状态管理等场景中非常有用。</p>
+                        </div>
+                        
+                        <div class="bg-gray-50 p-4 rounded-lg">
+                            <h4 class="font-semibold text-primary-dark mb-2">获取特定位的值</h4>
+                            <div class="bg-gray-100 p-3 rounded font-mono text-sm">
+                                <pre>// 获取第i位的值（0或1）
+int getBit(int x, int i) {
+    return (x >> i) & 1;
+}</pre>
+                            </div>
+                            <p class="mt-2 text-sm">通过右移和按位与操作可以提取特定位的值。</p>
+                        </div>
+                    </div>
+                    
+                    <div class="p-5 bg-primary-light bg-opacity-10 rounded-lg mt-6">
+                        <h4 class="font-semibold mb-2">应用场景：</h4>
+                        <ul class="list-disc list-inside space-y-1 pl-2">
+                            <li><strong>位图（Bitmap）</strong>：用一个位来表示一个元素的状态，节省空间</li>
+                            <li><strong>状态压缩DP</strong>：用一个整数表示一组元素的状态集合</li>
+                            <li><strong>权限管理</strong>：用不同位表示不同权限，通过位运算组合权限</li>
+                            <li><strong>布隆过滤器</strong>：利用位运算高效判断元素是否存在</li>
+                            <li><strong>哈希算法</strong>：位运算在哈希函数中的应用</li>
+                            <li><strong>图像处理</strong>：像素操作、掩码应用等</li>
+                            <li><strong>加密算法</strong>：位运算在密码学中的应用</li>
+                        </ul>
+                    </div>
+                </div>
+            </section>
+            
+            <!-- 常见位操作技巧 Section -->
+            <section class="mb-12 bg-white rounded-2xl shadow-md p-8">
+                <div class="flex items-center mb-6">
+                    <i class="fas fa-puzzle-piece text-primary text-xl mr-3"></i>
+                    <h2 class="text-2xl font-bold text-gray-800">常见位操作技巧</h2>
+                </div>
+                <div class="space-y-4 text-gray-700">
+                    <p>位运算操作在算法和编程中有许多实用且强大的应用。以下是一些常见的位操作技巧，可以大大提高代码的效率和简洁性：</p>
+                    
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
+                        <div class="card-hover p-6 bg-gray-50 rounded-xl">
+                            <h3 class="text-lg font-semibold text-gray-800 mb-3">
+                                <i class="fas fa-mask text-cyan-600 mr-2"></i>
+                                位掩码技术
+                            </h3>
+                            <div class="bg-gray-100 p-3 rounded font-mono text-sm">
+                                <pre>// 创建掩码：低n位全为1
+int mask = (1 << n) - 1;
+
+// 获取x的第i位到第j位
+int getBits(int x, int i, int j) {
+    // 创建掩码并右移到合适位置
+    int mask = ((1 << (j - i + 1)) - 1) << i;
+    return (x & mask) >> i;
+}</pre>
+                            </div>
+                            <p class="mt-2 text-sm">位掩码是通过按位操作选择性地保留或修改特定位的技术，在处理配置标志、权限和数据提取时非常有用。</p>
+                        </div>
+                        
+                        <div class="card-hover p-6 bg-gray-50 rounded-xl">
+                            <h3 class="text-lg font-semibold text-gray-800 mb-3">
+                                <i class="fas fa-dice text-orange-600 mr-2"></i>
+                                子集枚举
+                            </h3>
+                            <div class="bg-gray-100 p-3 rounded font-mono text-sm">
+                                <pre>// 枚举集合{0,1,2,...,n-1}的所有子集
+void subsets(int n) {
+    for (int mask = 0; mask < (1 << n); mask++) {
+        // mask表示当前子集
+        for (int i = 0; i < n; i++) {
+            if (mask & (1 << i)) {
+                // 第i个元素在当前子集中
+                cout << i << " ";
+            }
+        }
+        cout << endl;
+    }
+}</pre>
+                            </div>
+                            <p class="mt-2 text-sm">使用位掩码可以优雅地枚举集合的所有子集，这在组合问题和状态压缩DP中经常用到。</p>
+                        </div>
+                        
+                        <div class="card-hover p-6 bg-gray-50 rounded-xl">
+                            <h3 class="text-lg font-semibold text-gray-800 mb-3">
+                                <i class="fas fa-project-diagram text-pink-600 mr-2"></i>
+                                格雷码生成
+                            </h3>
+                            <div class="bg-gray-100 p-3 rounded font-mono text-sm">
+                                <pre>// 生成n位格雷码
+vector<int> grayCode(int n) {
+    vector<int> result;
+    for (int i = 0; i < (1 << n); i++) {
+        result.push_back(i ^ (i >> 1));
+    }
+    return result;
+}</pre>
+                            </div>
+                            <p class="mt-2 text-sm">格雷码是一种编码方式，其中任意两个相邻的数只有一位二进制位不同。使用位运算可以简洁地生成格雷码序列。</p>
+                        </div>
+                        
+                        <div class="card-hover p-6 bg-gray-50 rounded-xl">
+                            <h3 class="text-lg font-semibold text-gray-800 mb-3">
+                                <i class="fas fa-random text-green-600 mr-2"></i>
+                                二进制逆序
+                            </h3>
+                            <div class="bg-gray-100 p-3 rounded font-mono text-sm">
+                                <pre>// 逆转32位整数的位顺序
+unsigned int reverseBits(unsigned int n) {
+    n = ((n & 0xffff0000) >> 16) | ((n & 0x0000ffff) << 16);
+    n = ((n & 0xff00ff00) >> 8) | ((n & 0x00ff00ff) << 8);
+    n = ((n & 0xf0f0f0f0) >> 4) | ((n & 0x0f0f0f0f) << 4);
+    n = ((n & 0xcccccccc) >> 2) | ((n & 0x33333333) << 2);
+    n = ((n & 0xaaaaaaaa) >> 1) | ((n & 0x55555555) << 1);
+    return n;
+}</pre>
+                            </div>
+                            <p class="mt-2 text-sm">通过一系列掩码和移位操作，可以高效地实现二进制位的逆序，比如在FFT算法中的位反转操作。</p>
+                        </div>
+                    </div>
+                    
+                    <h3 class="text-xl font-semibold text-gray-800 mt-6 mb-3">高级位操作应用</h3>
+                    <div class="space-y-3">
+                        <div class="bg-gray-50 p-4 rounded-lg">
+                            <h4 class="font-semibold text-primary-dark mb-2">使用异或查找单一元素</h4>
+                            <div class="bg-gray-100 p-3 rounded font-mono text-sm">
+                                <pre>// 在一个数组中，除了一个数出现一次，其他数都出现两次，找出那个数
+int findSingle(vector<int>& nums) {
+    int result = 0;
+    for (int num : nums) {
+        result ^= num;
+    }
+    return result;
+}</pre>
+                            </div>
+                            <p class="mt-2 text-sm">利用异或的性质（a^a=0，a^0=a），可以找出数组中唯一出现一次的元素。</p>
+                        </div>
+                        
+                        <div class="bg-gray-50 p-4 rounded-lg">
+                            <h4 class="font-semibold text-primary-dark mb-2">使用位运算进行快速幂运算</h4>
+                            <div class="bg-gray-100 p-3 rounded font-mono text-sm">
+                                <pre>// 计算 x^n，时间复杂度 O(log n)
+long long fastPow(long long x, long long n) {
+    long long result = 1;
+    while (n > 0) {
+        if (n & 1) { // 如果n的当前最低位为1
+            result *= x;
+        }
+        x *= x;
+        n >>= 1; // n右移一位
+    }
+    return result;
+}</pre>
+                            </div>
+                            <p class="mt-2 text-sm">快速幂算法利用幂的二进制表示，将计算时间从 O(n) 降低到 O(log n)。</p>
+                        </div>
+                        
+                        <div class="bg-gray-50 p-4 rounded-lg">
+                            <h4 class="font-semibold text-primary-dark mb-2">不使用加法实现加法</h4>
+                            <div class="bg-gray-100 p-3 rounded font-mono text-sm">
+                                <pre>// 不使用+或-运算符实现整数加法
+int add(int a, int b) {
+    while (b != 0) {
+        int carry = a & b;  // 计算进位
+        a = a ^ b;          // 无进位加法
+        b = carry << 1;     // 进位左移一位
+    }
+    return a;
+}</pre>
+                            </div>
+                            <p class="mt-2 text-sm">通过异或（模拟无进位加法）和与运算（计算进位），可以实现不使用加法运算符的加法运算。</p>
+                        </div>
+                        
+                        <div class="bg-gray-50 p-4 rounded-lg">
+                            <h4 class="font-semibold text-primary-dark mb-2">位字段（bitfields）压缩数据</h4>
+                            <div class="bg-gray-100 p-3 rounded font-mono text-sm">
+                                <pre>// 使用一个整数存储多个小范围值
+int packValues(int a, int b, int c) {
+    // 假设a占用10位，b占用10位，c占用10位
+    return (a & 0x3FF) | ((b & 0x3FF) << 10) | ((c & 0x3FF) << 20);
+}
+
+// 从打包的值中提取各个部分
+int extractA(int packed) { return packed & 0x3FF; }
+int extractB(int packed) { return (packed >> 10) & 0x3FF; }
+int extractC(int packed) { return (packed >> 20) & 0x3FF; }</pre>
+                            </div>
+                            <p class="mt-2 text-sm">位字段可以将多个小范围的值压缩到一个整数中，节省内存并提高缓存利用率。</p>
+                        </div>
+                        
+                        <div class="bg-gray-50 p-4 rounded-lg">
+                            <h4 class="font-semibold text-primary-dark mb-2">位运算在散列函数中的应用</h4>
+                            <div class="bg-gray-100 p-3 rounded font-mono text-sm">
+                                <pre>// 一个简单的整数哈希函数
+unsigned int hashInt(int key) {
+    key = ~key + (key << 15);
+    key = key ^ (key >> 12);
+    key = key + (key << 2);
+    key = key ^ (key >> 4);
+    key = key * 2057;
+    key = key ^ (key >> 16);
+    return key;
+}</pre>
+                            </div>
+                            <p class="mt-2 text-sm">位运算在散列函数中广泛应用，通过一系列的位移和异或操作，可以实现高质量的散列效果。</p>
+                        </div>
+                    </div>
+                    
+                    <div class="p-5 bg-primary-light bg-opacity-10 rounded-lg mt-6">
+                        <h4 class="font-semibold mb-2">实际应用案例：</h4>
+                        <ul class="list-disc list-inside space-y-1 pl-2">
+                            <li><strong>旅行商问题的动态规划解法</strong>：使用位掩码表示已访问的城市集合</li>
+                            <li><strong>状态压缩动态规划</strong>：将状态编码为二进制数，减少内存使用</li>
+                            <li><strong>编译器优化</strong>：用位运算替代乘除法，提高程序性能</li>
+                            <li><strong>图像处理</strong>：使用位运算实现图像混合、透明度和滤镜效果</li>
+                            <li><strong>网络协议</strong>：TCP/IP头部的标志位和选项字段处理</li>
+                            <li><strong>数据库索引</strong>：位图索引用于快速查询满足多个条件的记录</li>
+                            <li><strong>压缩算法</strong>：在Huffman编码等压缩算法中的应用</li>
+                            <li><strong>计算机图形学</strong>：像素处理、颜色混合和纹理映射</li>
+                        </ul>
+                    </div>
+                </div>
+            </section>
+        </main>
+    </div>
+</body>
+</html> 

@@ -1,0 +1,2101 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>关押囚犯问题</title>
+    <!-- TailwindCSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&family=Roboto+Mono&display=swap" rel="stylesheet">
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        primary: {
+                            light: '#a5b4fc',
+                            DEFAULT: '#6366f1',
+                            dark: '#4f46e5',
+                        },
+                        secondary: {
+                            light: '#bae6fd',
+                            DEFAULT: '#38bdf8',
+                            dark: '#0284c7',
+                        },
+                        codeBlock: '#1e293b',
+                    },
+                    fontFamily: {
+                        sans: ['Poppins', 'sans-serif'],
+                        mono: ['Roboto Mono', 'monospace'],
+                    },
+                }
+            }
+        }
+    </script>
+    <style>
+        .card-hover {
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+        }
+        .card-hover:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 25px -5px rgba(99, 102, 241, 0.1), 0 10px 10px -5px rgba(99, 102, 241, 0.04);
+        }
+        .code-block::-webkit-scrollbar {
+            height: 8px;
+        }
+        .code-block::-webkit-scrollbar-thumb {
+            background-color: #6366f1;
+            border-radius: 4px;
+        }
+        .code-block::-webkit-scrollbar-track {
+            background-color: #e2e8f0;
+            border-radius: 4px;
+        }
+    </style>
+</head>
+<body class="bg-gray-50 font-sans">
+    <div class="min-h-screen max-w-6xl mx-auto px-8 py-10">
+        <!-- Header -->
+        <header class="mb-12 text-center">
+            <div class="inline-block px-3 py-1 bg-primary-light text-primary-dark rounded-full text-sm font-medium mb-4">
+                算法问题
+            </div>
+            <h1 class="text-4xl font-bold text-gray-800 mb-4">关押囚犯问题</h1>
+            <p class="text-lg text-gray-600 max-w-3xl mx-auto">一个经典的图论二分图问题，寻找最优的囚犯分配方案以最小化监狱冲突</p>
+        </header>
+
+        <!-- Main Content -->
+        <main>
+            <!-- 任务描述 Section -->
+            <section class="mb-12 bg-white rounded-2xl shadow-md p-8">
+                <div class="flex items-center mb-6">
+                    <i class="fas fa-info-circle text-primary text-xl mr-3"></i>
+                    <h2 class="text-2xl font-bold text-gray-800">任务描述</h2>
+                </div>
+                <div class="space-y-4 text-gray-700">
+                    <p>S城现有两座监狱，一共关押着N名罪犯，编号分别为1-N。他们之间的关系自然也极不和谐。很多罪犯之间甚至积怨已久，如果客观条件具备则随时可能爆发冲突。我们用"怨气值"(一个正整数值)来表示某两名罪犯之间的仇恨程度，怨气值越大，则这两名罪犯之间的积怨越多。如果两名怨气值为c的罪犯被关押在同一监狱，他们俩之间会发生摩擦，并造成影响力为c的冲突事件。</p>
+                    
+                    <p>每年年末，警察局会将本年内监狱中的所有冲突事件按影响力从大到小排成一个列表，然后上报到S城Z市长那里。公务繁忙的Z市长只会去看列表中的第一个事件的影响力，如果影响很坏，他就会考虑撤换警察局长。</p>
+                    
+                    <p>在详细考察了N名罪犯间的矛盾关系后，警察局长觉得压力巨大。他准备将罪犯们在两座监狱内重新分配，以求产生的冲突事件影响力都较小，从而保住自己的乌纱帽。假设只要处于同一监狱内的某两个罪犯间有仇恨，那么他们一定会在每年的某个时候发生摩擦。</p>
+                    
+                    <p>那么，应如何分配罪犯，才能使Z市长看到的那个冲突事件的影响力最小?这个最小值是多少?</p>
+                    
+                    <div class="p-5 bg-primary-light bg-opacity-10 rounded-lg">
+                        <p>本问题的核心是：将N名囚犯分配到两个监狱中，使得所有可能发生的冲突中影响力最大的那个尽可能小。</p>
+                    </div>
+                </div>
+            </section>
+            
+            <!-- 解题方法 Section -->
+            <section class="mb-12 bg-white rounded-2xl shadow-md p-8">
+                <div class="flex items-center mb-6">
+                    <i class="fas fa-lightbulb text-primary text-xl mr-3"></i>
+                    <h2 class="text-2xl font-bold text-gray-800">解题方法</h2>
+                </div>
+                <div class="space-y-4 text-gray-700">
+                    <p>本问题本质上是一个图论问题，可以使用二分图的思想来解决。我们将每个囚犯视为图中的一个节点，两个囚犯之间的怨气值作为边的权重。我们的目标是将囚犯分配到两个监狱，使得同一监狱中囚犯之间的最大怨气值最小。以下介绍两种解题方法：</p>
+                    
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-4">
+                        <div class="card-hover p-6 bg-gray-50 rounded-xl">
+                            <h3 class="text-lg font-semibold text-gray-800 mb-3">
+                                <i class="fas fa-search text-primary-dark mr-2"></i>
+                                方法一：二分答案
+                            </h3>
+                            <p>使用二分搜索的思想，枚举可能的答案，判断是否存在一种分配方案使得所有同一监狱内囚犯间的怨气值都不超过当前枚举的值。</p>
+                        </div>
+                        
+                        <div class="card-hover p-6 bg-gray-50 rounded-xl">
+                            <h3 class="text-lg font-semibold text-gray-800 mb-3">
+                                <i class="fas fa-sort-amount-down text-primary-dark mr-2"></i>
+                                方法二：贪心分配
+                            </h3>
+                            <p>按怨气值从大到小排序，依次判断每对囚犯是否应该分到不同监狱，通过并查集维护监狱分配关系。</p>
+                        </div>
+                    </div>
+                    
+                    <h3 class="text-xl font-semibold text-gray-800 mt-6 mb-3">方法一：二分法</h3>
+                    <div class="space-y-3">
+                        <h4 class="font-semibold text-primary-dark">思路</h4>
+                        <p>我们可以通过二分枚举可能的答案。对于每个枚举值mid，我们判断是否存在一种囚犯分配方案，使得所有在同一监狱内的囚犯之间的怨气值都不超过mid。</p>
+                        
+                        <h4 class="font-semibold text-primary-dark">关键点</h4>
+                        <ul class="list-disc list-inside space-y-1 pl-4">
+                            <li>二分搜索的范围是所有囚犯之间的怨气值，即0到最大怨气值</li>
+                            <li>对于每个二分值mid，我们需要判断能否将囚犯分成两组，使同组内任意两名囚犯的怨气值不超过mid</li>
+                            <li>这个判断可以通过构建图来实现：将怨气值大于mid的边连接的两个囚犯必须分到不同的监狱</li>
+                            <li>如果这样构建的图是二分图，则存在合法分配方案</li>
+                            <li>使用染色法（二分图判定算法）来验证是否可行</li>
+                        </ul>
+                        
+                        <h4 class="font-semibold text-primary-dark">具体步骤</h4>
+                        <ol class="list-decimal list-inside space-y-2 pl-4">
+                            <li>确定二分搜索的范围[L, R]，L初始为0，R初始为所有囚犯间怨气值的最大值</li>
+                            <li>对于每个二分值mid，构建图G：保留所有怨气值大于mid的边</li>
+                            <li>使用染色法判断G是否为二分图</li>
+                            <li>如果G是二分图，说明可以找到一种分配方案使得同组囚犯之间的怨气值不超过mid，则R = mid</li>
+                            <li>如果G不是二分图，说明不存在这样的分配方案，则L = mid + 1</li>
+                            <li>重复步骤2-5，直到L == R，此时的L就是最优解</li>
+                        </ol>
+                    </div>
+                    
+                    <h3 class="text-xl font-semibold text-gray-800 mt-6 mb-3">方法二：贪心分配</h3>
+                    <div class="space-y-3">
+                        <h4 class="font-semibold text-primary-dark">思路</h4>
+                        <p>我们可以采用贪心策略，将所有囚犯之间的仇恨关系按怨气值从大到小排序，然后依次判断每对囚犯是否应该分到不同的监狱。通过并查集数据结构来维护分组关系。</p>
+                        
+                        <h4 class="font-semibold text-primary-dark">关键点</h4>
+                        <ul class="list-disc list-inside space-y-1 pl-4">
+                            <li>按怨气值从大到小排序所有罪犯对</li>
+                            <li>使用并查集维护囚犯的分组情况</li>
+                            <li>对于怨气值较大的囚犯对，尽量将他们分配到不同监狱</li>
+                            <li>如果出现矛盾（即两个本应在不同监狱的囚犯必须在同一监狱），则当前怨气值就是答案</li>
+                        </ul>
+                        
+                        <h4 class="font-semibold text-primary-dark">具体步骤</h4>
+                        <ol class="list-decimal list-inside space-y-2 pl-4">
+                            <li>将所有囚犯之间的怨气关系按怨气值从大到小排序</li>
+                            <li>初始化并查集，用于维护囚犯的分组情况</li>
+                            <li>依次处理每对囚犯(u,v)及其怨气值c：
+                                <ul class="list-disc list-inside pl-6 mt-2">
+                                    <li>如果u和v已经在同一组，则说明无法将它们分到不同监狱，返回当前怨气值c作为答案</li>
+                                    <li>否则，将u和v的"对立节点"合并到同一组（表示u和v必须在不同监狱）</li>
+                                </ul>
+                            </li>
+                            <li>如果所有囚犯对都处理完毕没有矛盾，则返回0（表示可以完全没有冲突）</li>
+                        </ol>
+                    </div>
+                    
+                    <div class="p-5 bg-primary-light bg-opacity-10 rounded-lg mt-6">
+                        <h4 class="font-semibold mb-2">算法对比：</h4>
+                        <ul class="list-disc list-inside space-y-1 pl-2">
+                            <li><strong>二分法</strong>：适用范围广，思路清晰，但实现复杂度稍高，需要判断二分图</li>
+                            <li><strong>贪心法</strong>：思路直观，实现相对简单，利用并查集高效维护分组关系</li>
+                            <li>两种方法的时间复杂度分析：
+                                <ul class="list-disc list-inside pl-6 mt-1">
+                                    <li>二分法：O(log(MAX_C) * (N + M))，其中MAX_C是最大怨气值，N是囚犯数，M是囚犯间的关系数</li>
+                                    <li>贪心法：O(M log M + M * α(N))，其中α是并查集的时间复杂度，接近于常数</li>
+                                </ul>
+                            </li>
+                        </ul>
+                    </div>
+                </div>
+            </section>
+            
+            <!-- 代码实现 Section -->
+            <section class="mb-12 bg-white rounded-2xl shadow-md p-8">
+                <div class="flex items-center mb-6">
+                    <i class="fas fa-code text-primary text-xl mr-3"></i>
+                    <h2 class="text-2xl font-bold text-gray-800">代码实现</h2>
+                </div>
+                <div class="space-y-4 text-gray-700">
+                    <h3 class="text-xl font-semibold text-gray-800 mb-3">方法一：二分法实现</h3>
+                    <div class="mb-4">
+                        <button class="code-toggle-btn px-4 py-2 bg-gray-200 hover:bg-gray-300 rounded-lg transition duration-300 flex items-center" data-target="binary-search-code">
+                            <i class="fas fa-code mr-2"></i> <span>展开/收起代码</span>
+                        </button>
+                    </div>
+                    <div id="binary-search-code" class="overflow-x-auto bg-codeBlock rounded-lg p-4 mb-6 code-block">
+                        <pre class="text-gray-100 font-mono text-sm"><code>#include &lt;iostream&gt;
+#include &lt;vector&gt;
+#include &lt;algorithm&gt;
+using namespace std;
+
+const int MAXN = 20005;  // 最大囚犯数
+vector&lt;pair&lt;int, int&gt;&gt; edges[MAXN];  // 存储每个囚犯与其他囚犯的关系
+int color[MAXN];  // 囚犯的分组情况，0表示未分配，1表示分配到第一个监狱，2表示分配到第二个监狱
+int n, m;  // n表示囚犯数量，m表示囚犯间的关系数量
+
+// 使用DFS进行染色，判断是否可以构成二分图
+bool dfs(int u, int c, int limit) {
+    color[u] = c;
+    for (auto &edge : edges[u]) {
+        int v = edge.first;
+        int w = edge.second;
+        
+        // 仅考虑怨气值大于limit的边
+        if (w <= limit) continue;
+        
+        // 如果相邻节点已经被染色
+        if (color[v]) {
+            // 如果颜色相同，则不是二分图
+            if (color[v] == c) return false;
+        } else {
+            // 给相邻节点染上不同的颜色
+            if (!dfs(v, 3 - c, limit)) return false;
+        }
+    }
+    return true;
+}
+
+// 判断是否能将囚犯分到两个监狱，使得同一监狱内囚犯间的最大怨气值不超过limit
+bool check(int limit) {
+    // 初始化颜色数组
+    fill(color, color + n + 1, 0);
+    
+    // 对每个未染色的节点进行染色
+    for (int i = 1; i <= n; i++) {
+        if (!color[i]) {
+            if (!dfs(i, 1, limit)) return false;
+        }
+    }
+    return true;
+}
+
+int solve() {
+    // 找出所有边中的最大怨气值，作为二分上界
+    int left = 0, right = 0;
+    for (int i = 1; i <= n; i++) {
+        for (auto &edge : edges[i]) {
+            right = max(right, edge.second);
+        }
+    }
+    
+    // 二分查找答案
+    while (left < right) {
+        int mid = (left + right) / 2;
+        if (check(mid)) {
+            right = mid;
+        } else {
+            left = mid + 1;
+        }
+    }
+    
+    return left;
+}
+
+int main() {
+    cin >> n >> m;
+    
+    for (int i = 0; i < m; i++) {
+        int u, v, c;
+        cin >> u >> v >> c;
+        edges[u].push_back({v, c});
+        edges[v].push_back({u, c});
+    }
+    
+    int result = solve();
+    cout << result << endl;
+    
+    return 0;
+}</code></pre>
+                    </div>
+                    
+                    <h3 class="text-xl font-semibold text-gray-800 mt-6 mb-3">方法二：贪心分配实现</h3>
+                    <div class="mb-4">
+                        <button class="code-toggle-btn px-4 py-2 bg-gray-200 hover:bg-gray-300 rounded-lg transition duration-300 flex items-center" data-target="greedy-code">
+                            <i class="fas fa-code mr-2"></i> <span>展开/收起代码</span>
+                        </button>
+                    </div>
+                    <div id="greedy-code" class="overflow-x-auto bg-codeBlock rounded-lg p-4 mb-6 code-block">
+                        <pre class="text-gray-100 font-mono text-sm"><code>#include &lt;iostream&gt;
+#include &lt;vector&gt;
+#include &lt;algorithm&gt;
+using namespace std;
+
+const int MAXN = 20005;  // 最大囚犯数
+int parent[MAXN * 2];    // 并查集数组，用于维护囚犯的分组情况
+int n, m;               // n表示囚犯数量，m表示囚犯间的关系数量
+
+struct Edge {
+    int u, v, w;
+    bool operator<(const Edge &other) const {
+        return w > other.w;  // 按怨气值从大到小排序
+    }
+};
+
+vector&lt;Edge&gt; edges;
+
+// 并查集的初始化
+void init() {
+    for (int i = 1; i <= 2 * n; i++) {
+        parent[i] = i;
+    }
+}
+
+// 并查集的查找操作
+int find(int x) {
+    return parent[x] == x ? x : (parent[x] = find(parent[x]));
+}
+
+// 并查集的合并操作
+void unite(int x, int y) {
+    parent[find(x)] = find(y);
+}
+
+// 求解函数
+int solve() {
+    init();
+    
+    // 对边按怨气值从大到小排序
+    sort(edges.begin(), edges.end());
+    
+    // 依次处理每条边
+    for (auto &edge : edges) {
+        int u = edge.u;
+        int v = edge.v;
+        int w = edge.w;
+        
+        // 如果u和v已经在同一组，说明它们必须在同一监狱，返回当前怨气值
+        if (find(u) == find(v)) {
+            return w;
+        }
+        
+        // 将u和v的补集节点合并，表示u和v必须在不同监狱
+        // 注意：u+n表示u的补集节点，表示"不在与u相同的监狱"
+        unite(u, v + n);
+        unite(v, u + n);
+    }
+    
+    return 0;  // 如果所有囚犯都可以分配好，返回0
+}
+
+int main() {
+    cin >> n >> m;
+    
+    for (int i = 0; i < m; i++) {
+        int u, v, c;
+        cin >> u >> v >> c;
+        edges.push_back({u, v, c});
+    }
+    
+    int result = solve();
+    cout << result << endl;
+    
+    return 0;
+}</code></pre>
+                    </div>
+                    
+                    <h3 class="text-xl font-semibold text-gray-800 mt-6 mb-3">代码说明</h3>
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-4">
+                        <div class="p-5 bg-gray-50 rounded-xl">
+                            <h4 class="font-semibold text-primary-dark mb-2">二分法实现要点</h4>
+                            <ul class="list-disc list-inside space-y-1 pl-2">
+                                <li>使用邻接表存储图结构</li>
+                                <li>通过DFS进行二分图染色判定</li>
+                                <li>二分搜索范围：0到最大怨气值</li>
+                                <li>对于每个mid值，仅考虑怨气值大于mid的边</li>
+                                <li>如果能构成二分图，则答案不大于mid</li>
+                            </ul>
+                        </div>
+                        
+                        <div class="p-5 bg-gray-50 rounded-xl">
+                            <h4 class="font-semibold text-primary-dark mb-2">贪心法实现要点</h4>
+                            <ul class="list-disc list-inside space-y-1 pl-2">
+                                <li>使用并查集维护囚犯分组关系</li>
+                                <li>边按怨气值从大到小排序</li>
+                                <li>对于每条边，判断是否可以将两个囚犯分到不同监狱</li>
+                                <li>使用补集节点(u+n)表示"不与u在同一监狱"</li>
+                                <li>当发现冲突时，返回当前怨气值作为答案</li>
+                            </ul>
+                        </div>
+                    </div>
+                    
+                    <div class="bg-yellow-50 border-l-4 border-yellow-400 p-4 rounded-r mb-4">
+                        <div class="flex items-start">
+                            <i class="fas fa-lightbulb text-yellow-500 mt-1 mr-3"></i>
+                            <p class="text-gray-700">
+                                <strong>提示</strong>：在贪心方法中，我们使用了"补集节点"的技巧。对于每个囚犯i，我们创建一个节点i和一个补集节点i+n。如果两个囚犯a和b必须在不同监狱，我们就将a和b+n合并，同时将b和a+n合并。这样，当我们需要检查两个囚犯是否必须在同一监狱时，只需检查它们是否在并查集中属于同一集合。
+                            </p>
+                        </div>
+                    </div>
+                </div>
+            </section>
+            
+            <!-- 实例演示 Section -->
+            <section class="mb-12 bg-white rounded-2xl shadow-md p-8">
+                <div class="flex items-center mb-6">
+                    <i class="fas fa-laptop-code text-primary text-xl mr-3"></i>
+                    <h2 class="text-2xl font-bold text-gray-800">实例演示</h2>
+                </div>
+                <div class="space-y-4 text-gray-700">
+                    <p>下面通过一个小例子来演示两种算法的执行过程。考虑以下5个囚犯之间的怨气关系：</p>
+                    
+                    <div class="overflow-x-auto mt-4">
+                        <table class="min-w-full bg-white">
+                            <thead class="bg-gray-100">
+                                <tr>
+                                    <th class="py-2 px-4 border-b border-gray-200 text-left">囚犯对</th>
+                                    <th class="py-2 px-4 border-b border-gray-200 text-left">怨气值</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td class="py-2 px-4 border-b border-gray-200">1 - 4</td>
+                                    <td class="py-2 px-4 border-b border-gray-200">6</td>
+                                </tr>
+                                <tr>
+                                    <td class="py-2 px-4 border-b border-gray-200">2 - 5</td>
+                                    <td class="py-2 px-4 border-b border-gray-200">5</td>
+                                </tr>
+                                <tr>
+                                    <td class="py-2 px-4 border-b border-gray-200">1 - 2</td>
+                                    <td class="py-2 px-4 border-b border-gray-200">4</td>
+                                </tr>
+                                <tr>
+                                    <td class="py-2 px-4 border-b border-gray-200">3 - 4</td>
+                                    <td class="py-2 px-4 border-b border-gray-200">3</td>
+                                </tr>
+                                <tr>
+                                    <td class="py-2 px-4 border-b border-gray-200">2 - 3</td>
+                                    <td class="py-2 px-4 border-b border-gray-200">2</td>
+                                </tr>
+                                <tr>
+                                    <td class="py-2 px-4 border-b border-gray-200">4 - 5</td>
+                                    <td class="py-2 px-4 border-b border-gray-200">1</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                    
+                    <div class="flex justify-center my-8">
+                        <svg width="320" height="240" xmlns="http://www.w3.org/2000/svg" class="border rounded-lg bg-blue-50 p-4">
+                            <!-- 节点 -->
+                            <circle cx="160" cy="50" r="24" fill="#6366f1" />
+                            <text x="160" y="55" text-anchor="middle" fill="white" font-weight="bold">1</text>
+                            
+                            <circle cx="80" cy="120" r="24" fill="#6366f1" />
+                            <text x="80" y="125" text-anchor="middle" fill="white" font-weight="bold">2</text>
+                            
+                            <circle cx="160" cy="190" r="24" fill="#6366f1" />
+                            <text x="160" y="195" text-anchor="middle" fill="white" font-weight="bold">3</text>
+                            
+                            <circle cx="240" cy="120" r="24" fill="#6366f1" />
+                            <text x="240" y="125" text-anchor="middle" fill="white" font-weight="bold">4</text>
+                            
+                            <circle cx="240" cy="190" r="24" fill="#6366f1" />
+                            <text x="240" y="195" text-anchor="middle" fill="white" font-weight="bold">5</text>
+                            
+                            <!-- 边 -->
+                            <line x1="146" y1="62" x2="94" y2="108" stroke="#64748b" stroke-width="2" />
+                            <text x="110" y="85" text-anchor="middle" fill="#64748b" font-size="12">4</text>
+                            
+                            <line x1="174" y1="62" x2="226" y2="108" stroke="#64748b" stroke-width="4" />
+                            <text x="210" y="85" text-anchor="middle" fill="#64748b" font-size="12" font-weight="bold">6</text>
+                            
+                            <line x1="94" y1="132" x2="146" y2="178" stroke="#64748b" stroke-width="1" />
+                            <text x="110" y="165" text-anchor="middle" fill="#64748b" font-size="12">2</text>
+                            
+                            <line x1="94" y1="108" x2="226" y2="178" stroke="#64748b" stroke-width="3" />
+                            <text x="160" y="155" text-anchor="middle" fill="#64748b" font-size="12">5</text>
+                            
+                            <line x1="174" y1="178" x2="226" y2="132" stroke="#64748b" stroke-width="2" />
+                            <text x="210" y="165" text-anchor="middle" fill="#64748b" font-size="12">3</text>
+                            
+                            <line x1="240" y1="144" x2="240" y2="166" stroke="#64748b" stroke-width="1" />
+                            <text x="250" y="155" text-anchor="middle" fill="#64748b" font-size="12">1</text>
+                        </svg>
+                    </div>
+                    
+                    <h3 class="text-xl font-semibold text-gray-800 mt-6 mb-3">方法一：二分法执行过程</h3>
+                    <div class="space-y-4">
+                        <p>使用二分法求解这个问题的过程如下：</p>
+                        
+                        <!-- 二分法可视化 -->
+                        <div class="bg-white rounded-lg shadow-md p-4 my-6">
+                            <div class="flex flex-col">
+                                <!-- 可视化标题和控制区域 -->
+                                <div class="flex justify-between items-center mb-4">
+                                    <h4 class="text-lg font-semibold text-primary-dark" id="binary-step-title">初始化</h4>
+                                    <div class="flex space-x-2">
+                                        <button id="binary-prev" class="px-3 py-1 bg-gray-200 rounded-md hover:bg-gray-300 disabled:opacity-50" disabled>
+                                            <i class="fas fa-chevron-left"></i>
+                                        </button>
+                                        <span id="binary-step-counter" class="px-3 py-1 bg-gray-100 rounded-md">步骤 1/7</span>
+                                        <button id="binary-next" class="px-3 py-1 bg-gray-200 rounded-md hover:bg-gray-300">
+                                            <i class="fas fa-chevron-right"></i>
+                                        </button>
+                                        <button id="binary-reset" class="px-3 py-1 bg-gray-200 rounded-md hover:bg-gray-300">
+                                            <i class="fas fa-redo-alt"></i>
+                                        </button>
+                                    </div>
+                                </div>
+                                
+                                <!-- 可视化描述 -->
+                                <p id="binary-step-description" class="text-gray-600 mb-4">最小怨气值为1，最大怨气值为6，初始二分范围为[0, 6]</p>
+                                
+                                <!-- 可视化画布 -->
+                                <div class="flex justify-center bg-gray-100 bg-opacity-40 p-4 rounded-xl shadow-sm border border-gray-200">
+                                    <canvas id="binary-canvas" width="400" height="300" class="rounded-lg bg-transparent"></canvas>
+                                </div>
+                                
+                                <!-- 图例 -->
+                                <div class="mt-4 flex justify-center space-x-6">
+                                    <div class="flex items-center">
+                                        <div class="w-4 h-4 bg-primary-dark rounded-full mr-2"></div>
+                                        <span class="text-sm">监狱1</span>
+                                    </div>
+                                    <div class="flex items-center">
+                                        <div class="w-4 h-4 bg-secondary-dark rounded-full mr-2"></div>
+                                        <span class="text-sm">监狱2</span>
+                                    </div>
+                                    <div class="flex items-center">
+                                        <div class="w-4 h-4 bg-red-500 rounded-full mr-2"></div>
+                                        <span class="text-sm">活跃边</span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <ol class="list-decimal list-inside space-y-4 pl-4 pt-4">
+                            <li class="p-3 bg-gray-50 rounded-lg">
+                                <strong>确定二分搜索范围</strong><br>
+                                最小怨气值为1，最大怨气值为6，初始二分范围为[0, 6]
+                            </li>
+                            
+                            <li class="p-3 bg-gray-50 rounded-lg">
+                                <strong>二分中值：mid = (0 + 6) / 2 = 3</strong><br>
+                                考虑保留所有怨气值大于3的边：1-4(6), 2-5(5), 1-2(4)<br>
+                                判断是否能构成二分图，将囚犯分成两组：
+                                <div class="mt-2 grid grid-cols-2 gap-4">
+                                    <div class="bg-primary-light bg-opacity-20 p-2 rounded-lg text-center">
+                                        监狱1: 1, 3, 5
+                                    </div>
+                                    <div class="bg-secondary-light bg-opacity-20 p-2 rounded-lg text-center">
+                                        监狱2: 2, 4
+                                    </div>
+                                </div>
+                                <p class="mt-2">可以构成二分图，可行。二分区间更新为[0, 3]</p>
+                            </li>
+                            
+                            <li class="p-3 bg-gray-50 rounded-lg">
+                                <strong>二分中值：mid = (0 + 3) / 2 = 1</strong><br>
+                                考虑保留所有怨气值大于1的边：1-4(6), 2-5(5), 1-2(4), 3-4(3), 2-3(2)<br>
+                                判断是否能构成二分图：
+                                <div class="mt-2 bg-gray-100 p-2 rounded-lg">
+                                    从1开始染色：1染成红色<br>
+                                    1与2相连，2染成蓝色<br>
+                                    1与4相连，4染成蓝色<br>
+                                    2与3相连，3染成红色<br>
+                                    2与5相连，5染成红色<br>
+                                    3与4相连，但4已经是蓝色，3是红色，满足二分图条件<br>
+                                </div>
+                                <p class="mt-2">可以构成二分图，可行。二分区间更新为[0, 1]</p>
+                            </li>
+                            
+                            <li class="p-3 bg-gray-50 rounded-lg">
+                                <strong>二分中值：mid = (0 + 1) / 2 = 0</strong><br>
+                                考虑保留所有怨气值大于0的边：所有边都保留<br>
+                                判断是否能构成二分图（同上一步相同）<br>
+                                可以构成二分图，可行。二分区间更新为[0, 0]
+                            </li>
+                            
+                            <li class="p-3 bg-gray-50 rounded-lg">
+                                <strong>二分区间[0, 0]，此时left = right = 0</strong><br>
+                                二分搜索结束，答案为0<br>
+                                最终分配方案：
+                                <div class="mt-2 grid grid-cols-2 gap-4">
+                                    <div class="bg-primary-light bg-opacity-20 p-2 rounded-lg text-center">
+                                        监狱1: 1, 3, 5
+                                    </div>
+                                    <div class="bg-secondary-light bg-opacity-20 p-2 rounded-lg text-center">
+                                        监狱2: 2, 4
+                                    </div>
+                                </div>
+                            </li>
+                        </ol>
+                    </div>
+                    
+                    <h3 class="text-xl font-semibold text-gray-800 mt-6 mb-3">方法二：贪心法执行过程</h3>
+                    <div class="space-y-4">
+                        <p>使用贪心法求解这个问题的过程如下：</p>
+                        
+                        <!-- 贪心法可视化 -->
+                        <div class="bg-white rounded-lg shadow-md p-4 my-6">
+                            <div class="flex flex-col">
+                                <!-- 可视化标题和控制区域 -->
+                                <div class="flex justify-between items-center mb-4">
+                                    <h4 class="text-lg font-semibold text-primary-dark" id="greedy-step-title">初始化</h4>
+                                    <div class="flex space-x-2">
+                                        <button id="greedy-prev" class="px-3 py-1 bg-gray-200 rounded-md hover:bg-gray-300 disabled:opacity-50" disabled>
+                                            <i class="fas fa-chevron-left"></i>
+                                        </button>
+                                        <span id="greedy-step-counter" class="px-3 py-1 bg-gray-100 rounded-md">步骤 1/8</span>
+                                        <button id="greedy-next" class="px-3 py-1 bg-gray-200 rounded-md hover:bg-gray-300">
+                                            <i class="fas fa-chevron-right"></i>
+                                        </button>
+                                        <button id="greedy-reset" class="px-3 py-1 bg-gray-200 rounded-md hover:bg-gray-300">
+                                            <i class="fas fa-redo-alt"></i>
+                                        </button>
+                                    </div>
+                                </div>
+                                
+                                <!-- 可视化描述 -->
+                                <p id="greedy-step-description" class="text-gray-600 mb-4">排序结果：1-4(6), 2-5(5), 1-2(4), 3-4(3), 2-3(2), 4-5(1)</p>
+                                
+                                <!-- 可视化画布 -->
+                                <div class="flex justify-center bg-gray-100 bg-opacity-40 p-4 rounded-xl shadow-sm border border-gray-200">
+                                    <canvas id="greedy-canvas" width="400" height="300" class="rounded-lg bg-transparent"></canvas>
+                                </div>
+                                
+                                <!-- 图例 -->
+                                <div class="mt-4 flex justify-center space-x-6">
+                                    <div class="flex items-center">
+                                        <div class="w-4 h-4 bg-primary-dark rounded-full mr-2"></div>
+                                        <span class="text-sm">监狱1</span>
+                                    </div>
+                                    <div class="flex items-center">
+                                        <div class="w-4 h-4 bg-secondary-dark rounded-full mr-2"></div>
+                                        <span class="text-sm">监狱2</span>
+                                    </div>
+                                    <div class="flex items-center">
+                                        <div class="w-4 h-4 bg-green-500 rounded-full mr-2"></div>
+                                        <span class="text-sm">处理过的边</span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <ol class="list-decimal list-inside space-y-4 pl-4 pt-4">
+                            <li class="p-3 bg-gray-50 rounded-lg">
+                                <strong>按怨气值从大到小排序所有囚犯对</strong><br>
+                                排序结果：1-4(6), 2-5(5), 1-2(4), 3-4(3), 2-3(2), 4-5(1)
+                            </li>
+                            
+                            <li class="p-3 bg-gray-50 rounded-lg">
+                                <strong>初始化并查集</strong><br>
+                                每个囚犯自成一组，同时为每个囚犯创建一个补集节点
+                            </li>
+                            
+                            <li class="p-3 bg-gray-50 rounded-lg">
+                                <strong>处理囚犯对：1-4(6)</strong><br>
+                                将1和4+5（4的补集）合并，将4和1+5（1的补集）合并<br>
+                                表示1和4必须在不同监狱
+                            </li>
+                            
+                            <li class="p-3 bg-gray-50 rounded-lg">
+                                <strong>处理囚犯对：2-5(5)</strong><br>
+                                将2和5+5（5的补集）合并，将5和2+5（2的补集）合并<br>
+                                表示2和5必须在不同监狱
+                            </li>
+                            
+                            <li class="p-3 bg-gray-50 rounded-lg">
+                                <strong>处理囚犯对：1-2(4)</strong><br>
+                                将1和2+5（2的补集）合并，将2和1+5（1的补集）合并<br>
+                                表示1和2必须在不同监狱
+                            </li>
+                            
+                            <li class="p-3 bg-gray-50 rounded-lg">
+                                <strong>处理囚犯对：3-4(3)</strong><br>
+                                将3和4+5（4的补集）合并，将4和3+5（3的补集）合并<br>
+                                表示3和4必须在不同监狱
+                            </li>
+                            
+                            <li class="p-3 bg-gray-50 rounded-lg">
+                                <strong>处理囚犯对：2-3(2)</strong><br>
+                                将2和3+5（3的补集）合并，将3和2+5（2的补集）合并<br>
+                                检查：1和2在不同组，2和3在不同组，则1和3在同一组<br>
+                                1和4在不同组，3和4在不同组，则1和3在同一组（一致）
+                            </li>
+                            
+                            <li class="p-3 bg-gray-50 rounded-lg">
+                                <strong>处理囚犯对：4-5(1)</strong><br>
+                                将4和5+5（5的补集）合并，将5和4+5（4的补集）合并<br>
+                                检查分组合理性：
+                                <div class="mt-2 grid grid-cols-2 gap-4">
+                                    <div class="bg-primary-light bg-opacity-20 p-2 rounded-lg text-center">
+                                        监狱1: 1, 3, 5
+                                    </div>
+                                    <div class="bg-secondary-light bg-opacity-20 p-2 rounded-lg text-center">
+                                        监狱2: 2, 4
+                                    </div>
+                                </div>
+                                <p class="mt-2">所有囚犯对都处理完毕，没有发现冲突，因此答案为0</p>
+                            </li>
+                        </ol>
+                    </div>
+                    
+                    <div class="p-5 bg-primary-light bg-opacity-10 rounded-lg mt-6">
+                        <h4 class="font-semibold mb-2">结论：</h4>
+                        <p>通过上述示例，可以看到两种方法都得到了相同的答案：最小的冲突影响力为0，即可以将囚犯分配到两个监狱，使得同一监狱内没有冲突（或冲突的影响力为0）。</p>
+                        <p class="mt-2">最优分配方案是：将囚犯1, 3, 5分到监狱1，将囚犯2, 4分到监狱2。</p>
+                    </div>
+                </div>
+            </section>
+            
+            <!-- 算法比较 Section -->
+            <section class="mb-12 bg-white rounded-2xl shadow-md p-8">
+                <div class="flex items-center mb-6">
+                    <i class="fas fa-balance-scale text-primary text-xl mr-3"></i>
+                    <h2 class="text-2xl font-bold text-gray-800">算法比较</h2>
+                </div>
+                <div class="space-y-4 text-gray-700">
+                    <p>通过上述分析和演示，我们可以对二分法和贪心法进行比较：</p>
+                    
+                    <div class="overflow-x-auto mt-4">
+                        <table class="min-w-full bg-white">
+                            <thead class="bg-gray-100">
+                                <tr>
+                                    <th class="py-3 px-4 border-b border-gray-200 text-left">比较项</th>
+                                    <th class="py-3 px-4 border-b border-gray-200 text-left">二分法</th>
+                                    <th class="py-3 px-4 border-b border-gray-200 text-left">贪心法</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td class="py-3 px-4 border-b border-gray-200 font-medium">思路</td>
+                                    <td class="py-3 px-4 border-b border-gray-200">二分枚举答案，判断是否存在合法分配</td>
+                                    <td class="py-3 px-4 border-b border-gray-200">按怨气值从大到小处理，优先将高怨气值的囚犯分开</td>
+                                </tr>
+                                <tr>
+                                    <td class="py-3 px-4 border-b border-gray-200 font-medium">时间复杂度</td>
+                                    <td class="py-3 px-4 border-b border-gray-200">O(log(MAX_C) * (N + M))</td>
+                                    <td class="py-3 px-4 border-b border-gray-200">O(M log M + M * α(N))</td>
+                                </tr>
+                                <tr>
+                                    <td class="py-3 px-4 border-b border-gray-200 font-medium">空间复杂度</td>
+                                    <td class="py-3 px-4 border-b border-gray-200">O(N + M)</td>
+                                    <td class="py-3 px-4 border-b border-gray-200">O(N + M)</td>
+                                </tr>
+                                <tr>
+                                    <td class="py-3 px-4 border-b border-gray-200 font-medium">优点</td>
+                                    <td class="py-3 px-4 border-b border-gray-200">思路清晰，适用范围广，实现标准</td>
+                                    <td class="py-3 px-4 border-b border-gray-200">代码简洁，直观，常数因子小</td>
+                                </tr>
+                                <tr>
+                                    <td class="py-3 px-4 border-b border-gray-200 font-medium">缺点</td>
+                                    <td class="py-3 px-4 border-b border-gray-200">需要多次判断二分图染色问题</td>
+                                    <td class="py-3 px-4 border-b border-gray-200">需要理解补集节点的概念，不太直观</td>
+                                </tr>
+                                <tr>
+                                    <td class="py-3 px-4 border-b border-gray-200 font-medium">适用场景</td>
+                                    <td class="py-3 px-4 border-b border-gray-200">问题规模较小，或边权值范围较大时</td>
+                                    <td class="py-3 px-4 border-b border-gray-200">问题规模较大，或需要快速求解的场景</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                    
+                    <div class="bg-yellow-50 border-l-4 border-yellow-400 p-4 rounded-r mt-6 mb-4">
+                        <div class="flex items-start">
+                            <i class="fas fa-lightbulb text-yellow-500 mt-1 mr-3"></i>
+                            <p class="text-gray-700">
+                                <strong>经验总结</strong>：在实际应用中，可以根据具体问题特点选择合适的算法。如果怨气值范围较小，或者需要直观理解算法流程，二分法可能更合适；如果追求效率，尤其是在大规模数据上，贪心法通常会有更好的性能。两种方法都是解决此类问题的有效途径。
+                            </p>
+                        </div>
+                    </div>
+                </div>
+            </section>
+            
+            <!-- Footer -->
+            <footer class="mt-10 p-6 bg-gray-800 text-white rounded-xl flex flex-col md:flex-row justify-between items-center">
+                <div class="mb-4 md:mb-0">
+                    <p class="text-sm">关押囚犯问题 - 图论算法展示</p>
+                </div>
+                <div class="flex space-x-4">
+                    <a href="#" class="text-gray-300 hover:text-white transition-colors">首页</a>
+                    <a href="#" class="text-gray-300 hover:text-white transition-colors">更多算法</a>
+                </div>
+            </footer>
+            
+            <!-- Back to top button -->
+            <button id="backToTop" class="fixed bottom-6 right-6 bg-primary hover:bg-primary-dark text-white rounded-full p-3 shadow-lg transition-all duration-300 opacity-0 invisible">
+                <i class="fas fa-arrow-up"></i>
+            </button>
+        </main>
+    </div>
+
+    <!-- JavaScript -->
+    <script>
+        // Back to top button functionality
+        const backToTop = document.getElementById('backToTop');
+        
+        window.addEventListener('scroll', () => {
+            if (window.scrollY > 300) {
+                backToTop.classList.remove('opacity-0', 'invisible');
+                backToTop.classList.add('opacity-100', 'visible');
+            } else {
+                backToTop.classList.remove('opacity-100', 'visible');
+                backToTop.classList.add('opacity-0', 'invisible');
+            }
+        });
+        
+        backToTop.addEventListener('click', () => {
+            window.scrollTo({
+                top: 0,
+                behavior: 'smooth'
+            });
+        });
+        
+        // Code toggle functionality
+        document.addEventListener('DOMContentLoaded', function() {
+            // 获取所有的代码切换按钮
+            const codeToggleBtns = document.querySelectorAll('.code-toggle-btn');
+            
+            // 默认先隐藏所有代码块
+            document.querySelectorAll('.code-block').forEach(block => {
+                block.style.display = 'none';
+            });
+            
+            // 为每个按钮添加点击事件
+            codeToggleBtns.forEach(btn => {
+                btn.addEventListener('click', function() {
+                    const targetId = this.getAttribute('data-target');
+                    const targetBlock = document.getElementById(targetId);
+                    
+                    if (targetBlock.style.display === 'none') {
+                        targetBlock.style.display = 'block';
+                        this.querySelector('span').textContent = '收起代码';
+                    } else {
+                        targetBlock.style.display = 'none';
+                        this.querySelector('span').textContent = '展开代码';
+                    }
+                });
+            });
+            
+            // 交互式可视化相关代码
+            
+            // 囚犯节点位置和边的关系数据
+            const prisonerData = {
+                nodes: [
+                    { id: 1, x: 160, y: 50, label: "1" },
+                    { id: 2, x: 80, y: 120, label: "2" },
+                    { id: 3, x: 160, y: 190, label: "3" },
+                    { id: 4, x: 240, y: 120, label: "4" },
+                    { id: 5, x: 240, y: 190, label: "5" }
+                ],
+                edges: [
+                    { source: 1, target: 4, weight: 6 },
+                    { source: 2, target: 5, weight: 5 },
+                    { source: 1, target: 2, weight: 4 },
+                    { source: 3, target: 4, weight: 3 },
+                    { source: 2, target: 3, weight: 2 },
+                    { source: 4, target: 5, weight: 1 }
+                ]
+            };
+            
+            // 节点和边的颜色定义
+            const COLORS = {
+                NODE: {
+                    DEFAULT: '#6366f1', // 默认紫色
+                    GROUP1: '#3730a3', // 深蓝/紫色 - 更深
+                    GROUP2: '#0c4a6e', // 深青色 - 更深
+                    HIGHLIGHT: '#dc2626', // 亮红色
+                    TEXT: '#ffffff'  // 白色文本
+                },
+                EDGE: {
+                    DEFAULT: '#334155', // 更深的灰色边，增强对比
+                    ACTIVE: '#b91c1c', // 更鲜艳的红色
+                    INACTIVE: '#64748b', // 中等灰色，区分度更高
+                    PROCESSED: '#047857'  // 更鲜明的绿色
+                }
+            };
+            
+            // 二分法可视化部分
+            const binarySteps = [
+                {
+                    title: "初始化",
+                    description: "最小怨气值为1，最大怨气值为6，初始二分范围为[0, 6]",
+                    limit: -1,
+                    groups: {},
+                    activeEdges: []
+                },
+                {
+                    title: "第一次二分: mid = 3",
+                    description: "考虑保留所有怨气值大于3的边: 1-4(6), 2-5(5), 1-2(4)",
+                    limit: 3,
+                    groups: {
+                        1: 1, 2: 2, 3: 1, 4: 2, 5: 1
+                    },
+                    activeEdges: [0, 1, 2]
+                },
+                {
+                    title: "更新二分范围: [0, 3]",
+                    description: "可以构成二分图，可行。二分区间更新为[0, 3]",
+                    limit: 3,
+                    groups: {
+                        1: 1, 2: 2, 3: 1, 4: 2, 5: 1
+                    },
+                    activeEdges: [0, 1, 2]
+                },
+                {
+                    title: "第二次二分: mid = 1",
+                    description: "考虑保留所有怨气值大于1的边: 1-4(6), 2-5(5), 1-2(4), 3-4(3), 2-3(2)",
+                    limit: 1,
+                    groups: {
+                        1: 1, 2: 2, 3: 1, 4: 2, 5: 1
+                    },
+                    activeEdges: [0, 1, 2, 3, 4]
+                },
+                {
+                    title: "更新二分范围: [0, 1]",
+                    description: "可以构成二分图，可行。二分区间更新为[0, 1]",
+                    limit: 1,
+                    groups: {
+                        1: 1, 2: 2, 3: 1, 4: 2, 5: 1
+                    },
+                    activeEdges: [0, 1, 2, 3, 4]
+                },
+                {
+                    title: "第三次二分: mid = 0",
+                    description: "考虑保留所有怨气值大于0的边: 所有边都保留",
+                    limit: 0,
+                    groups: {
+                        1: 1, 2: 2, 3: 1, 4: 2, 5: 1
+                    },
+                    activeEdges: [0, 1, 2, 3, 4, 5]
+                },
+                {
+                    title: "最终结果: 答案为0",
+                    description: "所有囚犯都可以分配且没有冲突，最终分配方案如图所示",
+                    limit: 0,
+                    groups: {
+                        1: 1, 2: 2, 3: 1, 4: 2, 5: 1
+                    },
+                    activeEdges: []
+                }
+            ];
+            
+            // 贪心法可视化部分
+            const greedySteps = [
+                {
+                    title: "初始化",
+                    description: "排序结果：1-4(6), 2-5(5), 1-2(4), 3-4(3), 2-3(2), 4-5(1)",
+                    processedEdges: [],
+                    groups: {}
+                },
+                {
+                    title: "处理囚犯对：1-4(6)",
+                    description: "将1和4分到不同监狱",
+                    processedEdges: [0],
+                    groups: {
+                        1: 1, 4: 2
+                    }
+                },
+                {
+                    title: "处理囚犯对：2-5(5)",
+                    description: "将2和5分到不同监狱",
+                    processedEdges: [0, 1],
+                    groups: {
+                        1: 1, 2: 1, 4: 2, 5: 2
+                    }
+                },
+                {
+                    title: "处理囚犯对：1-2(4)",
+                    description: "检测到冲突：1和2不能在同一监狱",
+                    processedEdges: [0, 1, 2],
+                    groups: {
+                        1: 1, 2: 2, 4: 2, 5: 1
+                    }
+                },
+                {
+                    title: "处理囚犯对：3-4(3)",
+                    description: "将3和4分到不同监狱",
+                    processedEdges: [0, 1, 2, 3],
+                    groups: {
+                        1: 1, 2: 2, 3: 1, 4: 2, 5: 1
+                    }
+                },
+                {
+                    title: "处理囚犯对：2-3(2)",
+                    description: "检查：1和2在不同组，2和3在不同组，则1和3在同一组",
+                    processedEdges: [0, 1, 2, 3, 4],
+                    groups: {
+                        1: 1, 2: 2, 3: 1, 4: 2, 5: 1
+                    }
+                },
+                {
+                    title: "处理囚犯对：4-5(1)",
+                    description: "检查分组合理性: 1,3,5在监狱1，2,4在监狱2",
+                    processedEdges: [0, 1, 2, 3, 4, 5],
+                    groups: {
+                        1: 1, 2: 2, 3: 1, 4: 2, 5: 1
+                    }
+                },
+                {
+                    title: "最终结果: 答案为0",
+                    description: "所有囚犯对都处理完毕，没有发现冲突，因此答案为0",
+                    processedEdges: [],
+                    groups: {
+                        1: 1, 2: 2, 3: 1, 4: 2, 5: 1
+                    }
+                }
+            ];
+            
+            // 绘制二分法和贪心法的图形
+            function drawGraph(canvasId, nodes, edges, options = {}) {
+                const canvas = document.getElementById(canvasId);
+                if (!canvas) return;
+                
+                const ctx = canvas.getContext('2d');
+                
+                // 只清除画布，不填充任何背景色，保持透明
+                ctx.clearRect(0, 0, canvas.width, canvas.height);
+                
+                // 绘制边
+                edges.forEach((edge, index) => {
+                    const source = nodes.find(n => n.id === edge.source);
+                    const target = nodes.find(n => n.id === edge.target);
+                    
+                    if (!source || !target) return;
+                    
+                    // 决定边的颜色
+                    if (options.activeEdges && options.activeEdges.includes(index)) {
+                        ctx.strokeStyle = COLORS.EDGE.ACTIVE;
+                        ctx.lineWidth = 3;
+                    } else if (options.processedEdges && options.processedEdges.includes(index)) {
+                        ctx.strokeStyle = COLORS.EDGE.PROCESSED;
+                        ctx.lineWidth = 3;
+                    } else if (options.inactiveEdges && options.inactiveEdges.includes(index)) {
+                        ctx.strokeStyle = COLORS.EDGE.INACTIVE;
+                        ctx.lineWidth = 1;
+                    } else {
+                        ctx.strokeStyle = COLORS.EDGE.DEFAULT;
+                        ctx.lineWidth = 2;
+                    }
+                    
+                    // 绘制边
+                    ctx.beginPath();
+                    ctx.moveTo(source.x, source.y);
+                    ctx.lineTo(target.x, target.y);
+                    ctx.stroke();
+                    
+                    // 绘制边权值
+                    const textX = (source.x + target.x) / 2;
+                    const textY = (source.y + target.y) / 2 - 8;
+                    
+                    // 添加边权值背景，增强清晰度
+                    ctx.fillStyle = 'rgba(255, 255, 255, 0.7)';
+                    ctx.beginPath();
+                    ctx.arc(textX, textY, 10, 0, Math.PI * 2);
+                    ctx.fill();
+                    
+                    // 绘制边权值文本
+                    ctx.fillStyle = '#000000';
+                    ctx.font = 'bold 12px sans-serif';
+                    ctx.textAlign = 'center';
+                    ctx.textBaseline = 'middle';
+                    ctx.fillText(edge.weight.toString(), textX, textY);
+                });
+                
+                // 绘制节点
+                nodes.forEach(node => {
+                    // 决定节点的颜色
+                    let nodeColor = COLORS.NODE.DEFAULT;
+                    if (options.groups && options.groups[node.id]) {
+                        nodeColor = options.groups[node.id] === 1 ? COLORS.NODE.GROUP1 : COLORS.NODE.GROUP2;
+                    }
+                    if (options.highlightNode === node.id) {
+                        nodeColor = COLORS.NODE.HIGHLIGHT;
+                    }
+                    
+                    // 绘制节点
+                    ctx.beginPath();
+                    ctx.arc(node.x, node.y, 24, 0, Math.PI * 2);
+                    ctx.fillStyle = nodeColor;
+                    ctx.fill();
+                    
+                    // 为节点添加边框，增强可见度
+                    ctx.strokeStyle = '#2d3748';
+                    ctx.lineWidth = 1;
+                    ctx.stroke();
+                    
+                    // 绘制节点文本
+                    ctx.fillStyle = COLORS.NODE.TEXT;
+                    ctx.font = 'bold 16px sans-serif';
+                    ctx.textAlign = 'center';
+                    ctx.textBaseline = 'middle';
+                    ctx.fillText(node.label, node.x, node.y);
+                });
+                
+                // 绘制标题和描述
+                if (options.title) {
+                    ctx.fillStyle = '#1F2937';
+                    ctx.font = 'bold 14px sans-serif';
+                    ctx.textAlign = 'center';
+                    ctx.fillText(options.title, canvas.width / 2, 20);
+                }
+                
+                if (options.description) {
+                    ctx.fillStyle = '#4B5563';
+                    ctx.font = '12px sans-serif';
+                    ctx.textAlign = 'center';
+                    ctx.fillText(options.description, canvas.width / 2, canvas.height - 10);
+                }
+            }
+            
+            // 二分法可视化控制
+            let binaryCurrentStep = 0;
+            
+            function renderBinaryStep() {
+                // Store previous step data for transitions
+                const prevStep = binaryCurrentStep > 0 ? binarySteps[binaryCurrentStep - 1] : null;
+                const currentStep = binarySteps[binaryCurrentStep];
+                
+                // First clear the canvas completely
+                const binaryCanvas = document.getElementById('binary-canvas');
+                const ctx = binaryCanvas.getContext('2d');
+                
+                // 确保清除整个canvas并保持透明背景
+                ctx.clearRect(0, 0, binaryCanvas.width, binaryCanvas.height);
+                
+                // Update step information
+                document.getElementById('binary-step-title').textContent = currentStep.title;
+                document.getElementById('binary-step-description').textContent = currentStep.description;
+                document.getElementById('binary-step-counter').textContent = `步骤 ${binaryCurrentStep + 1}/${binarySteps.length}`;
+                
+                // Update button states
+                document.getElementById('binary-prev').disabled = binaryCurrentStep === 0;
+                document.getElementById('binary-next').disabled = binaryCurrentStep === binarySteps.length - 1;
+                
+                // Prepare inactive edges
+                const inactiveEdges = [];
+                if (currentStep.limit >= 0) {
+                    prisonerData.edges.forEach((edge, index) => {
+                        if (edge.weight <= currentStep.limit) {
+                            inactiveEdges.push(index);
+                        }
+                    });
+                }
+                
+                // Draw the graph with transition effect
+                setTimeout(() => {
+                    // First draw the base graph without groups or active edges
+                    drawGraph('binary-canvas', prisonerData.nodes, prisonerData.edges, {
+                        title: currentStep.title,
+                        inactiveEdges: inactiveEdges
+                    });
+                    
+                    // Then animate the group assignments (if any)
+                    setTimeout(() => {
+                        if (Object.keys(currentStep.groups).length > 0) {
+                            const groupTransitions = [];
+                            
+                            // For each node with a group assignment
+                            Object.entries(currentStep.groups).forEach(([nodeId, group]) => {
+                                nodeId = parseInt(nodeId);
+                                const node = prisonerData.nodes.find(n => n.id === nodeId);
+                                if (!node) return;
+                                
+                                // Add transition
+                                groupTransitions.push({
+                                    node,
+                                    targetColor: group === 1 ? COLORS.NODE.GROUP1 : COLORS.NODE.GROUP2,
+                                    startColor: COLORS.NODE.DEFAULT
+                                });
+                            });
+                            
+                            // Execute transitions in sequence with slight delay
+                            groupTransitions.forEach((transition, index) => {
+                                setTimeout(() => {
+                                    animateNode(
+                                        ctx, 
+                                        transition.node, 
+                                        transition.startColor, 
+                                        transition.targetColor, 
+                                        24, 26, 300
+                                    );
+                                }, index * 200);
+                            });
+                        }
+                        
+                        // Finally, highlight active edges (if any)
+                        setTimeout(() => {
+                            if (currentStep.activeEdges && currentStep.activeEdges.length > 0) {
+                                // Re-draw with active edges highlighted
+                                drawGraph('binary-canvas', prisonerData.nodes, prisonerData.edges, {
+                                    title: currentStep.title,
+                                    description: currentStep.description,
+                                    groups: currentStep.groups,
+                                    activeEdges: currentStep.activeEdges,
+                                    inactiveEdges: inactiveEdges
+                                });
+                                
+                                // Animate nodes connected to active edges
+                                const activeNodes = new Set();
+                                currentStep.activeEdges.forEach(edgeIndex => {
+                                    const edge = prisonerData.edges[edgeIndex];
+                                    activeNodes.add(edge.source);
+                                    activeNodes.add(edge.target);
+                                });
+                                
+                                activeNodes.forEach(nodeId => {
+                                    const node = prisonerData.nodes.find(n => n.id === nodeId);
+                                    if (node) {
+                                        setTimeout(() => {
+                                            const color = currentStep.groups[nodeId] === 1 ? 
+                                                COLORS.NODE.GROUP1 : COLORS.NODE.GROUP2;
+                                            
+                                            animateNode(ctx, node, color, COLORS.NODE.HIGHLIGHT, 24, 28, 300);
+                                            setTimeout(() => {
+                                                animateNode(ctx, node, COLORS.NODE.HIGHLIGHT, color, 28, 24, 300);
+                                            }, 400);
+                                        }, 500);
+                                    }
+                                });
+                            }
+                        }, 500);
+                    }, 300);
+                }, 100);
+            }
+            
+            // 绑定二分法按钮事件
+            document.getElementById('binary-prev').addEventListener('click', () => {
+                if (binaryCurrentStep > 0) {
+                    binaryCurrentStep--;
+                    renderBinaryStep();
+                }
+            });
+            
+            document.getElementById('binary-next').addEventListener('click', () => {
+                if (binaryCurrentStep < binarySteps.length - 1) {
+                    binaryCurrentStep++;
+                    renderBinaryStep();
+                }
+            });
+            
+            document.getElementById('binary-reset').addEventListener('click', () => {
+                binaryCurrentStep = 0;
+                renderBinaryStep();
+            });
+            
+            // 贪心法可视化控制
+            let greedyCurrentStep = 0;
+            
+            function renderGreedyStep() {
+                // Store current step
+                const currentStep = greedySteps[greedyCurrentStep];
+                const prevStep = greedyCurrentStep > 0 ? greedySteps[greedyCurrentStep - 1] : null;
+                
+                // First clear the canvas completely
+                const greedyCanvas = document.getElementById('greedy-canvas');
+                const ctx = greedyCanvas.getContext('2d');
+                
+                // 确保清除整个canvas并保持透明背景
+                ctx.clearRect(0, 0, greedyCanvas.width, greedyCanvas.height);
+                
+                // Update step information
+                document.getElementById('greedy-step-title').textContent = currentStep.title;
+                document.getElementById('greedy-step-description').textContent = currentStep.description;
+                document.getElementById('greedy-step-counter').textContent = `步骤 ${greedyCurrentStep + 1}/${greedySteps.length}`;
+                
+                // Update button states
+                document.getElementById('greedy-prev').disabled = greedyCurrentStep === 0;
+                document.getElementById('greedy-next').disabled = greedyCurrentStep === greedySteps.length - 1;
+                
+                // Draw animation with state transitions
+                setTimeout(() => {
+                    // First draw base graph without groups or active edges
+                    drawGraph('greedy-canvas', prisonerData.nodes, prisonerData.edges, {
+                        title: currentStep.title
+                    });
+                    
+                    // Then animate processed edges (if any)
+                    setTimeout(() => {
+                        if (currentStep.processedEdges && currentStep.processedEdges.length > 0) {
+                            // Add edges one by one with animation
+                            const animateEdges = (index = 0) => {
+                                if (index >= currentStep.processedEdges.length) return;
+                                
+                                // Get the edges processed so far
+                                const edgesProcessed = currentStep.processedEdges.slice(0, index + 1);
+                                
+                                // Draw graph with these edges highlighted
+                                drawGraph('greedy-canvas', prisonerData.nodes, prisonerData.edges, {
+                                    title: currentStep.title,
+                                    processedEdges: edgesProcessed,
+                                    groups: currentStep.groups
+                                });
+                                
+                                // Animate source and target nodes for the latest edge
+                                const latestEdgeIndex = currentStep.processedEdges[index];
+                                const latestEdge = prisonerData.edges[latestEdgeIndex];
+                                
+                                if (latestEdge) {
+                                    const sourceNode = prisonerData.nodes.find(n => n.id === latestEdge.source);
+                                    const targetNode = prisonerData.nodes.find(n => n.id === latestEdge.target);
+                                    
+                                    if (sourceNode && targetNode) {
+                                        // Get node colors based on their group assignments
+                                        const sourceColor = currentStep.groups[latestEdge.source] === 1 ? 
+                                            COLORS.NODE.GROUP1 : 
+                                            (currentStep.groups[latestEdge.source] === 2 ? 
+                                                COLORS.NODE.GROUP2 : COLORS.NODE.DEFAULT);
+                                                
+                                        const targetColor = currentStep.groups[latestEdge.target] === 1 ? 
+                                            COLORS.NODE.GROUP1 : 
+                                            (currentStep.groups[latestEdge.target] === 2 ? 
+                                                COLORS.NODE.GROUP2 : COLORS.NODE.DEFAULT);
+                                        
+                                        // Animate nodes
+                                        animateNode(ctx, sourceNode, sourceColor, COLORS.NODE.HIGHLIGHT, 24, 28, 300);
+                                        animateNode(ctx, targetNode, targetColor, COLORS.NODE.HIGHLIGHT, 24, 28, 300);
+                                        
+                                        // Return to original colors
+                                        setTimeout(() => {
+                                            animateNode(ctx, sourceNode, COLORS.NODE.HIGHLIGHT, sourceColor, 28, 24, 300);
+                                            animateNode(ctx, targetNode, COLORS.NODE.HIGHLIGHT, targetColor, 28, 24, 300);
+                                            
+                                            // Continue to next edge after a delay
+                                            setTimeout(() => {
+                                                animateEdges(index + 1);
+                                            }, 200);
+                                        }, 400);
+                                    } else {
+                                        // If nodes not found, continue to next edge
+                                        setTimeout(() => {
+                                            animateEdges(index + 1);
+                                        }, 300);
+                                    }
+                                } else {
+                                    // If edge not found, continue to next edge
+                                    setTimeout(() => {
+                                        animateEdges(index + 1);
+                                    }, 300);
+                                }
+                            };
+                            
+                            // Start edge animation sequence
+                            animateEdges();
+                        }
+                    }, 300);
+                    
+                    // Finally, animate group assignments if this is the final state
+                    setTimeout(() => {
+                        // If it's the final step, show the complete grouping
+                        if (greedyCurrentStep === greedySteps.length - 1) {
+                            // Redraw with all groups
+                            drawGraph('greedy-canvas', prisonerData.nodes, prisonerData.edges, {
+                                title: currentStep.title,
+                                description: currentStep.description,
+                                groups: currentStep.groups
+                            });
+                            
+                            // Add a pulsing effect to the final groups
+                            const pulseGroups = () => {
+                                Object.entries(currentStep.groups).forEach(([nodeId, group], index) => {
+                                    nodeId = parseInt(nodeId);
+                                    const node = prisonerData.nodes.find(n => n.id === nodeId);
+                                    if (!node) return;
+                                    
+                                    setTimeout(() => {
+                                        const color = group === 1 ? COLORS.NODE.GROUP1 : COLORS.NODE.GROUP2;
+                                        animateNode(ctx, node, color, COLORS.NODE.HIGHLIGHT, 24, 26, 200);
+                                        setTimeout(() => {
+                                            animateNode(ctx, node, COLORS.NODE.HIGHLIGHT, color, 26, 24, 200);
+                                        }, 200);
+                                    }, index * 100);
+                                });
+                            };
+                            
+                            // Pulse once after a delay
+                            setTimeout(pulseGroups, 500);
+                        }
+                    }, 1000);
+                }, 100);
+            }
+            
+            // 绑定贪心法按钮事件
+            document.getElementById('greedy-prev').addEventListener('click', () => {
+                if (greedyCurrentStep > 0) {
+                    greedyCurrentStep--;
+                    renderGreedyStep();
+                }
+            });
+            
+            document.getElementById('greedy-next').addEventListener('click', () => {
+                if (greedyCurrentStep < greedySteps.length - 1) {
+                    greedyCurrentStep++;
+                    renderGreedyStep();
+                }
+            });
+            
+            document.getElementById('greedy-reset').addEventListener('click', () => {
+                greedyCurrentStep = 0;
+                renderGreedyStep();
+            });
+            
+            // 初始化可视化
+            renderBinaryStep();
+            renderGreedyStep();
+        });
+    </script>
+    
+    <!-- Enhanced Visualization JavaScript -->
+    <script>
+        // Animation utilities for smoother transitions
+        function animateNode(ctx, node, startColor, endColor, startRadius, endRadius, duration = 500) {
+            const startTime = performance.now();
+            const canvasWidth = ctx.canvas.width;
+            const canvasHeight = ctx.canvas.height;
+            
+            // 记录当前正在动画的节点，用于完整重绘
+            if (!window.animatingNodes) {
+                window.animatingNodes = new Set();
+            }
+            window.animatingNodes.add(node.id);
+            
+            // 获取当前完整的渲染状态 - 需要从外部获取当前步骤
+            const isGreedyCanvas = ctx.canvas.id === 'greedy-canvas';
+            const currentStepData = isGreedyCanvas ? 
+                greedySteps[greedyCurrentStep] : 
+                binarySteps[binaryCurrentStep];
+            
+            function animate(currentTime) {
+                const elapsed = currentTime - startTime;
+                const progress = Math.min(elapsed / duration, 1);
+                
+                // 计算当前颜色和半径的插值
+                const r1 = parseInt(startColor.slice(1, 3), 16);
+                const g1 = parseInt(startColor.slice(3, 5), 16);
+                const b1 = parseInt(startColor.slice(5, 7), 16);
+                
+                const r2 = parseInt(endColor.slice(1, 3), 16);
+                const g2 = parseInt(endColor.slice(3, 5), 16);
+                const b2 = parseInt(endColor.slice(5, 7), 16);
+                
+                const r = Math.round(r1 + (r2 - r1) * progress);
+                const g = Math.round(g1 + (g2 - g1) * progress);
+                const b = Math.round(b1 + (b2 - b1) * progress);
+                
+                const currentColor = `#${r.toString(16).padStart(2, '0')}${g.toString(16).padStart(2, '0')}${b.toString(16).padStart(2, '0')}`;
+                const currentRadius = startRadius + (endRadius - startRadius) * progress;
+                
+                // 完全清除画布
+                ctx.clearRect(0, 0, canvasWidth, canvasHeight);
+                
+                // 重新绘制所有元素
+                const nodes = prisonerData.nodes;
+                const edges = prisonerData.edges;
+                
+                // 1. 先绘制所有边
+                edges.forEach((edge, index) => {
+                    const source = nodes.find(n => n.id === edge.source);
+                    const target = nodes.find(n => n.id === edge.target);
+                    
+                    if (!source || !target) return;
+                    
+                    // 根据当前状态确定边的样式
+                    let edgeStyle = COLORS.EDGE.DEFAULT;
+                    let edgeWidth = 2;
+                    
+                    if (isGreedyCanvas && currentStepData.processedEdges) {
+                        if (currentStepData.processedEdges.includes(index)) {
+                            edgeStyle = COLORS.EDGE.PROCESSED;
+                            edgeWidth = 3;
+                        }
+                    } else if (!isGreedyCanvas) {
+                        if (currentStepData.activeEdges && currentStepData.activeEdges.includes(index)) {
+                            edgeStyle = COLORS.EDGE.ACTIVE;
+                            edgeWidth = 3.5; // 增加活跃边的粗细
+                        } else if (currentStepData.inactiveEdges && currentStepData.inactiveEdges.includes(index)) {
+                            edgeStyle = COLORS.EDGE.INACTIVE;
+                            edgeWidth = 1;
+                        }
+                    }
+                    
+                    // 绘制边
+                    ctx.beginPath();
+                    ctx.moveTo(source.x, source.y);
+                    ctx.lineTo(target.x, target.y);
+                    ctx.strokeStyle = edgeStyle;
+                    ctx.lineWidth = edgeWidth;
+                    ctx.stroke();
+                    
+                    // 绘制边权值
+                    const textX = (source.x + target.x) / 2;
+                    const textY = (source.y + target.y) / 2 - 8;
+                    
+                    // 添加边权值背景，增强清晰度
+                    ctx.fillStyle = 'rgba(255, 255, 255, 0.7)';
+                    ctx.beginPath();
+                    ctx.arc(textX, textY, 10, 0, Math.PI * 2);
+                    ctx.fill();
+                    
+                    // 绘制边权值文本
+                    ctx.fillStyle = '#000000';
+                    ctx.font = 'bold 12px sans-serif';
+                    ctx.textAlign = 'center';
+                    ctx.textBaseline = 'middle';
+                    ctx.fillText(edge.weight.toString(), textX, textY);
+                });
+                
+                // 2. 然后绘制所有节点
+                nodes.forEach(n => {
+                    // 确定节点颜色和大小
+                    let nodeColor = COLORS.NODE.DEFAULT;
+                    let nodeRadius = 24;
+                    
+                    // 如果有组分配，使用组颜色
+                    if (currentStepData.groups && currentStepData.groups[n.id]) {
+                        nodeColor = currentStepData.groups[n.id] === 1 ? 
+                            COLORS.NODE.GROUP1 : COLORS.NODE.GROUP2;
+                    }
+                    
+                    // 如果是当前动画的节点，使用计算的颜色和大小
+                    if (n.id === node.id) {
+                        nodeColor = currentColor;
+                        nodeRadius = currentRadius;
+                    }
+                    
+                    // 绘制节点
+                    ctx.beginPath();
+                    ctx.arc(n.x, n.y, nodeRadius, 0, Math.PI * 2);
+                    ctx.fillStyle = nodeColor;
+                    ctx.fill();
+                    
+                    // 添加边框，增加宽度以提高可见度
+                    ctx.strokeStyle = '#1e293b';
+                    ctx.lineWidth = 1.5;
+                    ctx.stroke();
+                    
+                    // 节点文本
+                    ctx.fillStyle = '#FFFFFF';
+                    ctx.font = 'bold 16px sans-serif';
+                    ctx.textAlign = 'center';
+                    ctx.textBaseline = 'middle';
+                    ctx.fillText(n.label, n.x, n.y);
+                });
+                
+                // 添加步骤标题
+                if (currentStepData.title) {
+                    ctx.fillStyle = '#1F2937';
+                    ctx.font = 'bold 14px sans-serif';
+                    ctx.textAlign = 'center';
+                    ctx.fillText(currentStepData.title, canvasWidth / 2, 20);
+                }
+                
+                // 继续动画或结束
+                if (progress < 1) {
+                    requestAnimationFrame(animate);
+                } else {
+                    // 动画结束，从活跃节点集中移除
+                    window.animatingNodes.delete(node.id);
+                }
+            }
+            
+            requestAnimationFrame(animate);
+        }
+        
+        // Helper function to redraw edges connected to a specific node
+        function redrawEdgesForNode(ctx, node) {
+            prisonerData.edges.forEach((edge) => {
+                if (edge.source === node.id || edge.target === node.id) {
+                    const source = prisonerData.nodes.find(n => n.id === edge.source);
+                    const target = prisonerData.nodes.find(n => n.id === edge.target);
+                    
+                    if (!source || !target) return;
+                    
+                    // 绘制边（使用默认样式，后续会按需重新绘制活动边）
+                    ctx.beginPath();
+                    ctx.moveTo(source.x, source.y);
+                    ctx.lineTo(target.x, target.y);
+                    ctx.strokeStyle = COLORS.EDGE.DEFAULT;
+                    ctx.lineWidth = 2;
+                    ctx.stroke();
+                    
+                    // 绘制边权值
+                    const textX = (source.x + target.x) / 2;
+                    const textY = (source.y + target.y) / 2 - 8;
+                    
+                    // 添加边权值背景，增强清晰度
+                    ctx.fillStyle = 'rgba(255, 255, 255, 0.7)';
+                    ctx.beginPath();
+                    ctx.arc(textX, textY, 10, 0, Math.PI * 2);
+                    ctx.fill();
+                    
+                    // 绘制边权值文本
+                    ctx.fillStyle = '#000000';
+                    ctx.font = 'bold 12px sans-serif';
+                    ctx.textAlign = 'center';
+                    ctx.textBaseline = 'middle';
+                    ctx.fillText(edge.weight.toString(), textX, textY);
+                }
+            });
+        }
+        
+        // Enhanced binary visualization with auto-play functionality
+        document.addEventListener('DOMContentLoaded', function() {
+            // Auto-play controls
+            let binaryAutoPlay = false;
+            let greedyAutoPlay = false;
+            let binaryAutoPlayInterval;
+            let greedyAutoPlayInterval;
+            
+            // Enhanced navigation with keyboard support
+            document.addEventListener('keydown', function(e) {
+                // Binary navigation with left/right arrows
+                if (e.key === 'ArrowLeft') {
+                    if (binaryCurrentStep > 0) {
+                        binaryCurrentStep--;
+                        renderBinaryStep();
+                    }
+                } else if (e.key === 'ArrowRight') {
+                    if (binaryCurrentStep < binarySteps.length - 1) {
+                        binaryCurrentStep++;
+                        renderBinaryStep();
+                    }
+                }
+                
+                // Greedy navigation with up/down arrows
+                if (e.key === 'ArrowUp') {
+                    if (greedyCurrentStep > 0) {
+                        greedyCurrentStep--;
+                        renderGreedyStep();
+                    }
+                } else if (e.key === 'ArrowDown') {
+                    if (greedyCurrentStep < greedySteps.length - 1) {
+                        greedyCurrentStep++;
+                        renderGreedyStep();
+                    }
+                }
+            });
+            
+            // Add auto-play buttons
+            const binaryControls = document.querySelector('#binary-reset').parentNode;
+            const greedyControls = document.querySelector('#greedy-reset').parentNode;
+            
+            // Binary auto-play button
+            const binaryAutoPlayBtn = document.createElement('button');
+            binaryAutoPlayBtn.innerHTML = '<i class="fas fa-play"></i>';
+            binaryAutoPlayBtn.className = 'px-3 py-1 bg-gray-200 rounded-md hover:bg-gray-300';
+            binaryAutoPlayBtn.title = "Auto-play visualization";
+            binaryControls.appendChild(binaryAutoPlayBtn);
+            
+            // Greedy auto-play button
+            const greedyAutoPlayBtn = document.createElement('button');
+            greedyAutoPlayBtn.innerHTML = '<i class="fas fa-play"></i>';
+            greedyAutoPlayBtn.className = 'px-3 py-1 bg-gray-200 rounded-md hover:bg-gray-300';
+            greedyAutoPlayBtn.title = "Auto-play visualization";
+            greedyControls.appendChild(greedyAutoPlayBtn);
+            
+            // Auto-play functionality for binary visualization
+            binaryAutoPlayBtn.addEventListener('click', function() {
+                binaryAutoPlay = !binaryAutoPlay;
+                
+                if (binaryAutoPlay) {
+                    this.innerHTML = '<i class="fas fa-pause"></i>';
+                    binaryAutoPlayInterval = setInterval(() => {
+                        if (binaryCurrentStep < binarySteps.length - 1) {
+                            binaryCurrentStep++;
+                            renderBinaryStep();
+                        } else {
+                            clearInterval(binaryAutoPlayInterval);
+                            binaryAutoPlay = false;
+                            this.innerHTML = '<i class="fas fa-play"></i>';
+                        }
+                    }, 2000);
+                } else {
+                    clearInterval(binaryAutoPlayInterval);
+                    this.innerHTML = '<i class="fas fa-play"></i>';
+                }
+            });
+            
+            // Auto-play functionality for greedy visualization
+            greedyAutoPlayBtn.addEventListener('click', function() {
+                greedyAutoPlay = !greedyAutoPlay;
+                
+                if (greedyAutoPlay) {
+                    this.innerHTML = '<i class="fas fa-pause"></i>';
+                    greedyAutoPlayInterval = setInterval(() => {
+                        if (greedyCurrentStep < greedySteps.length - 1) {
+                            greedyCurrentStep++;
+                            renderGreedyStep();
+                        } else {
+                            clearInterval(greedyAutoPlayInterval);
+                            greedyAutoPlay = false;
+                            this.innerHTML = '<i class="fas fa-play"></i>';
+                        }
+                    }, 2000);
+                } else {
+                    clearInterval(greedyAutoPlayInterval);
+                    this.innerHTML = '<i class="fas fa-play"></i>';
+                }
+            });
+            
+            // Enhanced node highlighting for better visualization
+            const originalRenderBinaryStep = renderBinaryStep;
+            renderBinaryStep = function() {
+                // Store previous step data for transitions
+                const prevStep = binaryCurrentStep > 0 ? binarySteps[binaryCurrentStep - 1] : null;
+                const currentStep = binarySteps[binaryCurrentStep];
+                
+                // First clear the canvas completely
+                const binaryCanvas = document.getElementById('binary-canvas');
+                const ctx = binaryCanvas.getContext('2d');
+                
+                // 确保清除整个canvas并保持透明背景
+                ctx.clearRect(0, 0, binaryCanvas.width, binaryCanvas.height);
+                
+                // Update step information
+                document.getElementById('binary-step-title').textContent = currentStep.title;
+                document.getElementById('binary-step-description').textContent = currentStep.description;
+                document.getElementById('binary-step-counter').textContent = `步骤 ${binaryCurrentStep + 1}/${binarySteps.length}`;
+                
+                // Update button states
+                document.getElementById('binary-prev').disabled = binaryCurrentStep === 0;
+                document.getElementById('binary-next').disabled = binaryCurrentStep === binarySteps.length - 1;
+                
+                // Prepare inactive edges
+                const inactiveEdges = [];
+                if (currentStep.limit >= 0) {
+                    prisonerData.edges.forEach((edge, index) => {
+                        if (edge.weight <= currentStep.limit) {
+                            inactiveEdges.push(index);
+                        }
+                    });
+                }
+                
+                // Draw the graph with transition effect
+                setTimeout(() => {
+                    // First draw the base graph without groups or active edges
+                    drawGraph('binary-canvas', prisonerData.nodes, prisonerData.edges, {
+                        title: currentStep.title,
+                        inactiveEdges: inactiveEdges
+                    });
+                    
+                    // Then animate the group assignments (if any)
+                    setTimeout(() => {
+                        if (Object.keys(currentStep.groups).length > 0) {
+                            const groupTransitions = [];
+                            
+                            // For each node with a group assignment
+                            Object.entries(currentStep.groups).forEach(([nodeId, group]) => {
+                                nodeId = parseInt(nodeId);
+                                const node = prisonerData.nodes.find(n => n.id === nodeId);
+                                if (!node) return;
+                                
+                                // Add transition
+                                groupTransitions.push({
+                                    node,
+                                    targetColor: group === 1 ? COLORS.NODE.GROUP1 : COLORS.NODE.GROUP2,
+                                    startColor: COLORS.NODE.DEFAULT
+                                });
+                            });
+                            
+                            // Execute transitions in sequence with slight delay
+                            groupTransitions.forEach((transition, index) => {
+                                setTimeout(() => {
+                                    animateNode(
+                                        ctx, 
+                                        transition.node, 
+                                        transition.startColor, 
+                                        transition.targetColor, 
+                                        24, 26, 300
+                                    );
+                                }, index * 200);
+                            });
+                        }
+                        
+                        // Finally, highlight active edges (if any)
+                        setTimeout(() => {
+                            if (currentStep.activeEdges && currentStep.activeEdges.length > 0) {
+                                // Re-draw with active edges highlighted
+                                drawGraph('binary-canvas', prisonerData.nodes, prisonerData.edges, {
+                                    title: currentStep.title,
+                                    description: currentStep.description,
+                                    groups: currentStep.groups,
+                                    activeEdges: currentStep.activeEdges,
+                                    inactiveEdges: inactiveEdges
+                                });
+                                
+                                // Animate nodes connected to active edges
+                                const activeNodes = new Set();
+                                currentStep.activeEdges.forEach(edgeIndex => {
+                                    const edge = prisonerData.edges[edgeIndex];
+                                    activeNodes.add(edge.source);
+                                    activeNodes.add(edge.target);
+                                });
+                                
+                                activeNodes.forEach(nodeId => {
+                                    const node = prisonerData.nodes.find(n => n.id === nodeId);
+                                    if (node) {
+                                        setTimeout(() => {
+                                            const color = currentStep.groups[nodeId] === 1 ? 
+                                                COLORS.NODE.GROUP1 : COLORS.NODE.GROUP2;
+                                            
+                                            animateNode(ctx, node, color, COLORS.NODE.HIGHLIGHT, 24, 28, 300);
+                                            setTimeout(() => {
+                                                animateNode(ctx, node, COLORS.NODE.HIGHLIGHT, color, 28, 24, 300);
+                                            }, 400);
+                                        }, 500);
+                                    }
+                                });
+                            }
+                        }, 500);
+                    }, 300);
+                }, 100);
+            };
+            
+            // Enhanced node highlighting for greedy visualization
+            const originalRenderGreedyStep = renderGreedyStep;
+            renderGreedyStep = function() {
+                // Store current step
+                const currentStep = greedySteps[greedyCurrentStep];
+                const prevStep = greedyCurrentStep > 0 ? greedySteps[greedyCurrentStep - 1] : null;
+                
+                // First clear the canvas completely
+                const greedyCanvas = document.getElementById('greedy-canvas');
+                const ctx = greedyCanvas.getContext('2d');
+                ctx.clearRect(0, 0, greedyCanvas.width, greedyCanvas.height);
+                
+                // Update step information
+                document.getElementById('greedy-step-title').textContent = currentStep.title;
+                document.getElementById('greedy-step-description').textContent = currentStep.description;
+                document.getElementById('greedy-step-counter').textContent = `步骤 ${greedyCurrentStep + 1}/${greedySteps.length}`;
+                
+                // Update button states
+                document.getElementById('greedy-prev').disabled = greedyCurrentStep === 0;
+                document.getElementById('greedy-next').disabled = greedyCurrentStep === greedySteps.length - 1;
+                
+                // Draw animation with state transitions
+                setTimeout(() => {
+                    // First draw base graph without groups or active edges
+                    drawGraph('greedy-canvas', prisonerData.nodes, prisonerData.edges, {
+                        title: currentStep.title
+                    });
+                    
+                    // Then animate processed edges (if any)
+                    setTimeout(() => {
+                        if (currentStep.processedEdges && currentStep.processedEdges.length > 0) {
+                            // Add edges one by one with animation
+                            const animateEdges = (index = 0) => {
+                                if (index >= currentStep.processedEdges.length) return;
+                                
+                                // Get the edges processed so far
+                                const edgesProcessed = currentStep.processedEdges.slice(0, index + 1);
+                                
+                                // Draw graph with these edges highlighted
+                                drawGraph('greedy-canvas', prisonerData.nodes, prisonerData.edges, {
+                                    title: currentStep.title,
+                                    processedEdges: edgesProcessed,
+                                    groups: currentStep.groups
+                                });
+                                
+                                // Animate source and target nodes for the latest edge
+                                const latestEdgeIndex = currentStep.processedEdges[index];
+                                const latestEdge = prisonerData.edges[latestEdgeIndex];
+                                
+                                if (latestEdge) {
+                                    const sourceNode = prisonerData.nodes.find(n => n.id === latestEdge.source);
+                                    const targetNode = prisonerData.nodes.find(n => n.id === latestEdge.target);
+                                    
+                                    if (sourceNode && targetNode) {
+                                        // Get node colors based on their group assignments
+                                        const sourceColor = currentStep.groups[latestEdge.source] === 1 ? 
+                                            COLORS.NODE.GROUP1 : 
+                                            (currentStep.groups[latestEdge.source] === 2 ? 
+                                                COLORS.NODE.GROUP2 : COLORS.NODE.DEFAULT);
+                                                
+                                        const targetColor = currentStep.groups[latestEdge.target] === 1 ? 
+                                            COLORS.NODE.GROUP1 : 
+                                            (currentStep.groups[latestEdge.target] === 2 ? 
+                                                COLORS.NODE.GROUP2 : COLORS.NODE.DEFAULT);
+                                        
+                                        // Animate nodes
+                                        animateNode(ctx, sourceNode, sourceColor, COLORS.NODE.HIGHLIGHT, 24, 28, 300);
+                                        animateNode(ctx, targetNode, targetColor, COLORS.NODE.HIGHLIGHT, 24, 28, 300);
+                                        
+                                        // Return to original colors
+                                        setTimeout(() => {
+                                            animateNode(ctx, sourceNode, COLORS.NODE.HIGHLIGHT, sourceColor, 28, 24, 300);
+                                            animateNode(ctx, targetNode, COLORS.NODE.HIGHLIGHT, targetColor, 28, 24, 300);
+                                            
+                                            // Continue to next edge after a delay
+                                            setTimeout(() => {
+                                                animateEdges(index + 1);
+                                            }, 200);
+                                        }, 400);
+                                    } else {
+                                        // If nodes not found, continue to next edge
+                                        setTimeout(() => {
+                                            animateEdges(index + 1);
+                                        }, 300);
+                                    }
+                                } else {
+                                    // If edge not found, continue to next edge
+                                    setTimeout(() => {
+                                        animateEdges(index + 1);
+                                    }, 300);
+                                }
+                            };
+                            
+                            // Start edge animation sequence
+                            animateEdges();
+                        }
+                    }, 300);
+                    
+                    // Finally, animate group assignments if this is the final state
+                    setTimeout(() => {
+                        // If it's the final step, show the complete grouping
+                        if (greedyCurrentStep === greedySteps.length - 1) {
+                            // Redraw with all groups
+                            drawGraph('greedy-canvas', prisonerData.nodes, prisonerData.edges, {
+                                title: currentStep.title,
+                                description: currentStep.description,
+                                groups: currentStep.groups
+                            });
+                            
+                            // Add a pulsing effect to the final groups
+                            const pulseGroups = () => {
+                                Object.entries(currentStep.groups).forEach(([nodeId, group], index) => {
+                                    nodeId = parseInt(nodeId);
+                                    const node = prisonerData.nodes.find(n => n.id === nodeId);
+                                    if (!node) return;
+                                    
+                                    setTimeout(() => {
+                                        const color = group === 1 ? COLORS.NODE.GROUP1 : COLORS.NODE.GROUP2;
+                                        animateNode(ctx, node, color, COLORS.NODE.HIGHLIGHT, 24, 26, 200);
+                                        setTimeout(() => {
+                                            animateNode(ctx, node, COLORS.NODE.HIGHLIGHT, color, 26, 24, 200);
+                                        }, 200);
+                                    }, index * 100);
+                                });
+                            };
+                            
+                            // Pulse once after a delay
+                            setTimeout(pulseGroups, 500);
+                        }
+                    }, 1000);
+                }, 100);
+            };
+            
+            // Add explanation tooltips for better understanding
+            function addTooltip(element, text) {
+                const tooltip = document.createElement('div');
+                tooltip.className = 'hidden absolute bg-gray-800 text-white p-2 rounded-md text-sm max-w-xs';
+                tooltip.style.zIndex = '1000';
+                tooltip.textContent = text;
+                
+                element.parentNode.appendChild(tooltip);
+                
+                element.addEventListener('mouseenter', () => {
+                    const rect = element.getBoundingClientRect();
+                    tooltip.style.top = `${rect.bottom + window.scrollY + 10}px`;
+                    tooltip.style.left = `${rect.left + window.scrollX - 100}px`;
+                    tooltip.classList.remove('hidden');
+                });
+                
+                element.addEventListener('mouseleave', () => {
+                    tooltip.classList.add('hidden');
+                });
+            }
+            
+            // Add tooltips to steps
+            addTooltip(document.getElementById('binary-step-counter'), '二分法按关键步骤划分可视化执行过程');
+            addTooltip(document.getElementById('greedy-step-counter'), '贪心方法按边处理顺序划分可视化执行过程');
+            
+            // Add explanation for canvas interaction
+            const binaryCanvas = document.getElementById('binary-canvas');
+            const greedyCanvas = document.getElementById('greedy-canvas');
+            
+            const binaryDescription = document.getElementById('binary-step-description');
+            const greedyDescription = document.getElementById('greedy-step-description');
+            
+            const binaryCanvasNote = document.createElement('div');
+            binaryCanvasNote.className = 'text-xs text-gray-500 mt-2 text-center';
+            binaryCanvasNote.textContent = '提示：可以使用左右方向键导航步骤';
+            binaryDescription.parentNode.insertBefore(binaryCanvasNote, binaryDescription.nextSibling);
+            
+            const greedyCanvasNote = document.createElement('div');
+            greedyCanvasNote.className = 'text-xs text-gray-500 mt-2 text-center';
+            greedyCanvasNote.textContent = '提示：可以使用上下方向键导航步骤';
+            greedyDescription.parentNode.insertBefore(greedyCanvasNote, greedyDescription.nextSibling);
+            
+            // Implement performance optimizations for smooth animations
+            function optimizedDrawGraph(canvasId, nodes, edges, options = {}) {
+                const canvas = document.getElementById(canvasId);
+                if (!canvas) return;
+                
+                const ctx = canvas.getContext('2d');
+                ctx.clearRect(0, 0, canvas.width, canvas.height);
+                
+                // Use requestAnimationFrame for smooth rendering
+                requestAnimationFrame(() => {
+                    // Existing drawing code...
+                    // 绘制背景 - 修改为透明背景
+                    // ctx.fillStyle = '#EFF6FF';
+                    // ctx.fillRect(0, 0, canvas.width, canvas.height);
+                    
+                    // 绘制边
+                    edges.forEach((edge, index) => {
+                        const source = nodes.find(n => n.id === edge.source);
+                        const target = nodes.find(n => n.id === edge.target);
+                        
+                        if (!source || !target) return;
+                        
+                        // 决定边的颜色
+                        if (options.activeEdges && options.activeEdges.includes(index)) {
+                            ctx.strokeStyle = COLORS.EDGE.ACTIVE;
+                            ctx.lineWidth = 3;
+                        } else if (options.processedEdges && options.processedEdges.includes(index)) {
+                            ctx.strokeStyle = COLORS.EDGE.PROCESSED;
+                            ctx.lineWidth = 3;
+                        } else if (options.inactiveEdges && options.inactiveEdges.includes(index)) {
+                            ctx.strokeStyle = COLORS.EDGE.INACTIVE;
+                            ctx.lineWidth = 1;
+                        } else {
+                            ctx.strokeStyle = COLORS.EDGE.DEFAULT;
+                            ctx.lineWidth = 2;
+                    }
+                    
+                    // 绘制边
+                    ctx.beginPath();
+                    ctx.moveTo(source.x, source.y);
+                    ctx.lineTo(target.x, target.y);
+                    ctx.stroke();
+                    
+                    // 绘制边权值
+                    const textX = (source.x + target.x) / 2;
+                    const textY = (source.y + target.y) / 2 - 8;
+                        
+                        ctx.fillStyle = '#475569';
+                        ctx.font = '12px sans-serif';
+                        ctx.textAlign = 'center';
+                        ctx.fillText(edge.weight.toString(), textX, textY);
+                    });
+                    
+                    // 绘制节点
+                    nodes.forEach(node => {
+                        // 决定节点的颜色
+                        let nodeColor = COLORS.NODE.DEFAULT;
+                        if (options.groups && options.groups[node.id]) {
+                            nodeColor = options.groups[node.id] === 1 ? COLORS.NODE.GROUP1 : COLORS.NODE.GROUP2;
+                        }
+                        if (options.highlightNode === node.id) {
+                            nodeColor = COLORS.NODE.HIGHLIGHT;
+                        }
+                        
+                        // 绘制节点
+                        ctx.beginPath();
+                        ctx.arc(node.x, node.y, 24, 0, Math.PI * 2);
+                        ctx.fillStyle = nodeColor;
+                        ctx.fill();
+                        
+                        // 绘制节点文本
+                        ctx.fillStyle = COLORS.NODE.TEXT;
+                        ctx.font = 'bold 16px sans-serif';
+                        ctx.textAlign = 'center';
+                        ctx.textBaseline = 'middle';
+                        ctx.fillText(node.label, node.x, node.y);
+                    });
+                    
+                    // 绘制标题和描述
+                    if (options.title) {
+                        ctx.fillStyle = '#1F2937';
+                        ctx.font = 'bold 14px sans-serif';
+                        ctx.textAlign = 'center';
+                        ctx.fillText(options.title, canvas.width / 2, 20);
+                    }
+                    
+                    if (options.description) {
+                        ctx.fillStyle = '#4B5563';
+                        ctx.font = '12px sans-serif';
+                        ctx.textAlign = 'center';
+                        ctx.fillText(options.description, canvas.width / 2, canvas.height - 10);
+                    }
+                });
+            }
+            
+            // Override standard drawing with optimized version where needed
+            if (typeof window.requestAnimationFrame === 'function') {
+                window.originalDrawGraph = drawGraph;
+                window.drawGraph = optimizedDrawGraph;
+            }
+        });
+    </script>
+</body>
+</html> 
